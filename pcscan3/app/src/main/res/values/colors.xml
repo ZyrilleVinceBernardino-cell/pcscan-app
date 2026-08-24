@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#121218</color>
+    <color name="background_secondary">#181822</color>
+    <color name="primary">#2563EB</color>
+    <color name="primary_light">#3B82F6</color>
+    <color name="secondary">#7C3AED</color>
+    <color name="secondary_light">#8B5CF6</color>
+    <color name="success">#10B981</color>
+    <color name="danger">#EF4444</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_body">#D1D5DB</color>
+    <color name="text_secondary">#9CA3AF</color>
+    <color name="card">#1E1E2A</color>
+    <color name="card_light">#242432</color>
+    <color name="chip_cpu">#2563EB</color>
+    <color name="chip_gpu">#8B5CF6</color>
+    <color name="chip_motherboard">#EC4899</color>
+    <color name="chip_ram">#06B6D4</color>
+    <color name="chip_storage">#10B981</color>
+    <color name="chip_psu">#F59E0B</color>
+    <color name="metric_warning">#F59E0B</color>
+    <color name="metric_info">#22C55E</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

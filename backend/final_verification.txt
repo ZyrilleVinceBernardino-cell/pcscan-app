@@ -1,0 +1,52 @@
+=== FINAL IMPORT & USAGE VERIFICATION ===
+
+[1] Third-party packages:
+  [OK] fastapi 0.115.0
+  [OK] uvicorn 0.30.6
+  [OK] pydantic 2.13.4
+  [OK] httpx 0.27.2
+  [OK] google-generativeai (import OK)
+  [OK] openai SDK (import OK)
+  [OK] Pillow 12.3.0
+  [FAIL] python-dotenv: module 'dotenv' has no attribute '__version__'
+
+[2] Project file / folder structure:
+  [OK] FILE requirements.txt
+  [OK] FILE .env
+  [OK] FILE .env.example
+  [OK] FILE main.py
+  [OK] DIR  app
+  [OK] FILE app/config.py
+  [OK] FILE app/models/schemas.py
+  [OK] FILE app/services/gemini_service.py
+  [OK] FILE app/services/openai_service.py
+  [OK] FILE app/services/mock_engine.py
+  [OK] FILE app/services/__init__.py
+  [OK] FILE app/models/__init__.py
+  [OK] FILE app/__init__.py
+
+[3] Pydantic model sanity (can instantiate + dump):
+  [OK] HealthResponse dump OK (144 bytes)
+  [OK] ScanAndAnalyzeResponse dump OK (116 bytes)
+  [OK] AnalyzeTextResponse dump OK (113 bytes)
+  [OK] AnalysisResponse dump OK (590 bytes)
+
+[4] Services instantiation:
+  [OK] GeminiService mock is_ready=True, model=gemini-1.5-flash
+  [OK] OpenAIService mock is_ready=True, model=gpt-4o-mini
+
+[5] main.py app + endpoints:
+  [OK] FastAPI app created
+  [OK] Gemini (real) ready = True (gemini-1.5-flash)
+  [OK] OpenAI (real) ready = True (gpt-4o-mini)
+  [OK] Endpoints loaded (4):
+    - GET /
+    - GET /api/health
+    - POST /api/analyze-text
+    - POST /api/scan-and-analyze
+
+[6] Endpoint wiring (FastAPI TestClient health + empty text validation):
+  [OK] /api/health status=ok gemini=True openai=True
+  [OK] empty analyze-text returns 422 (expected 422)
+
+===== OVERALL: ISSUES FOUND 🔴 =====

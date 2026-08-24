@@ -1,0 +1,9 @@
+[1] HEALTH  -> status=ok gemini=True openai=True
+[2] ANALYZE success=True source=real comp_score=99.0
+    PSU rec: 450W | bottleneck=None
+    selected_tier=entry | entry=PHP 22,500 - PHP 31,000
+    mid=PHP 56,000 - PHP 77,000 | high=PHP 132,000 - PHP 165,000
+[3] SCAN success=True source=real
+    OCR components=8 conf=0.904
+    analysis_compat_score=99.0
+    analysis tier=entry

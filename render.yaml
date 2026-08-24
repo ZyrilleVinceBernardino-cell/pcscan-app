@@ -1,0 +1,45 @@
+services:
+  # ============================================================
+  #  PCScan Backend - Render.com Blueprint (FREE Tier: Web Service)
+  # ============================================================
+  #  How to use:
+  #  1. Upload your project to GitHub/GitLab
+  #  2. Go to https://dashboard.render.com/blueprints
+  #  3. Click "New Blueprint Instance" -> pick your repo
+  #  4. Set Root Directory = backend
+  #
+  #  Note: The 750 hours/month FREE on Starter (enough for daily personal use)
+  # ============================================================
+
+  - type: web
+    name: pcscan-backend
+    runtime: python
+    plan: starter
+    region: singapore
+    rootDir: backend
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --log-level info
+    healthCheckPath: /api/health
+    autoDeploy: true
+    # Do NOT commit these to git repo — add via Render Dashboard: Environment Variables panel instead
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: PORT
+        value: 10000
+      - key: MOCK_MODE
+        value: false
+      - key: AUTO_FALLBACK
+        value: true
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"

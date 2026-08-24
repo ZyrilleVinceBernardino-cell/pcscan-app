@@ -1,0 +1,40 @@
+# =============================================================
+# PC SCAN APP - BACKEND DEPENDENCIES
+# FastAPI + Google Gemini 1.5 Flash + OpenAI GPT-4o Mini
+# Install: pip install -r requirements.txt
+# =============================================================
+
+# -----------------------------
+# WEB FRAMEWORK & ASGI SERVER
+# -----------------------------
+fastapi==0.115.0
+uvicorn==0.30.6
+python-multipart==0.0.32
+
+# -----------------------------
+# AI SDKs - GOOGLE GEMINI & OPENAI
+# -----------------------------
+google-generativeai==0.8.3
+openai==1.51.0
+
+# -----------------------------
+# DATA VALIDATION & SERIALIZATION
+# -----------------------------
+pydantic==2.13.4
+pydantic-settings==2.5.2
+
+# -----------------------------
+# HTTP & NETWORKING
+# NOTE: httpx 0.28+ may cause OpenAI connection issues on Python 3.14
+# -----------------------------
+httpx==0.27.2
+
+# -----------------------------
+# IMAGE PROCESSING (OCR Support)
+# -----------------------------
+pillow==12.3.0
+
+# -----------------------------
+# ENVIRONMENT & UTILITIES
+# -----------------------------
+python-dotenv==1.2.2

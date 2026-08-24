@@ -1,0 +1,61 @@
+# =============================================================
+# PC SCAN APP - BACKEND .gitignore
+# =============================================================
+
+# Virtual Environment
+venv/
+venv*/
+env/
+ENV/
+.venv/
+
+# Environment Variables (HUWAG IPUSH ang tunay na .env!)
+.env
+.env.local
+.env.*.local
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Temporary Uploaded Images
+temp_uploads/
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.webp
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter
+.ipynb_checkpoints/
