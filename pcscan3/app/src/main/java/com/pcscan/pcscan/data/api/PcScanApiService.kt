@@ -47,7 +47,7 @@ interface PcScanApiService {
         //   "http://pcscan.ddns.net:8000"
         // =============================================================
         // ILAGAY ANG FINAL URL SA LOOB NG "" BELOW:
-        private const val BASE_URL_PUBLIC: String = ""
+        private const val BASE_URL_PUBLIC: String = "https://pcscan-backend-b1ka.onrender.com"
         // Examples:
         // private const val BASE_URL_PUBLIC: String = "https://pcscan-backend-ab12.onrender.com"
         // private const val BASE_URL_PUBLIC: String = "http://mypcscan.ddns.net:8000"
