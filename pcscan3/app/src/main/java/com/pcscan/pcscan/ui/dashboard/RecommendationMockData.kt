@@ -92,18 +92,18 @@ data class BuildValidationResult(
 ) {
     val summaryLabel: String
         get() = when {
-            criticalIssues.isNotEmpty() -> "🔴 Incompatible"
-            warnings.isNotEmpty() -> "🟡 Compatible but not ideal"
-            else -> "🟢 Compatible"
+            criticalIssues.isNotEmpty() -> "[CRITICAL] Incompatible"
+            warnings.isNotEmpty() -> "[WARN] Compatible but not ideal"
+            else -> "[OK] Compatible"
         }
 }
 
 data class UpgradeLabel(val label: String) {
     val status: String
         get() = when (label) {
-            "HIGH" -> "🟢 Recommended"
-            "MEDIUM" -> "🟡 Optional"
-            else -> "🔴 Not recommended"
+            "HIGH" -> "[RECOMMENDED] Recommended"
+            "MEDIUM" -> "[OPTIONAL] Optional"
+            else -> "[AVOID] Not recommended"
         }
 }
 
@@ -866,8 +866,8 @@ object RecommendationMockData {
             delta == 2 -> Triple("POOR / CPU-limited risk in many scenarios", "Medium", "CPU")
             else -> Triple("POOR / Severe CPU bottleneck at 1080p/1440p", "High", "CPU")
         }
-        if (delta >= 2) issues.add("Low-end CPU paired with high-end GPU — expect CPU bottleneck at 1080p and 1440p.")
-        if (delta <= -2) issues.add("High-end CPU paired with weak GPU — GPU will be the bottleneck.")
+        if (delta >= 2) issues.add("Low-end CPU paired with high-end GPU - expect CPU bottleneck at 1080p and 1440p.")
+        if (delta <= -2) issues.add("High-end CPU paired with weak GPU - GPU will be the bottleneck.")
         return HardwareCompatibilityResult(
             isHardwareCompatible = true,
             performanceBalance = balance,
@@ -952,7 +952,7 @@ object RecommendationMockData {
         }
         if (balance.issues.isNotEmpty()) warnings.addAll(balance.issues)
         info.add("Estimated system PSU requirement: ~${requiredPsu}W; provided=${provided}W.")
-        info.add("CPU↔GPU balance: ${balance.performanceBalance}. Bottleneck: ${balance.bottleneckRisk}.")
+        info.add("CPU<->GPU balance: ${balance.performanceBalance}. Bottleneck: ${balance.bottleneckRisk}.")
         return BuildValidationResult(
             isDisplayable = criticals.isEmpty(),
             criticalIssues = criticals,
@@ -1043,10 +1043,10 @@ object RecommendationMockData {
     private fun normalizeRamCapacity(name: String): Int {
         val n = name.lowercase()
         val gbMatch = Regex("""(\d+)\s*gb""").find(n)
-        val totalMatch = Regex("""\((\d+)\s*[x×]\s*\d+\)""").find(n)
+        val totalMatch = Regex("""\((\d+)\s*[xx]\s*\d+\)""").find(n)
         val gb = gbMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val perStick = totalMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
-        val stickCount = Regex("""[x×]\s*(\d+)""").find(n)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val stickCount = Regex("""[xx]\s*(\d+)""").find(n)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         return when {
             gb > 0 -> gb
             perStick > 0 && stickCount > 0 -> perStick * stickCount
@@ -1090,12 +1090,12 @@ object RecommendationMockData {
             "ram" -> {
                 val niceName = if (existingName.isNotBlank()) existingName else "current RAM"
                 "Keep the Existing RAM" to
-                    "The $niceName has sufficient capacity and speed for this tier — no need to replace to maintain balance and compatibility."
+                    "The $niceName has sufficient capacity and speed for this tier - no need to replace to maintain balance and compatibility."
             }
             else -> {
                 val niceName = if (existingName.isNotBlank()) existingName else "current $catLabel"
                 "Keep the Existing $catLabel" to
-                    "The $niceName is sufficient for this tier — no need to replace to maintain balance and compatibility."
+                    "The $niceName is sufficient for this tier - no need to replace to maintain balance and compatibility."
             }
         }
         return UpgradeComponent(
@@ -1285,7 +1285,7 @@ object RecommendationMockData {
                 val toLabel = "${socketLabel(searchedSocket)} + $targetRamLabel"
                 return PlatformJumpInfo(
                     needsJump = true,
-                    message = "Platform jump detected: $fromLabel → $toLabel — new platform components needed.",
+                    message = "Platform jump detected: $fromLabel -> $toLabel - new platform components needed.",
                     targetPlatform = target,
                     requiresCpu = needsCpu,
                     requiresMotherboard = needsMobo,
@@ -1318,7 +1318,7 @@ object RecommendationMockData {
                     val needsRam = true
                     return PlatformJumpInfo(
                         needsJump = true,
-                        message = "RAM generation shift: $fromRam → $toRam within ${socketLabel(currentSocket)}. Motherboard + RAM both replaced.",
+                        message = "RAM generation shift: $fromRam -> $toRam within ${socketLabel(currentSocket)}. Motherboard + RAM both replaced.",
                         targetPlatform = searchedPlatform,
                         requiresCpu = needsCpu,
                         requiresMotherboard = needsMobo,
@@ -1348,7 +1348,7 @@ object RecommendationMockData {
             if (sameSocketAndRam) {
                 return PlatformJumpInfo(
                     needsJump = false,
-                    message = "GPU is stronger tier than current CPU — a CPU upgrade within the same $targetLabel platform is recommended to avoid bottleneck (no platform change needed).",
+                    message = "GPU is stronger tier than current CPU - a CPU upgrade within the same $targetLabel platform is recommended to avoid bottleneck (no platform change needed).",
                     targetPlatform = currentPlatform,
                     requiresCpu = true,
                     requiresMotherboard = false,
@@ -1358,9 +1358,9 @@ object RecommendationMockData {
             return PlatformJumpInfo(
                 needsJump = genuineSocketChange,
                 message = if (genuineSocketChange) {
-                    "GPU is significantly stronger than current CPU — platform jump to $targetLabel recommended to avoid bottleneck."
+                    "GPU is significantly stronger than current CPU - platform jump to $targetLabel recommended to avoid bottleneck."
                 } else {
-                    "GPU is stronger tier than current CPU — consider a CPU upgrade for a balanced build."
+                    "GPU is stronger tier than current CPU - consider a CPU upgrade for a balanced build."
                 },
                 targetPlatform = targetPlatform,
                 requiresCpu = true,
@@ -1431,7 +1431,7 @@ object RecommendationMockData {
                 "High-bandwidth DDR5 EXPO memory"
             )
             Platform.AM5_DDR5 to BuildTier.HIGH -> listOf(
-                "Ryzen 9 7900", "X670E Steel Legend", "64GB DDR5-6400 (2×32GB)",
+                "Ryzen 9 7900", "X670E Steel Legend", "64GB DDR5-6400 (2x32GB)",
                 "High-performance 12-core Zen 4 AM5 workstation CPU",
                 "Premium X670E AM5 platform with full connectivity",
                 "Large enthusiast-grade DDR5 memory kit with high bandwidth"
@@ -1733,12 +1733,12 @@ object RecommendationMockData {
         val needsAm4 = searchedNorm.contains("ryzen 5 5") || searchedNorm.contains("ryzen 7 5700") ||
             searchedNorm.contains("b450") || searchedNorm.contains("b550") || searchedNorm.contains("x570")
         return when {
-            hasAm4 && needsAm5 -> "Platform jump detected: AM4 → AM5 motherboard upgrade required."
-            hasAm4 && needsLga1700 -> "Platform jump detected: AM4 → LGA1700 motherboard + CPU swap required."
-            hasAm5 && needsAm4 -> "Platform jump detected: AM5 → AM4 motherboard downgrade required (unusual)."
-            hasAm5 && needsLga1700 -> "Platform jump detected: AM5 → LGA1700 motherboard + CPU swap required."
-            hasLga1700 && needsAm4 -> "Platform jump detected: LGA1700 → AM4 motherboard + CPU swap required."
-            hasLga1700 && needsAm5 -> "Platform jump detected: LGA1700 → AM5 motherboard + CPU swap required."
+            hasAm4 && needsAm5 -> "Platform jump detected: AM4 -> AM5 motherboard upgrade required."
+            hasAm4 && needsLga1700 -> "Platform jump detected: AM4 -> LGA1700 motherboard + CPU swap required."
+            hasAm5 && needsAm4 -> "Platform jump detected: AM5 -> AM4 motherboard downgrade required (unusual)."
+            hasAm5 && needsLga1700 -> "Platform jump detected: AM5 -> LGA1700 motherboard + CPU swap required."
+            hasLga1700 && needsAm4 -> "Platform jump detected: LGA1700 -> AM4 motherboard + CPU swap required."
+            hasLga1700 && needsAm5 -> "Platform jump detected: LGA1700 -> AM5 motherboard + CPU swap required."
             else -> ""
         }
     }
@@ -1941,7 +1941,7 @@ object RecommendationMockData {
                         1 -> UpgradeComponent("RAM", "16GB DDR4-3200", "Essential dual-channel DDR4 memory", 62, 0.62f)
                         2 -> UpgradeComponent("RAM", "32GB DDR4-3600", "High-bandwidth DDR4 gaming memory", 78, 0.78f)
                         3 -> UpgradeComponent("RAM", "64GB DDR4-3600", "Large high-bandwidth DDR4 memory kit", 85, 0.85f)
-                        else -> UpgradeComponent("RAM", "64GB DDR4-3600 (2×32GB)", "Maximum high-bandwidth DDR4 memory kit", 87, 0.87f)
+                        else -> UpgradeComponent("RAM", "64GB DDR4-3600 (2x32GB)", "Maximum high-bandwidth DDR4 memory kit", 87, 0.87f)
                     }
                     isAm5 || isLga1700Ddr5 || isLga1851Ddr5 -> when (targetRank) {
                         1 -> UpgradeComponent("RAM", "16GB DDR5-5600", "Fast DDR5 dual-channel memory", 64, 0.64f)
@@ -2124,7 +2124,7 @@ object RecommendationMockData {
             tier = "HIGHEND",
             components = baseComponents,
             stepOne = if (isHighestTier) {
-                "Keep the $displayComponent as the center of the system — this is the highest tier available"
+                "Keep the $displayComponent as the center of the system - this is the highest tier available"
             } else {
                 "Use the $displayComponent as the center of the high-end flagship system"
             },
@@ -2204,14 +2204,14 @@ object RecommendationMockData {
         if (!hasExistingBuild) {
             gpuForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("GPU", "NVIDIA RTX 4060 / AMD RX 7600",
-                    "Cross-brand entry GPUs: NVIDIA RTX 4060 (DLSS 3) or AMD RX 7600 (great VRAM) — both solid 1080p options.", 65, 0.65f)
+                    "Cross-brand entry GPUs: NVIDIA RTX 4060 (DLSS 3) or AMD RX 7600 (great VRAM) - both solid 1080p options.", 65, 0.65f)
                 BuildTier.MID -> UpgradeComponent("GPU", "NVIDIA RTX 4070 Super / AMD RX 7800 XT",
-                    "Cross-brand mid GPUs: NVIDIA RTX 4070 Super (DLSS + ray tracing) or AMD RX 7800 XT (16GB VRAM) — both great 1440p options.", 82, 0.82f)
+                    "Cross-brand mid GPUs: NVIDIA RTX 4070 Super (DLSS + ray tracing) or AMD RX 7800 XT (16GB VRAM) - both great 1440p options.", 82, 0.82f)
                 BuildTier.HIGH -> UpgradeComponent("GPU", "NVIDIA RTX 4080 Super / AMD RX 7900 XTX",
-                    "Cross-brand high-end: NVIDIA RTX 4080 Super or AMD RX 7900 XTX (24GB) — extreme 4K gaming performance.", 93, 0.93f)
+                    "Cross-brand high-end: NVIDIA RTX 4080 Super or AMD RX 7900 XTX (24GB) - extreme 4K gaming performance.", 93, 0.93f)
             }
             gpuFlagship = UpgradeComponent("GPU", "NVIDIA RTX 4090 / AMD RX 9090",
-                "Cross-brand flagship: NVIDIA RTX 4090 (24GB GDDR6X) or AMD RX 9090 — absolute peak 4K/8K GPU performance.", 97, 0.97f)
+                "Cross-brand flagship: NVIDIA RTX 4090 (24GB GDDR6X) or AMD RX 9090 - absolute peak 4K/8K GPU performance.", 97, 0.97f)
         } else {
             gpuForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("GPU", "RTX 3060", "Solid 1080p graphics card", 65, 0.65f)
@@ -2226,14 +2226,14 @@ object RecommendationMockData {
         if (!hasExistingBuild) {
             storageForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("Storage", "1TB PCIe 4.0 NVMe / 2TB PCIe 4.0 NVMe",
-                    "Storage upgrade options: 1TB PCIe 4.0 NVMe (fast primary) or 2TB PCIe 4.0 NVMe (larger library) — both faster than Gen 3.", 60, 0.60f)
+                    "Storage upgrade options: 1TB PCIe 4.0 NVMe (fast primary) or 2TB PCIe 4.0 NVMe (larger library) - both faster than Gen 3.", 60, 0.60f)
                 BuildTier.MID -> UpgradeComponent("Storage", "2TB PCIe 4.0 NVMe / 2TB PCIe 5.0 NVMe",
-                    "Storage upgrade: 2TB PCIe 4.0 NVMe or 2TB PCIe 5.0 NVMe — large capacity with Gen 4/5 speed for fast game loads.", 77, 0.77f)
+                    "Storage upgrade: 2TB PCIe 4.0 NVMe or 2TB PCIe 5.0 NVMe - large capacity with Gen 4/5 speed for fast game loads.", 77, 0.77f)
                 BuildTier.HIGH -> UpgradeComponent("Storage", "4TB PCIe 5.0 NVMe / 8TB PCIe 5.0 NVMe",
-                    "High-end storage: 4TB PCIe 5.0 NVMe or 8TB PCIe 5.0 NVMe — maximum capacity and fastest available generation.", 88, 0.88f)
+                    "High-end storage: 4TB PCIe 5.0 NVMe or 8TB PCIe 5.0 NVMe - maximum capacity and fastest available generation.", 88, 0.88f)
             }
             storageFlagship = UpgradeComponent("Storage", "8TB PCIe 5.0 NVMe (Highest Tier)",
-                "Flagship storage: 8TB PCIe 5.0 NVMe — maximum capacity and fastest PCIe 5.0 speed available.", 94, 0.94f)
+                "Flagship storage: 8TB PCIe 5.0 NVMe - maximum capacity and fastest PCIe 5.0 speed available.", 94, 0.94f)
         } else {
             storageForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("Storage", "1TB NVMe SSD", "Fast primary storage upgrade", 60, 0.60f)
@@ -2250,12 +2250,12 @@ object RecommendationMockData {
                 BuildTier.ENTRY -> UpgradeComponent("PSU", "550W 80+ Bronze / 650W 80+ Gold",
                     "PSU options: 550W 80+ Bronze (stable entry) or 650W 80+ Gold (higher efficiency + headroom).", 60, 0.60f)
                 BuildTier.MID -> UpgradeComponent("PSU", "750W 80+ Gold / 750W 80+ Gold ATX 3.0",
-                    "Mid PSU upgrade: 750W 80+ Gold or 750W 80+ Gold ATX 3.0 (PCIe 5-ready) — stable power for mid-to-high components.", 79, 0.79f)
+                    "Mid PSU upgrade: 750W 80+ Gold or 750W 80+ Gold ATX 3.0 (PCIe 5-ready) - stable power for mid-to-high components.", 79, 0.79f)
                 BuildTier.HIGH -> UpgradeComponent("PSU", "850W 80+ Platinum ATX 3.0 / 1000W 80+ Platinum ATX 3.1",
-                    "High-end PSU: 850W Platinum ATX 3.0 or 1000W Platinum ATX 3.1 — higher wattage and efficiency rating.", 92, 0.92f)
+                    "High-end PSU: 850W Platinum ATX 3.0 or 1000W Platinum ATX 3.1 - higher wattage and efficiency rating.", 92, 0.92f)
             }
             psuFlagship = UpgradeComponent("PSU", "1200W 80+ Platinum ATX 3.1 (Highest Tier)",
-                "Flagship PSU: 1200W 80+ Platinum/Titanium ATX 3.1 — maximum wattage headroom and highest 80+ rating available.", 98, 0.98f)
+                "Flagship PSU: 1200W 80+ Platinum/Titanium ATX 3.1 - maximum wattage headroom and highest 80+ rating available.", 98, 0.98f)
         } else {
             psuForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("PSU", "550W 80+ Bronze", "Stable entry-tier power delivery", 60, 0.60f)
@@ -2278,11 +2278,11 @@ object RecommendationMockData {
         if (!hasExistingBuild && "CPU" !in poolCatSet && "CPU" !in existingCats) {
             val cpuCompanion: UpgradeComponent = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("CPU", "AMD Ryzen 5 7600 / Intel Core i5-14400F",
-                    "Cross-brand CPU: AMD Ryzen 5 7600 (6-core Zen 4 AM5) or Intel Core i5-14400F (10-core LGA1700) — both excellent entry CPU options.", 65, 0.65f)
+                    "Cross-brand CPU: AMD Ryzen 5 7600 (6-core Zen 4 AM5) or Intel Core i5-14400F (10-core LGA1700) - both excellent entry CPU options.", 65, 0.65f)
                 BuildTier.MID -> UpgradeComponent("CPU", "AMD Ryzen 7 7700 / Intel Core i7-14700K",
-                    "Cross-brand CPU: AMD Ryzen 7 7700 (8-core Zen 4 AM5) or Intel Core i7-14700K (20-core LGA1700) — high-performance mid CPU options.", 83, 0.83f)
+                    "Cross-brand CPU: AMD Ryzen 7 7700 (8-core Zen 4 AM5) or Intel Core i7-14700K (20-core LGA1700) - high-performance mid CPU options.", 83, 0.83f)
                 BuildTier.HIGH -> UpgradeComponent("CPU", "AMD Ryzen 9 9950X / Intel Core i9-14900K",
-                    "Cross-brand flagship CPU: AMD Ryzen 9 9950X (16-core Zen 5 AM5) or Intel Core i9-14900K (24-core LGA1700) — most powerful current-gen CPUs.", 95, 0.95f)
+                    "Cross-brand flagship CPU: AMD Ryzen 9 9950X (16-core Zen 5 AM5) or Intel Core i9-14900K (24-core LGA1700) - most powerful current-gen CPUs.", 95, 0.95f)
             }
             pool.add(cpuCompanion)
             poolCatSet.add("CPU")
@@ -2291,11 +2291,11 @@ object RecommendationMockData {
         if (!hasExistingBuild && "MOTHERBOARD" !in poolCatSet && "MOTHERBOARD" !in existingCats) {
             val moboCompanion: UpgradeComponent = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("Motherboard", "B650M DS3H (AM5 DDR5) / B760M-A DDR4 (LGA1700)",
-                    "Dual-platform mobo options: B650M DS3H (AM5 DDR5 — Zen 4/Zen 5 ready) or B760M-A DDR4 (LGA1700 — 12th-14th Gen Intel ready). Both have DDR4 and DDR5 variants.", 64, 0.64f)
+                    "Dual-platform mobo options: B650M DS3H (AM5 DDR5 - Zen 4/Zen 5 ready) or B760M-A DDR4 (LGA1700 - 12th-14th Gen Intel ready). Both have DDR4 and DDR5 variants.", 64, 0.64f)
                 BuildTier.MID -> UpgradeComponent("Motherboard", "B650 AORUS Elite (AM5 DDR5) / B760 Tomahawk WiFi DDR5 (LGA1700)",
-                    "Mid mobo: B650 AORUS Elite (AM5 DDR5) or B760 Tomahawk WiFi DDR5 (LGA1700) — feature-rich ATX boards with full connectivity, both DDR5 capable.", 81, 0.81f)
+                    "Mid mobo: B650 AORUS Elite (AM5 DDR5) or B760 Tomahawk WiFi DDR5 (LGA1700) - feature-rich ATX boards with full connectivity, both DDR5 capable.", 81, 0.81f)
                 BuildTier.HIGH -> UpgradeComponent("Motherboard", "X670E Steel Legend (AM5 DDR5) / ROG MAXIMUS Z790 HERO (LGA1700 DDR5)",
-                    "High-end mobo: X670E Steel Legend (AM5 DDR5 PCIe 5.0) or ROG MAXIMUS Z790 HERO (LGA1700 DDR5 flagship) — both premium platforms with maximum features.", 93, 0.93f)
+                    "High-end mobo: X670E Steel Legend (AM5 DDR5 PCIe 5.0) or ROG MAXIMUS Z790 HERO (LGA1700 DDR5 flagship) - both premium platforms with maximum features.", 93, 0.93f)
             }
             pool.add(moboCompanion)
             poolCatSet.add("MOTHERBOARD")
@@ -2304,11 +2304,11 @@ object RecommendationMockData {
         if (!hasExistingBuild && "RAM" !in poolCatSet && "RAM" !in existingCats) {
             val ramCompanion: UpgradeComponent = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("RAM", "16GB DDR4-3200 / 16GB DDR5-5600",
-                    "Dual-gen RAM: 16GB DDR4-3200 (for DDR4 motherboards) or 16GB DDR5-5600 (for DDR5 motherboards) — essential dual-channel memory options.", 62, 0.62f)
+                    "Dual-gen RAM: 16GB DDR4-3200 (for DDR4 motherboards) or 16GB DDR5-5600 (for DDR5 motherboards) - essential dual-channel memory options.", 62, 0.62f)
                 BuildTier.MID -> UpgradeComponent("RAM", "32GB DDR4-3600 / 32GB DDR5-6000",
-                    "Mid RAM upgrade: 32GB DDR4-3600 (high-bandwidth DDR4) or 32GB DDR5-6000 (EXPO/XMP DDR5) — both larger and faster than entry RAM.", 80, 0.80f)
+                    "Mid RAM upgrade: 32GB DDR4-3600 (high-bandwidth DDR4) or 32GB DDR5-6000 (EXPO/XMP DDR5) - both larger and faster than entry RAM.", 80, 0.80f)
                 BuildTier.HIGH -> UpgradeComponent("RAM", "64GB DDR4-3600 / 64GB DDR5-6400",
-                    "High-end RAM: 64GB DDR4-3600 (max DDR4 capacity) or 64GB DDR5-6400 (enthusiast DDR5) — large capacity and high bandwidth for heavy workloads.", 91, 0.91f)
+                    "High-end RAM: 64GB DDR4-3600 (max DDR4 capacity) or 64GB DDR5-6400 (enthusiast DDR5) - large capacity and high bandwidth for heavy workloads.", 91, 0.91f)
             }
             pool.add(ramCompanion)
             poolCatSet.add("RAM")
@@ -2701,7 +2701,7 @@ object RecommendationMockData {
         val n = searchedComponent.lowercase()
 
         if (searchedRank >= 4) {
-            val highestDesc = "This is the highest tier — the $searchedComponent is one of the most powerful available currently. No need to replace for peak performance."
+            val highestDesc = "This is the highest tier - the $searchedComponent is one of the most powerful available currently. No need to replace for peak performance."
             return SearchUpgradeResult(searchedComponent, highestDesc, 98, true)
         }
 
@@ -2967,7 +2967,7 @@ object RecommendationMockData {
                     Triple(
                         "${w}W 80+ Gold",
                         "${w}W 80+ Gold ATX 3.0",
-                        "Mid-range PSU upgrade: Higher wattage ($currentWatts W → $w W) and efficiency."
+                        "Mid-range PSU upgrade: Higher wattage ($currentWatts W -> $w W) and efficiency."
                     )
                 }
                 3 -> {

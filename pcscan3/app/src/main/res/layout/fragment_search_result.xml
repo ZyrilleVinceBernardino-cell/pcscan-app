@@ -10,15 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp"
+        android:visibility="gone">
 
-        <!-- Header with Back Button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/btnBack"
@@ -33,73 +34,134 @@
 
             <TextView
                 android:id="@+id/tvTitle"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="12dp"
                 android:text="Search Result"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_white"/>
-
+                android:textColor="@color/text_white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Nested Scroll View for Content -->
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:id="@+id/llContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-
-        </androidx.core.widget.NestedScrollView>
-
-        <!-- Action Buttons -->
         <LinearLayout
+            android:id="@+id/resultCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
+            android:background="@drawable/bg_ocr_result_card"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnUpgradePath"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@drawable/bg_primary_button"
-                app:backgroundTint="@null"
-                android:text="View Upgrade Path"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:icon="@drawable/ic_search_result"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:cornerRadius="18dp"
-                app:strokeWidth="0dp"/>
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:contentDescription="Identified component"
+                android:src="@drawable/ic_search_result" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnBuildRecommendation"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@drawable/bg_card"
-                app:backgroundTint="@null"
-                android:text="Build Recommendation"
-                android:textColor="@color/text_white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:icon="@drawable/ic_search_result_alt"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:cornerRadius="18dp"
-                app:strokeWidth="0dp"
-                android:layout_marginTop="12dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Component Identified"
+                    android:textColor="#19D39A"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSelectedComponent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Component name"
+                    android:textColor="@color/text_white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvComponentMeta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Category • Brand"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="@color/card_light" />
+
+                <TextView
+                    android:id="@+id/tvConfidence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Confidence: 0%"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </LinearLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpgradePath"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_primary_button"
+            app:backgroundTint="@null"
+            android:text="View Upgrade Path"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:icon="@drawable/view_upgrade_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="18dp"
+            app:strokeWidth="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBuildRecommendation"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            app:backgroundTint="@null"
+            android:text="Build Recommendation"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:icon="@drawable/upload_build_reco_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="18dp"
+            app:strokeWidth="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBackToDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_ocr_result_outline_button"
+            app:backgroundTint="@null"
+            android:text="Back to Dashboard"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_light"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:icon="@drawable/dashboard_home_icon_click"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="18dp"
+            app:strokeWidth="0dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -111,7 +173,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="32dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ProgressBar
             android:id="@+id/pbLoadingSpinner"
@@ -125,7 +187,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="Searching Components..."
+            android:text="Checking component..."
             android:textColor="@color/text_white"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -135,7 +197,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Matching specs and building results..."
+            android:text="Verifying with AI if this is a valid desktop PC part"
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
 

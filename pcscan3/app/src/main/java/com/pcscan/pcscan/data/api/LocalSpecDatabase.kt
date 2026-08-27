@@ -448,7 +448,7 @@ object LocalSpecDatabase {
         put("lexar nm610", LocalSpecEntry(
             displayName = "Lexar NM610 NVMe SSD",
             manufacturer = "Lexar",
-            category = "STOR",
+            category = "STORAGE",
             score = 86,
             aiConfidence = 96,
             specs = listOf(
@@ -461,7 +461,7 @@ object LocalSpecDatabase {
         put("lexar nm620", LocalSpecEntry(
             displayName = "Lexar NM620 NVMe SSD",
             manufacturer = "Lexar",
-            category = "STOR",
+            category = "STORAGE",
             score = 87,
             aiConfidence = 96,
             specs = listOf(
@@ -474,7 +474,7 @@ object LocalSpecDatabase {
         put("lexar nm710", LocalSpecEntry(
             displayName = "Lexar NM710 NVMe SSD",
             manufacturer = "Lexar",
-            category = "STOR",
+            category = "STORAGE",
             score = 91,
             aiConfidence = 97,
             specs = listOf(
@@ -487,7 +487,7 @@ object LocalSpecDatabase {
         put("samsung 980 pro", LocalSpecEntry(
             displayName = "Samsung 980 PRO NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 95,
             aiConfidence = 98,
             specs = listOf(
@@ -500,7 +500,7 @@ object LocalSpecDatabase {
         put("samsung 990 pro", LocalSpecEntry(
             displayName = "Samsung 990 PRO NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 97,
             aiConfidence = 99,
             specs = listOf(
@@ -513,7 +513,7 @@ object LocalSpecDatabase {
         put("wd sn850x", LocalSpecEntry(
             displayName = "WD Black SN850X NVMe SSD",
             manufacturer = "WD",
-            category = "STOR",
+            category = "STORAGE",
             score = 95,
             aiConfidence = 98,
             specs = listOf(
@@ -526,7 +526,7 @@ object LocalSpecDatabase {
         put("crucial p5 plus", LocalSpecEntry(
             displayName = "Crucial P5 Plus NVMe SSD",
             manufacturer = "Crucial",
-            category = "STOR",
+            category = "STORAGE",
             score = 92,
             aiConfidence = 97,
             specs = listOf(
@@ -539,7 +539,7 @@ object LocalSpecDatabase {
         put("kingston nv3", LocalSpecEntry(
             displayName = "Kingston NV3 NVMe SSD",
             manufacturer = "Kingston",
-            category = "STOR",
+            category = "STORAGE",
             score = 90,
             aiConfidence = 96,
             specs = listOf(
@@ -619,78 +619,78 @@ object LocalSpecDatabase {
         put("msi b550 tomahawk", LocalSpecEntry(
             displayName = "MSI MAG B550 TOMAHAWK",
             manufacturer = "MSI",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 93,
             aiConfidence = 98,
             specs = listOf(
-                "AM4 • B550 Chipset",
+                "AM4 | B550 Chipset",
                 "ATX Form Factor",
-                "DDR4 • 4 Slots",
+                "DDR4 | 4 Slots",
                 "Max 128GB RAM"
             )
         ))
         put("asus rog strix b550-f", LocalSpecEntry(
             displayName = "ASUS ROG Strix B550-F Gaming",
             manufacturer = "ASUS",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 94,
             aiConfidence = 98,
             specs = listOf(
-                "AM4 • B550 Chipset",
+                "AM4 | B550 Chipset",
                 "ATX Form Factor",
-                "DDR4 • 4 Slots",
+                "DDR4 | 4 Slots",
                 "Max 128GB RAM"
             )
         ))
         put("asrock b450m pro4", LocalSpecEntry(
             displayName = "ASRock B450M Pro4",
             manufacturer = "ASRock",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 87,
             aiConfidence = 96,
             specs = listOf(
-                "AM4 • B450 Chipset",
+                "AM4 | B450 Chipset",
                 "Micro ATX",
-                "DDR4 • 4 Slots",
+                "DDR4 | 4 Slots",
                 "Max 64GB RAM"
             )
         ))
         put("msi b760 tomahawk wifi", LocalSpecEntry(
             displayName = "MSI MAG B760 TOMAHAWK WIFI",
             manufacturer = "MSI",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 93,
             aiConfidence = 98,
             specs = listOf(
-                "LGA1700 • B760 Chipset",
+                "LGA1700 | B760 Chipset",
                 "ATX Form Factor",
-                "DDR4 • 4 Slots",
+                "DDR4 | 4 Slots",
                 "Max 128GB RAM"
             )
         ))
         put("asus rog strix z790-a", LocalSpecEntry(
             displayName = "ASUS ROG Strix Z790-A Gaming",
             manufacturer = "ASUS",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 96,
             aiConfidence = 98,
             specs = listOf(
-                "LGA1700 • Z790 Chipset",
+                "LGA1700 | Z790 Chipset",
                 "ATX Form Factor",
-                "DDR5 • 4 Slots",
+                "DDR5 | 4 Slots",
                 "Max 192GB RAM"
             )
         ))
         put("gigabyte b650 aorus elite ax", LocalSpecEntry(
             displayName = "GIGABYTE B650 AORUS ELITE AX",
             manufacturer = "GIGABYTE",
-            category = "MOBO",
+            category = "MOTHERBOARD",
             score = 93,
             aiConfidence = 98,
             specs = listOf(
-                "AM5 • B650 Chipset",
+                "AM5 | B650 Chipset",
                 "ATX Form Factor",
-                "DDR5 • 4 Slots",
+                "DDR5 | 4 Slots",
                 "Max 128GB RAM"
             )
         ))
@@ -1345,7 +1345,7 @@ object LocalSpecDatabase {
         put("samsung 990 evo plus", LocalSpecEntry(
             displayName = "Samsung 990 EVO Plus NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 90,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7250 MB/s Read", "Samsung 990 EVO Plus")
@@ -1353,7 +1353,7 @@ object LocalSpecDatabase {
         put("990 evo plus", LocalSpecEntry(
             displayName = "Samsung 990 EVO Plus NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 90,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7250 MB/s Read", "Samsung 990 EVO Plus")
@@ -1361,7 +1361,7 @@ object LocalSpecDatabase {
         put("samsung 990 pro", LocalSpecEntry(
             displayName = "Samsung 990 PRO NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 93,
             aiConfidence = 98,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7450 MB/s Read", "Samsung 990 PRO")
@@ -1369,7 +1369,7 @@ object LocalSpecDatabase {
         put("990 pro", LocalSpecEntry(
             displayName = "Samsung 990 PRO NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 93,
             aiConfidence = 98,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7450 MB/s Read", "Samsung 990 PRO")
@@ -1377,7 +1377,7 @@ object LocalSpecDatabase {
         put("crucial t705", LocalSpecEntry(
             displayName = "Crucial T705 PCIe 5.0 NVMe SSD",
             manufacturer = "Crucial",
-            category = "STOR",
+            category = "STORAGE",
             score = 96,
             aiConfidence = 94,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "13600 MB/s Read", "Crucial T705 Gen5")
@@ -1385,7 +1385,7 @@ object LocalSpecDatabase {
         put("t705", LocalSpecEntry(
             displayName = "Crucial T705 PCIe 5.0 NVMe SSD",
             manufacturer = "Crucial",
-            category = "STOR",
+            category = "STORAGE",
             score = 96,
             aiConfidence = 94,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "13600 MB/s Read", "Crucial T705 Gen5")
@@ -1393,7 +1393,7 @@ object LocalSpecDatabase {
         put("crucial t700", LocalSpecEntry(
             displayName = "Crucial T700 PCIe 5.0 NVMe SSD",
             manufacturer = "Crucial",
-            category = "STOR",
+            category = "STORAGE",
             score = 94,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "12400 MB/s Read", "Crucial T700 Gen5")
@@ -1401,7 +1401,7 @@ object LocalSpecDatabase {
         put("t700", LocalSpecEntry(
             displayName = "Crucial T700 PCIe 5.0 NVMe SSD",
             manufacturer = "Crucial",
-            category = "STOR",
+            category = "STORAGE",
             score = 94,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "12400 MB/s Read", "Crucial T700 Gen5")
@@ -1409,7 +1409,7 @@ object LocalSpecDatabase {
         put("wd black sn850x", LocalSpecEntry(
             displayName = "WD_BLACK SN850X NVMe SSD",
             manufacturer = "Western Digital",
-            category = "STOR",
+            category = "STORAGE",
             score = 92,
             aiConfidence = 98,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7300 MB/s Read", "WD BLACK SN850X")
@@ -1417,7 +1417,7 @@ object LocalSpecDatabase {
         put("sn850x", LocalSpecEntry(
             displayName = "WD_BLACK SN850X NVMe SSD",
             manufacturer = "Western Digital",
-            category = "STOR",
+            category = "STORAGE",
             score = 92,
             aiConfidence = 98,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7300 MB/s Read", "WD BLACK SN850X")
@@ -1425,7 +1425,7 @@ object LocalSpecDatabase {
         put("lexar nm790", LocalSpecEntry(
             displayName = "Lexar NM790 NVMe SSD",
             manufacturer = "Lexar",
-            category = "STOR",
+            category = "STORAGE",
             score = 89,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7400 MB/s Read", "Lexar NM790")
@@ -1433,7 +1433,7 @@ object LocalSpecDatabase {
         put("nm790", LocalSpecEntry(
             displayName = "Lexar NM790 NVMe SSD",
             manufacturer = "Lexar",
-            category = "STOR",
+            category = "STORAGE",
             score = 89,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7400 MB/s Read", "Lexar NM790")
@@ -1441,7 +1441,7 @@ object LocalSpecDatabase {
         put("corsair mp700", LocalSpecEntry(
             displayName = "Corsair MP700 PCIe 5.0 NVMe SSD",
             manufacturer = "Corsair",
-            category = "STOR",
+            category = "STORAGE",
             score = 95,
             aiConfidence = 96,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "10000 MB/s Read", "Corsair MP700 Gen5")
@@ -1449,7 +1449,7 @@ object LocalSpecDatabase {
         put("mp700", LocalSpecEntry(
             displayName = "Corsair MP700 PCIe 5.0 NVMe SSD",
             manufacturer = "Corsair",
-            category = "STOR",
+            category = "STORAGE",
             score = 95,
             aiConfidence = 96,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "10000 MB/s Read", "Corsair MP700 Gen5")
@@ -1457,7 +1457,7 @@ object LocalSpecDatabase {
         put("corsair mp600 pro xt", LocalSpecEntry(
             displayName = "Corsair MP600 PRO XT NVMe SSD",
             manufacturer = "Corsair",
-            category = "STOR",
+            category = "STORAGE",
             score = 91,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7100 MB/s Read", "Corsair MP600 PRO XT")
@@ -1465,7 +1465,7 @@ object LocalSpecDatabase {
         put("kingston kc3000", LocalSpecEntry(
             displayName = "Kingston KC3000 NVMe SSD",
             manufacturer = "Kingston",
-            category = "STOR",
+            category = "STORAGE",
             score = 91,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7000 MB/s Read", "Kingston KC3000")
@@ -1473,7 +1473,7 @@ object LocalSpecDatabase {
         put("kc3000", LocalSpecEntry(
             displayName = "Kingston KC3000 NVMe SSD",
             manufacturer = "Kingston",
-            category = "STOR",
+            category = "STORAGE",
             score = 91,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7000 MB/s Read", "Kingston KC3000")
@@ -1481,7 +1481,7 @@ object LocalSpecDatabase {
         put("sabrent rocket 4 plus", LocalSpecEntry(
             displayName = "Sabrent Rocket 4 PLUS NVMe SSD",
             manufacturer = "Sabrent",
-            category = "STOR",
+            category = "STORAGE",
             score = 91,
             aiConfidence = 97,
             specs = listOf("1TB / 2TB PCIe 4.0 x4", "NVMe M.2 2280", "7100 MB/s Read", "Sabrent Rocket 4 PLUS")
@@ -1489,7 +1489,7 @@ object LocalSpecDatabase {
         put("sabrent rocket 5", LocalSpecEntry(
             displayName = "Sabrent Rocket 5 PCIe 5.0 NVMe SSD",
             manufacturer = "Sabrent",
-            category = "STOR",
+            category = "STORAGE",
             score = 95,
             aiConfidence = 94,
             specs = listOf("1TB / 2TB PCIe 5.0 x4", "NVMe M.2 2280", "14000 MB/s Read", "Sabrent Rocket 5 Gen5")
@@ -1497,7 +1497,7 @@ object LocalSpecDatabase {
         put("samsung 980 pro", LocalSpecEntry(
             displayName = "Samsung 980 PRO NVMe SSD",
             manufacturer = "Samsung",
-            category = "STOR",
+            category = "STORAGE",
             score = 88,
             aiConfidence = 99,
             specs = listOf("1TB PCIe 4.0 x4", "NVMe M.2 2280", "7000 MB/s Read", "Samsung 980 PRO")

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -114,15 +115,23 @@ class DashboardFragment : Fragment() {
     private fun performSearch() {
         val searchQuery = binding.etSearch.text.toString().trim()
         if (searchQuery.isNotEmpty()) {
-            // Use viewModel to perform search and add recent activity
+            val navController = findNavController()
+            val currentDestId = navController.currentDestination?.id
+            if (currentDestId != R.id.dashboardFragment) {
+                return
+            }
+
             recommendationViewModel.submitSearch(searchQuery)
             
-            // Navigate directly to search result
             val bundle = Bundle()
             bundle.putString("searchQuery", searchQuery)
-            findNavController().navigate(R.id.action_dashboardFragment_to_searchResultFragment, bundle)
+            try {
+                navController.navigate(R.id.searchResultFragment, bundle)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(requireContext(), "Navigation error, please try again", Toast.LENGTH_SHORT).show()
+            }
             
-            // Hide keyboard
             val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
             imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
         }
@@ -265,7 +274,7 @@ class DashboardFragment : Fragment() {
                 ).apply {
                     topMargin = (4 * density).toInt()
                 }
-                text = "${activity.category} • ${formatTime(activity.timestamp)}"
+                text = "${activity.category} | ${formatTime(activity.timestamp)}"
                 textSize = 14f
                 setTextColor(Color.parseColor("#7081A5"))
             }

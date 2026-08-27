@@ -19,15 +19,15 @@ object ComponentDetailMapper {
             "CENTRAL PROCESSING UNIT", "PROCESSOR" -> "CPU"
             "GRAPHICS CARD", "GRAPHICS PROCESSING UNIT", "VIDEO CARD", "VGA" -> "GPU"
             "MEMORY", "RANDOM ACCESS MEMORY" -> "RAM"
-            "MAINBOARD", "MOTHERBOARD" -> "MOBO"
-            "STORAGE DEVICE", "SSD", "HDD", "NVME", "STORAGE" -> "STOR"
-            "POWER SUPPLY", "POWER SUPPLY UNIT" -> "PSU"
-            "AIR COOLER", "WATER COOLER", "CPU COOLER" -> "COOL"
+            "MAINBOARD", "MOTHERBOARD", "MOBO", "MB" -> "MOTHERBOARD"
+            "STORAGE DEVICE", "SSD", "HDD", "NVME", "STORAGE", "STOR" -> "STORAGE"
+            "POWER SUPPLY", "POWER SUPPLY UNIT", "POWER" -> "PSU"
+            "AIR COOLER", "WATER COOLER", "CPU COOLER", "COOL", "COOLER" -> "COOLER"
             "COMPUTER CASE", "PC CASE", "CHASSIS" -> "CASE"
             else -> when {
-                r.startsWith("MOTH") || r.startsWith("MAIN") -> "MOBO"
-                r.startsWith("STOR") || r == "SSD" || r == "HDD" -> "STOR"
-                r.startsWith("COOL") -> "COOL"
+                r.startsWith("MOTH") || r.startsWith("MAIN") -> "MOTHERBOARD"
+                r.startsWith("STOR") || r == "SSD" || r == "HDD" || r == "NVME" -> "STORAGE"
+                r.startsWith("COOL") -> "COOLER"
                 r.length <= 4 -> r
                 else -> r.take(4)
             }
@@ -202,7 +202,7 @@ object ComponentDetailMapper {
         if (mobo != null) {
             val chip = when {
                 mobo.socket != null && mobo.chipset != null ->
-                    "${mobo.socket} • ${mobo.chipset}"
+                    "${mobo.socket} | ${mobo.chipset}"
                 mobo.socket != null -> "Socket ${mobo.socket}"
                 mobo.chipset != null -> mobo.chipset
                 else -> null
@@ -212,7 +212,7 @@ object ComponentDetailMapper {
             mobo.formFactor?.takeIf { it.isNotBlank() }?.let { if (result.size < 4) result += it }
             val mem = when {
                 mobo.ramType != null && mobo.memorySlots != null ->
-                    "${mobo.ramType} • ${mobo.memorySlots} Slots"
+                    "${mobo.ramType} | ${mobo.memorySlots} Slots"
                 mobo.ramType != null -> mobo.ramType
                 mobo.memorySlots != null -> "${mobo.memorySlots} Slots"
                 else -> null

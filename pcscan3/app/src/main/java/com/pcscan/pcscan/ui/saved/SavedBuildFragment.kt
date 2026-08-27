@@ -130,7 +130,7 @@ class SavedBuildFragment : Fragment() {
             addView(createSpacer(8))
 
             // Subtext: CPU, GPU, RAM
-            val subtext = "${item.build.cpu} • ${item.build.gpu} • ${item.build.ram}"
+            val subtext = "${item.build.cpu} | ${item.build.gpu} | ${item.build.ram}"
             addView(
                 createTextView(subtext, 14f, R.color.text_secondary, false)
             )

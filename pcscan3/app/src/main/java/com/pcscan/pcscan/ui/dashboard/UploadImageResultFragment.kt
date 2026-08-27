@@ -128,7 +128,7 @@ class UploadImageResultFragment : Fragment() {
 
         val category = RecommendationMockData.resolveCategory(selectedComponent).replaceFirstChar { it.uppercase() }
         val brand = inferBrand(selectedComponent, detectedText)
-        return "$category • $brand"
+        return "$category | $brand"
     }
 
     private fun inferBrand(selectedComponent: String, detectedText: String): String {

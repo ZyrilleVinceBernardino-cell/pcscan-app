@@ -33,20 +33,20 @@ interface PcScanApiService {
         private const val TAG = "PcScanApi"
 
         // =============================================================
-        // 🌐 PUBLIC / PRODUCTION URL (Always-online backend, NO ngrok)
+        // PUBLIC / PRODUCTION URL (Always-online backend, NO ngrok)
         // =============================================================
-        // PARA HINDI NA KAILANGAN NG NGROK PALAGI at LAGING ONLINE ang backend:
-        // OPTION 1 (RECOMMENDED — FREE, LAGING ONLINE):
-        //   Deploy backend sa RENDER.COM (free tier). Copy-paste the
-        //   rendered public URL dito. Ex:
+        // SO NGROK IS NOT REQUIRED, and backend is always online:
+        // OPTION 1 (RECOMMENDED - FREE, ALWAYS ONLINE):
+        //   Deploy backend to RENDER.COM (free tier). Copy-paste the
+        //   rendered public URL here. Ex:
         //   "https://pcscan-backend-xxxx.onrender.com"
-        //   (Render = always on HTTPS, no PC needed, walang ngrok issues)
+        //   (Render = always-on HTTPS, no PC needed, no ngrok issues)
         // OPTION 2 (Local PC always-on):
         //   Use NSSM Windows Service + DDNS (no-ip) + router port
-        //   forwarding 8000. Ilagay ang domain dito:
+        //   forwarding 8000. Put the domain here:
         //   "http://pcscan.ddns.net:8000"
         // =============================================================
-        // ILAGAY ANG FINAL URL SA LOOB NG "" BELOW:
+        // PUT THE FINAL URL INSIDE "" BELOW:
         private const val BASE_URL_PUBLIC: String = "https://pcscan-backend-b1ka.onrender.com"
         // Examples:
         // private const val BASE_URL_PUBLIC: String = "https://pcscan-backend-ab12.onrender.com"
@@ -98,28 +98,28 @@ interface PcScanApiService {
                     when {
                         response.isSuccessful -> {
                             lastWorkingIndex = idx
-                            Log.i(TAG, "✅ URL=$url working (HTTP ${response.code()}), saved as primary")
+                            Log.i(TAG, "URL=$url working (HTTP ${response.code()}), saved as primary")
                             return response
                         }
                         response.code() in 400..499 -> {
-                            Log.w(TAG, "⚠️  URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
+                            Log.w(TAG, "WARN: URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
                             lastWorkingIndex = idx
                             return response
                         }
                         else -> {
-                            Log.w(TAG, "🔄 URL=$url returned server error HTTP ${response.code()}, trying next fallback")
+                            Log.w(TAG, "RETRY: URL=$url returned server error HTTP ${response.code()}, trying next fallback")
                             lastHttpErrorResponse = response
                             lastException = IOException("Server error HTTP ${response.code()} on $url")
                         }
                     }
                 } catch (e: SocketTimeoutException) {
-                    Log.w(TAG, "⏱️  Timeout on $url")
+                    Log.w(TAG, "TIMEOUT: Timeout on $url")
                     lastException = e
                 } catch (e: ConnectException) {
-                    Log.w(TAG, "🔌 Connect fail on $url")
+                    Log.w(TAG, "CONNECT FAIL: Connect fail on $url")
                     lastException = e
                 } catch (e: IOException) {
-                    Log.w(TAG, "📡 IO fail on $url: ${e.message}")
+                    Log.w(TAG, "IO ERROR: IO fail on $url: ${e.message}")
                     lastException = e
                 }
             }
@@ -140,28 +140,28 @@ interface PcScanApiService {
                     when {
                         response.isSuccessful -> {
                             lastWorkingIndex = idx
-                            Log.i(TAG, "✅ Search URL=$url working (HTTP ${response.code()}), saved as primary")
+                            Log.i(TAG, "Search URL=$url working (HTTP ${response.code()}), saved as primary")
                             return response
                         }
                         response.code() in 400..499 -> {
-                            Log.w(TAG, "⚠️  Search URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
+                            Log.w(TAG, "WARN: Search URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
                             lastWorkingIndex = idx
                             return response
                         }
                         else -> {
-                            Log.w(TAG, "🔄 Search URL=$url returned server error HTTP ${response.code()}, trying next fallback")
+                            Log.w(TAG, "RETRY: Search URL=$url returned server error HTTP ${response.code()}, trying next fallback")
                             lastHttpErrorResponse = response
                             lastException = IOException("Search server error HTTP ${response.code()} on $url")
                         }
                     }
                 } catch (e: SocketTimeoutException) {
-                    Log.w(TAG, "⏱️  Search timeout on $url")
+                    Log.w(TAG, "TIMEOUT: Search timeout on $url")
                     lastException = e
                 } catch (e: ConnectException) {
-                    Log.w(TAG, "🔌 Search connect fail on $url")
+                    Log.w(TAG, "CONNECT FAIL: Search connect fail on $url")
                     lastException = e
                 } catch (e: IOException) {
-                    Log.w(TAG, "📡 Search IO fail on $url: ${e.message}")
+                    Log.w(TAG, "IO ERROR: Search IO fail on $url: ${e.message}")
                     lastException = e
                 }
             }
@@ -182,28 +182,28 @@ interface PcScanApiService {
                     when {
                         response.isSuccessful -> {
                             lastWorkingIndex = idx
-                            Log.i(TAG, "✅ Build-reco URL=$url working (HTTP ${response.code()}), saved as primary")
+                            Log.i(TAG, "Build-reco URL=$url working (HTTP ${response.code()}), saved as primary")
                             return response
                         }
                         response.code() in 400..499 -> {
-                            Log.w(TAG, "⚠️  Build-reco URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
+                            Log.w(TAG, "WARN: Build-reco URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
                             lastWorkingIndex = idx
                             return response
                         }
                         else -> {
-                            Log.w(TAG, "🔄 Build-reco URL=$url returned server error HTTP ${response.code()}, trying next fallback")
+                            Log.w(TAG, "RETRY: Build-reco URL=$url returned server error HTTP ${response.code()}, trying next fallback")
                             lastHttpErrorResponse = response
                             lastException = IOException("Build-reco server error HTTP ${response.code()} on $url")
                         }
                     }
                 } catch (e: SocketTimeoutException) {
-                    Log.w(TAG, "⏱️  Build-reco timeout on $url")
+                    Log.w(TAG, "TIMEOUT: Build-reco timeout on $url")
                     lastException = e
                 } catch (e: ConnectException) {
-                    Log.w(TAG, "🔌 Build-reco connect fail on $url")
+                    Log.w(TAG, "CONNECT FAIL: Build-reco connect fail on $url")
                     lastException = e
                 } catch (e: IOException) {
-                    Log.w(TAG, "📡 Build-reco IO fail on $url: ${e.message}")
+                    Log.w(TAG, "IO ERROR: Build-reco IO fail on $url: ${e.message}")
                     lastException = e
                 }
             }

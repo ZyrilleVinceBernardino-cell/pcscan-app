@@ -196,12 +196,12 @@ class RecommendationViewModel(
                         )
                         persistState()
 
-                        // Stage 2: CACHE BUILD (longest step on Android side — mock data + RAM DB lookups)
+                        // Stage 2: CACHE BUILD (longest step on Android side - mock data + RAM DB lookups)
                         _searchProgress.postValue(68)
                         val category = RecommendationMockData.resolveCategory(component)
                         ensureAllBuildsCached(component, category)
 
-                        // Stage 3: PARALLEL STATE PUBLISH (all 4 screens updated concurrently — no 4x sequential wait!)
+                        // Stage 3: PARALLEL STATE PUBLISH (all 4 screens updated concurrently - no 4x sequential wait!)
                         _searchProgress.postValue(92)
                         val singleList = listOf(component)
                         coroutineScope {
@@ -213,7 +213,7 @@ class RecommendationViewModel(
                             )
                             tasks.awaitAll()
                         }
-                        // NO MORE delay(50L) fake pause — set progress 100 immediately after work finishes
+                        // NO MORE delay(50L) fake pause - set progress 100 immediately after work finishes
                         _searchProgress.postValue(100)
                         _searchResultsReady.postValue(true)
                     }
@@ -283,7 +283,7 @@ class RecommendationViewModel(
                             _searchProgress.postValue(90)
                             refreshAllStatesSuspend() // Already parallel internally (4x async/awaitAll)
 
-                            // NO MORE delay(50L) fake pause — 100% immediately after all parallel publish completes
+                            // NO MORE delay(50L) fake pause - 100% immediately after all parallel publish completes
                             _searchProgress.postValue(100)
                             _searchResultsReady.postValue(true)
                         }
@@ -889,8 +889,8 @@ class RecommendationViewModel(
     }
 
     private suspend fun refreshAllStatesSuspend() {
-        // ✨ SPEED PARALLEL: All 4 publish calls are independent (different LiveData targets) → run concurrently with async/awaitAll.
-        // Saves: publish latency sum(A+B+C+D) → max(A,B,C,D) typically 30-60% faster.
+        // (SPEED FEATURE) SPEED PARALLEL: All 4 publish calls are independent (different LiveData targets) -> run concurrently with async/awaitAll.
+        // Saves: publish latency sum(A+B+C+D) -> max(A,B,C,D) typically 30-60% faster.
         coroutineScope {
             val tasks: List<Deferred<Unit>> = listOf(
                 async { publishSearchResultsState() },
@@ -1165,7 +1165,7 @@ class RecommendationViewModel(
             Regex("""\(PHP\s*\d[\d,]*\+?[^)]*\)""", RegexOption.IGNORE_CASE),
             Regex("""PHP\s*\d[\d,]*\+?\w*""", RegexOption.IGNORE_CASE),
             Regex("""\$\s*\d[\d,]*\+?\w*"""),
-            Regex("""₱\s*\d[\d,]*\+?\w*"""),
+            Regex("""P\s*\d[\d,]*\+?\w*"""),
             Regex("""\(.*price.*\)""", RegexOption.IGNORE_CASE),
             Regex("""\(.*budget.*\)""", RegexOption.IGNORE_CASE),
             Regex("""\(.*cost.*\)""", RegexOption.IGNORE_CASE)

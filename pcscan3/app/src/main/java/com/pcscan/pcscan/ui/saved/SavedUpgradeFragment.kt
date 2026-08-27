@@ -130,7 +130,7 @@ class SavedUpgradeFragment : Fragment() {
             addView(createSpacer(8))
 
             // Subtext: tier and number of steps
-            val subtext = "${if (item.hasExistingBuild) "High-End" else "Midrange"} • 3 components"
+            val subtext = "${if (item.hasExistingBuild) "High-End" else "Midrange"} | 3 components"
             addView(
                 createTextView(subtext, 14f, R.color.text_secondary, false)
             )

@@ -10,21 +10,80 @@ object SmartQuerySpecGuesser {
     private fun hasHardwareIndicatingTokens(qNormalized: String): Boolean {
         val q = qNormalized.trim()
         if (q.isBlank()) return false
-        // (a) Hardware brand-series markers
+        // (a) Hardware brand-series markers - EXPANDED 250+ tokens (ALL mainstream desktop PC DIY brands/chipsets/series/form factors)
         val hwWords = listOf(
-            "ryzen", "amd", "intel", "core", "pentium", "celeron",
-            "nvidia", "geforce", "rtx", "gtx", "radeon", "rx", "arc",
-            "b650", "b760", "b660", "z790", "z690", "x670", "b550", "x570",
-            "ddr4", "ddr5", "ddr3", "udimm", "dimm", "so-dimm",
-            "nvme", "pcie", "pci-e", "sata",
-            "psu", "80+", "bronze", "gold", "platinum", "titanium",
+            // ===== CPU brands =====
+            "ryzen", "amd", "intel", "core", "pentium", "celeron", "athlon", "threadripper",
+            // ===== GPU brands / key series =====
+            "nvidia", "geforce", "rtx", "gtx", "radeon", "rx", "arc", "sapphire",
+            // ===== Motherboard BRANDS =====
+            "msi", "mag", "mpg", "meg", "asus", "rog", "tuf", "prime", "asrock", "steel legend",
+            "pro4", "pro rs", "gigabyte", "aorus", "elite ax", "gaming x", "ultra durable",
+            "biostar", "evga", "nzxt",
+            // ===== Motherboard CHIPSETS (AMD AM4/AM5 + Intel LGA1200/LGA1700/LGA1851) =====
+            "b450", "b550", "x570", "a520", "a620", "b650", "x670", "b760", "b660", "h610",
+            "h510", "z590", "z690", "z790", "h770", "z890", "b860", "h810",
+            // ===== Sockets =====
+            "am4", "am5", "lga1200", "lga1700", "lga1851",
+            // ===== Storage BRANDS + key series words =====
+            "samsung", "990 pro", "980 pro", "990 evo", "wd", "western digital", "sn850x", "sn770",
+            "crucial", "p5 plus", "t700", "t705", "mx500", "bx500",
+            "kingston", "fury", "nv3", "kc3000", "lexar", "nm610", "nm620", "nm710", "nm790",
+            "ares", "teamgroup", "team group", "mp34", "delta", "solidigm", "p41", "p44",
+            "adata", "legend", "seagate", "firecuda", "barracuda", "toshiba", "ocz", "sabrent",
+            "rocket", "m.2", "m2 nvme",
+            // ===== RAM BRANDS + key series words =====
+            "g.skill", "gskill", "trident", "ripjaws", "sniper", "corsair", "vengeance",
+            "dominator", "lpx", "kingston fury", "beast", "impact", "renegade",
+            "teamgroup", "team group", "t-force", "delta", "vulcan", "adata", "xpg", "lancer",
+            "spectrix", "patriot", "viper", "steel", "elite", "xmp", "expo",
+            // ===== PSU BRANDS + key series/watts words =====
+            "seasonic", "focus", "prime", "flagship", "corsair", "rm", "rme", "rmx", "sf", "sf-l",
+            "hxi", "axi", "cv", "cx", "evga", "supernova", "ga", "gq", "gm", "be quiet",
+            "straight power", "dark power", "pure power", "cooler master", "mwe", "v gold",
+            "thermaltake", "toughpower", "lian li", "sp", "nzxt", "c series",
+            "seasonic", "xfx", "asrock", "deepcool",
+            // ===== PSU efficiency / form-factor markers =====
+            "80+", "bronze", "silver", "gold", "platinum", "titanium",
+            "modular", "semi-modular", "non-modular", "full modular",
+            "wattage", "w psu", "550w", "650w", "750w", "850w", "1000w", "1200w",
+            // ===== Cooler BRANDS + key series words =====
+            "noctua", "nh-d15", "nh-d14", "nh-u12a", "nh-l9i",
+            "deepcool", "ak400", "ak500", "ak620", "ag400", "ls520", "lt520", "ls720", "lt720",
+            "nzxt", "kraken", "x53", "x63", "x73", "z53", "z63", "z73", "elite",
+            "corsair", "h60", "h100", "h115", "h150", "icue link",
+            "lian li", "galahad", "ga ii", "trinity",
+            "thermalright", "peerless assassin", "phantom spirit", "assassin x",
+            "be quiet!", "dark rock", "shadow rock", "pure rock",
+            "arctic", "freezer", "cooler master", "hyper 212", "masterair", "ma410",
+            "evga", "clc", "aquacomputer", "ekwb",
+            // Cooler size words (AIO rad sizes)
+            "240mm", "280mm", "360mm", "420mm", "aio cooler", "air cooler", "liquid cooler", "cpu cooler",
+            // ===== Case BRANDS + key lines / form factor words =====
+            "lian li", "lancool", "o11 dynamic", "o11d", "o11 air", "lianli",
+            "nzxt", "h5 flow", "h510", "h7 flow", "h710", "h9 flow", "s340",
+            "cooler master", "haf", "nr200", "masterbox", "td500", "c700m",
+            "corsair", "4000d", "4000x", "5000d", "5000x", "7000d", "220t", "275r", "280x",
+            "fractal design", "north", "pop air", "meshify", "define", "torrent", "r5", "r6",
+            "phanteks", "enthoo", "evolv", "p200a", "p300a", "p400a", "p500a",
+            "tecware", "forge", "nexus", "vyse",
+            "hyte", "y40", "y60", "y70",
+            "montech", "air 903", "air 1000", "sky", "king",
+            "rakk", "kasa", "kisig", "damru", "hanan", "lokal",
+            // Case form factor words
+            "atx", "micro atx", "matx", "mini itx", "itx", "e-atx", "eatx", "sff",
+            "mid tower", "mid-tower", "full tower", "full-tower", "super tower",
+            "mesh front", "tempered glass", "argb",
+            // ===== Standard RAM/Perf markers =====
+            "ddr4", "ddr5", "ddr3", "udimm", "dimm",
+            "nvme", "pcie", "pci-e", "gen4", "gen5", "sata", "psu",
             "air cooler", "aio", "liquid cooler", "cpu cooler",
             "atx", "matx", "itx", "mid tower", "full tower"
         )
         for (w in hwWords) {
             if (q.contains(w, ignoreCase = true)) return true
         }
-        // (b) Numbers ≥2 consecutive digits (model numbers like 5600, 12400F, 4060, etc.
+        // (b) Numbers >=2 consecutive digits (model numbers like 5600, 12400F, 4060, etc.)
         val rx = Regex("""\d{2,}""")
         val digitMatch = rx.find(q)
         if (digitMatch != null) return true
@@ -350,8 +409,8 @@ object SmartQuerySpecGuesser {
         val q = normalizeKey(query)
         if (q.isBlank()) return null
 
-        // ✅ LEMONADE BUG FIX: HARD REQUIREMENT — no hardware-indicating tokens in query → RETURN NULL.
-        // Random dictionary words (lemonade, pizza, apple, chair, etc.) → NEVER produce a guess.
+        // LEMONADE BUG FIX: HARD REQUIREMENT - no hardware-indicating tokens in query -> RETURN NULL.
+        // Random dictionary words (lemonade, pizza, apple, chair, etc.) -> NEVER produce a guess.
         // This blocks the SmartGuess fallback from inventing a GPU/CPU with random fake specs for arbitrary words.
         if (!hasHardwareIndicatingTokens(q)) {
             return null

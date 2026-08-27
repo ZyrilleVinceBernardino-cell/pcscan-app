@@ -149,22 +149,22 @@ class NoBuildYetFragment : Fragment() {
             ComponentTier.LEGACY_BUDGET to Triple(
                 UpgradeComponent(categoryLabel, "Ryzen 5 5600", "Great value 6-core for 1080p gaming and daily tasks.", 88),
                 UpgradeComponent(categoryLabel, "Ryzen 7 5700X", "Strong 8-core upgrade for fast gaming and productivity.", 92),
-                UpgradeComponent(categoryLabel, "Ryzen 7 7700", "Zen 4 8-core — large performance jump for all workloads.", 95)
+                UpgradeComponent(categoryLabel, "Ryzen 7 7700", "Zen 4 8-core - large performance jump for all workloads.", 95)
             ),
             ComponentTier.MIDRANGE to Triple(
-                UpgradeComponent(categoryLabel, "Ryzen 5 7600", "Modern Zen 4 6-core — efficient and future-proof.", 90),
+                UpgradeComponent(categoryLabel, "Ryzen 5 7600", "Modern Zen 4 6-core - efficient and future-proof.", 90),
                 UpgradeComponent(categoryLabel, "Ryzen 7 7700", "Solid 8-core with big IPC gains over previous gen.", 94),
                 UpgradeComponent(categoryLabel, "Ryzen 9 7900", "12-core powerhouse for gaming + heavy multitasking.", 97)
             ),
             ComponentTier.HIGH_END_CURRENT to Triple(
                 UpgradeComponent(categoryLabel, "Ryzen 7 7700X", "Higher-clocked 8-core for competitive gaming.", 93),
-                UpgradeComponent(categoryLabel, "Ryzen 9 7900X", "12-core flagship — smooth streaming and creation.", 96),
+                UpgradeComponent(categoryLabel, "Ryzen 9 7900X", "12-core flagship - smooth streaming and creation.", 96),
                 UpgradeComponent(categoryLabel, "Ryzen 9 9950X", "Top-tier 16-core for extreme productivity and gaming.", 98)
             ),
             ComponentTier.ENTHUSIAST_FLAGSHIP to Triple(
-                UpgradeComponent(categoryLabel, "Ryzen 9 7900X", "Still excellent — 12 cores for all workloads.", 94),
+                UpgradeComponent(categoryLabel, "Ryzen 9 7900X", "Still excellent - 12 cores for all workloads.", 94),
                 UpgradeComponent(categoryLabel, "Ryzen 9 9900X", "New-gen 12-core with increased clock speeds.", 97),
-                UpgradeComponent(categoryLabel, "Ryzen 9 9950X", "This is the highest tier — 16 cores for peak performance.", 99)
+                UpgradeComponent(categoryLabel, "Ryzen 9 9950X", "This is the highest tier - 16 cores for peak performance.", 99)
             )
         )
 
@@ -185,9 +185,9 @@ class NoBuildYetFragment : Fragment() {
                 UpgradeComponent(categoryLabel, "RTX 5090", "Next-gen Blackwell flagship for future-proof 4K+ gaming.", 99)
             ),
             ComponentTier.ENTHUSIAST_FLAGSHIP to Triple(
-                UpgradeComponent(categoryLabel, "RTX 4090", "Already a legendary flagship — still top-tier today.", 95),
+                UpgradeComponent(categoryLabel, "RTX 4090", "Already a legendary flagship - still top-tier today.", 95),
                 UpgradeComponent(categoryLabel, "RTX 5080", "Next-gen Blackwell with improved RT and efficiency.", 97),
-                UpgradeComponent(categoryLabel, "RTX 5090", "Peak-tier GPU — no need to replace for 4K performance.", 99)
+                UpgradeComponent(categoryLabel, "RTX 5090", "Peak-tier GPU - no need to replace for 4K performance.", 99)
             )
         )
 
