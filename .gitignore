@@ -1,0 +1,113 @@
+# =============================================================
+# PC SCAN APP - ROOT .gitignore (Android + Backend combined)
+# =============================================================
+
+# -----------------------------
+# SENSITIVE FILES (PROTECT FIRST - HIGHEST PRIORITY!)
+# NEVER ALLOW .env TO BE COMMITTED, REGARDLESS OF SUBFOLDER.
+# -----------------------------
+**/.env
+.env
+.env.*
+!.env.example
+!.env.sample
+**/_*.log
+**/_*.txt
+**/service_stdout.log
+**/service_stderr.log
+
+# -----------------------------
+# BACKEND venv / bytecode
+# -----------------------------
+**/venv/
+**/venv*/
+**/env/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/temp_uploads/
+**/service_stdout.log
+**/service_stderr.log
+**/temp_uploads/
+**/_*.log
+**/_*.txt
+
+# -----------------------------
+# ANDROID / GRADLE (pcscan3 folder)
+# -----------------------------
+# Old Firebase Cloud Functions scratch folder (pcscan3/pc-scan) - huge package-lock + not part of android build:
+pcscan3/pc-scan/node_modules/
+pcscan3/pc-scan/package-lock.json
+# Gradle cache
+.gradle/
+**/.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Local settings (contains SDK path, NEVER commit)
+local.properties
+**/local.properties
+
+# Generated APK/AAB files
+*.apk
+*.aab
+*.ap_
+*.dex
+**/*.apk
+**/*.aab
+
+# Android Studio / IntelliJ
+.idea/
+**/.idea/
+*.iml
+**/*.iml
+ captures/
+**/captures/
+.externalNativeBuild/
+**/.externalNativeBuild/
+.cxx/
+**/.cxx/
+outputs/
+**/outputs/
+
+# Google Services secret file (if ever added)
+google-services.json
+**/google-services.json
+
+# Kotlin incremental
+kotlin/
+**/kotlin/
+
+# -----------------------------
+# IDE / OS
+# -----------------------------
+.vscode/
+.vs/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------
+# BUILD NOISE / TOOL ARTIFACTS
+# -----------------------------
+# Kotlin compiler scratch output (was tracked; keep it out)
+**/.kotlin/
+.kotlin/
+# Local Gradle home used only for this machine
+**/_local_gradle_home/
+_local_gradle_home/
+# Android release build output
+pcscan3/app/release/
+# Build / service logs
+*.log
+**/*.log
+build_log*.txt
+# Agent + IDE planning artifacts
+.trae/
+**/.trae/
+# Stray shell redirect output
+/default
+# Raw design reference export (not app resources)
+pcscan3/Pc scan ui/

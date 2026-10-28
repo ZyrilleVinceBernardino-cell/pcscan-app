@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#0F1B33</color>
+    <color name="card">#17264A</color>
+    <color name="input">#1E3058</color>
+    <color name="border">#2A3F6B</color>
+    <color name="primary">#2072D6</color>
+    <color name="accent">#4DA3E8</color>
+    <color name="text">#F1F5FB</color>
+    <color name="textSecondary">#A9B8D4</color>
+    <color name="textMuted">#7488AB</color>
+    <color name="success">#2DD4A0</color>
+    <color name="warning">#F5A524</color>
+    <color name="danger">#EF4444</color>
+    <color name="purple">#8B7CF6</color>
+    <color name="purpleText">#A99BFF</color>
+
+    <color name="text_white">@color/text</color>
+    <color name="text_body">@color/text</color>
+    <color name="text_secondary">@color/textSecondary</color>
+    <color name="muted">@color/textSecondary</color>
+    <color name="primary_light">@color/accent</color>
+    <color name="secondary">@color/purple</color>
+    <color name="secondary_light">@color/purpleText</color>
+    <color name="card_surface">@color/card</color>
+    <color name="card_light">@color/input</color>
+    <color name="component_chip_bg">@color/primary</color>
+    <color name="chip_cpu">@color/primary</color>
+    <color name="chip_gpu">@color/purple</color>
+    <color name="chip_motherboard">#EC4899</color>
+    <color name="chip_ram">#06B6D4</color>
+    <color name="chip_storage">@color/success</color>
+    <color name="chip_psu">@color/warning</color>
+    <color name="metric_warning">@color/warning</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="profile_muted_text">@color/textSecondary</color>
+    <color name="profile_logout_text">@color/danger</color>
+    <color name="profile_version_text">@color/textMuted</color>
+    <color name="profile_logout_icon_bg">#2A1B2A</color>
+    <color name="chip_selected_text">@color/white</color>
+    <color name="chip_unselected_text">@color/textSecondary</color>
+    <color name="surface_success">#11383A</color>
+    <color name="surface_success_stroke">#256E6B</color>
+</resources>

@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true"
+    android:overScrollMode="never">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_dashboard_range_icon_circle"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@color/text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Range Build Generator"
+                android:textColor="@color/text_white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- SELECT BUDGET RANGE -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="SELECT BUDGET RANGE"
+            android:textAllCaps="true"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/budgetInputContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_field"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="18dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PHP"
+                android:textColor="@color/textMuted"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etBudget"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="e.g. 50,000"
+                android:inputType="number"
+                android:maxLength="9"
+                android:textColor="@color/text_white"
+                android:textColorHint="@color/textMuted"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/btnClearBudget"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="6dp"
+                android:src="@drawable/ic_close"
+                android:tint="@color/textMuted"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Type your budget in PHP to see which tier it falls into."
+            android:textColor="@color/textMuted"
+            android:textSize="13sp" />
+
+        <!-- Tier list -->
+        <LinearLayout
+            android:id="@+id/tierEntry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <View
+                android:id="@+id/dotEntry"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/bg_tier_dot_entry" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:text="Entry Level"
+                android:textColor="@color/success"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="P30K - P49K"
+                android:textColor="@color/textMuted"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierEntryDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_tier_detail_bottom"
+            android:paddingStart="40dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Essential everyday computing and light gaming."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierMid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <View
+                android:id="@+id/dotMid"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/bg_tier_dot_mid" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:text="Mid-Range"
+                android:textColor="@color/accent"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="P50K - P99K"
+                android:textColor="@color/textMuted"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierMidDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_tier_detail_bottom"
+            android:paddingStart="40dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Smooth 1080p gaming &amp; productivity."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierHigh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <View
+                android:id="@+id/dotHigh"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/bg_tier_dot_high" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:text="High-End"
+                android:textColor="@color/purpleText"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="P100K - P199K"
+                android:textColor="@color/textMuted"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierHighDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_tier_detail_bottom"
+            android:paddingStart="40dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="High-refresh 1440p gaming and heavy multitasking."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierFlagship"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="14dp">
+
+            <View
+                android:id="@+id/dotFlagship"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/bg_tier_dot_flagship" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:text="Flagship"
+                android:textColor="@color/warning"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="P200K+"
+                android:textColor="@color/textMuted"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tierFlagshipDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_tier_detail_bottom"
+            android:paddingStart="40dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4K gaming, 3D rendering, and top-tier performance."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- SELECT USAGE PURPOSE -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="SELECT USAGE PURPOSE"
+            android:textAllCaps="true"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUseGaming"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:maxLines="1"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="Gaming"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_gaming"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUseProductivity"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:maxLines="1"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="Productivity"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_productivity"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUseStreaming"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:maxLines="1"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="Streaming"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_streaming"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUseContent"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:maxLines="1"
+                android:text="Content Creation"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_content"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUseOffice"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:maxLines="1"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="Office / Home"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_office"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipUse3d"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_usage_chip"
+                app:backgroundTint="@null"
+                android:gravity="center_vertical|start"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="56dp"
+                android:maxLines="1"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="3D Rendering"
+                android:textAllCaps="false"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_usage_3d"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="18dp"
+                app:iconTint="@color/textSecondary"
+                app:strokeWidth="0dp" />
+        </LinearLayout>
+
+        <!-- Status hint -->
+        <TextView
+            android:id="@+id/tvSelectionHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:gravity="center"
+            android:text="Enter a budget and choose a usage purpose to continue."
+            android:textColor="@color/textMuted"
+            android:textSize="14sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Generate Build -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGenerateBuild"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_generate_build_button"
+            app:backgroundTint="@null"
+            android:text="Generate Build"
+            android:textAllCaps="false"
+            android:textColor="@color/textMuted"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:icon="@drawable/generate_build_icon"
+            app:iconGravity="textStart"
+            app:iconPadding="10dp"
+            app:iconTint="@color/textMuted"
+            app:cornerRadius="18dp"
+            app:strokeWidth="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:id="@+id/btnBackToDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="Back to Dashboard"
+            android:textAllCaps="false"
+            android:textColor="@color/textSecondary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:icon="@drawable/ic_arrow_back"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconSize="22dp"
+            app:iconTint="@color/textSecondary"
+            app:cornerRadius="18dp"
+            app:strokeColor="@color/border"
+            app:strokeWidth="1dp"
+            app:backgroundTint="@android:color/transparent" />
+
+    </LinearLayout>
+</ScrollView>

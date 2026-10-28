@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PC Scan"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_white"
+        android:layout_marginBottom="24dp" />
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:contentDescription="PC Scan logo"
+        android:src="@drawable/ic_pc_tower_blue" />
+
+</LinearLayout>

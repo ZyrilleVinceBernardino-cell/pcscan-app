@@ -1,0 +1,48 @@
+# =============================================================
+# RENDER.COM AUTO-DEPLOY CONFIG (Zero config deploy)
+# =============================================================
+# How to use:
+# 1. Sign up for FREE at https://dashboard.render.com/register
+# 2. Click "New +" -> "Web Service"
+# 3. Connect your GitHub/GitLab repo, select pcscan project
+# 4. Root Directory: set to `backend`  (IMPORTANT! [WARN])
+# 5. Runtime: Python 3
+# 6. Build Command: pip install -r requirements.txt
+# 7. Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+# 8. Instance Type: Free (PHP 0 / month)
+# 9. Environment Variables (go to "Environment" tab after creating):
+#      OPENAI_API_KEY=YOUR_OPENAI_KEY_HERE_PASTE_FROM_DOTENV
+#      GOOGLE_API_KEY=YOUR_GEMINI_KEY_HERE_PASTE_FROM_DOTENV
+#      ENVIRONMENT=production
+#      MOCK_MODE=False
+#      AUTO_FALLBACK=True
+# 10. Click "Deploy". Wait 2-3 min. You'll get a public URL like:
+#     https://pcscan-backend-xxxx.onrender.com
+# 11. Copy that URL to PcScanApiService.kt -> BASE_URL_PUBLIC, then
+#     rebuild APK: gradlew.bat assembleDebug --no-daemon
+# =============================================================
+# NOTE: Render Free tier "spins down" (sleeps) after 15min idle.
+# First request after idle takes ~20-30s to wake up. If you need
+# 100% always-on, upgrade to Render Starter ($7/mo) or use
+# cron-job.org free to ping /api/health every 10 min to keep alive.
+# =============================================================
+services:
+  - type: web
+    name: pcscan-backend
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: MOCK_MODE
+        value: "False"
+      - key: AUTO_FALLBACK
+        value: "True"

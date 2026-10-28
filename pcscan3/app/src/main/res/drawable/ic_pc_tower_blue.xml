@@ -1,0 +1,707 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+<group android:scaleX="1.25" android:scaleY="1.25" android:pivotX="128" android:pivotY="128">
+<group android:translateX="-17" android:translateY="-4">
+
+    <path
+        android:fillColor="@color/card"
+        android:pathData="M76,42 L192,54 L196,196 L80,208 L76,42 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:pathData="M84,52 L186,62 L190,190 L88,200 L84,52 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="4"
+        android:fillColor="@color/card"
+        android:pathData="M64,36 L196,48 L200,204 L68,216 L64,36 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="3"
+        android:fillColor="@color/card"
+        android:pathData="M196,48 L216,56 L220,210 L200,204 L196,48 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="3"
+        android:fillColor="@color/card"
+        android:pathData="M196,48 L216,56 L220,210 L200,204 L196,48 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@color/card"
+        android:pathData="M206,84 L213,87 L213,196 L203,199 L206,84 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="3"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M64,36 L200,204" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@color/card"
+        android:pathData="M96,86 L144,90 L146,146 L98,148 L96,86 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M100,90 L142,94 L144,144 L102,146 L100,90 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M103,117 A18,18 0,1 1,139 117 A18,18 0,1 1,103 117 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:pathData="M115,117 A6,6 0,1 1,127 117 A6,6 0,1 1,115 117 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M121,101 L121,115 L125,106 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M121,133 L121,119 L125,128 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M105,117 L119,117 L110,113 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M137,117 L123,117 L132,121 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M109.5,105.5 L119.5,115.5 L112,109 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M132.5,128.5 L122.5,118.5 L130,125 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M109.5,128.5 L119.5,118.5 L112,125 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M132.5,105.5 L122.5,115.5 L130,109 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:pathData="M108,104 L110,100 L142,103 L140,107 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:pathData="M100,112 L102,108 L134,111 L132,115 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:pathData="M100,122 L102,118 L134,121 L132,125 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:pathData="M108,130 L110,126 L142,129 L140,133 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M152,92 L156,90 L160,140 L156,142 L152,142 Z" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M162,93 L166,91 L170,141 L166,143 L162,143 Z" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M172,94 L176,92 L180,142 L176,144 L172,144 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@color/card"
+        android:pathData="M84,140 L182,148 L184,178 L86,180 L84,140 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M88,152 L180,160" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M88,168 L170,174" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1.5"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M88,144 L98,142 L100,178 L90,180 L88,144 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M152,150 L156,148 L160,170 L156,172 L152,172 Z" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M162,151 L166,149 L170,171 L166,173 L162,173 Z" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@color/card"
+        android:pathData="M172,152 L176,150 L180,172 L176,174 L172,174 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M121,162 A11,11 0,1 1,143 162 A11,11 0,1 1,121 162 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:pathData="M128.5,162 A3.5,3.5 0,1 1,135.5 162 A3.5,3.5 0,1 1,128.5 162 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M132,152 L132,159 L134.5,155 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M132,172 L132,165 L134.5,169 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M122,162 L129,162 L125.5,160 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M142,162 L135,162 L138.5,164 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M124.5,154.5 L129.5,159.5 L126,157 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M139.5,169.5 L134.5,164.5 L138,167 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M124.5,169.5 L129.5,164.5 L126,167 Z" />
+    <path
+        android:fillColor="@color/accent"
+        android:pathData="M139.5,154.5 L134.5,159.5 L138,157 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M162,146 L186,150 L186,176 L162,180 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M164,154 L184,158" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M164,160 L184,164" />
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M164,166 L184,170" />
+
+    <path
+        android:fillColor="@color/card"
+        android:pathData="M88,186 L188,192 L192,200 L90,206 L88,186 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M96,189 L184,194" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,189 L101,188 L102,194 L99,195 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,190 L113,189 L114,195 L111,196 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M122,191 L125,190 L126,196 L123,197 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M134,192 L137,191 L138,197 L135,198 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M146,193 L149,192 L150,198 L147,199 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M158,194 L161,193 L162,199 L159,200 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M170,195 L173,194 L174,200 L171,201 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M182,196 L185,195 L186,201 L183,202 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M94,193 L97,192 L98,198 L95,199 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M106,194 L109,193 L110,199 L107,200 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M118,195 L121,194 L122,200 L119,201 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M130,196 L133,195 L134,201 L131,202 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M142,197 L145,196 L146,202 L143,203 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M154,198 L157,197 L158,203 L155,204 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M166,199 L169,198 L170,204 L167,205 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M178,200 L181,199 L182,205 L179,206 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M102,196 L105,195 L106,201 L103,202 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M114,197 L117,196 L118,202 L115,203 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M126,198 L129,197 L130,203 L127,204 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M138,199 L141,198 L142,204 L139,205 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M150,200 L153,199 L154,205 L151,206 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M162,201 L165,200 L166,206 L163,207 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M174,202 L177,201 L178,207 L175,208 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,200 L101,199 L102,205 L99,206 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,201 L113,200 L114,206 L111,207 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M122,202 L125,201 L126,207 L123,208 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M134,203 L137,202 L138,208 L135,209 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M146,204 L149,203 L150,209 L147,210 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M158,205 L161,204 L162,210 L159,211 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M170,206 L173,205 L174,211 L171,212 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M96,78 L99,77 L100,83 L97,84 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M84,79 L87,78 L88,84 L85,85 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M108,79 L111,78 L112,84 L109,85 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M120,80 L123,79 L124,85 L121,86 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M132,81 L135,80 L136,86 L133,87 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M144,82 L147,81 L148,87 L145,88 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M86,83 L89,82 L90,88 L87,89 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,84 L101,83 L102,89 L99,90 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,85 L113,84 L114,90 L111,91 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M122,86 L125,85 L126,91 L123,92 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M134,87 L137,86 L138,92 L135,93 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M146,88 L149,87 L150,93 L147,94 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M84,87 L87,86 L88,92 L85,93 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M96,88 L99,87 L100,93 L97,94 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M108,89 L111,88 L112,94 L109,95 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M120,90 L123,89 L124,95 L121,96 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M132,91 L135,90 L136,96 L133,97 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M144,92 L147,91 L148,97 L145,98 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M86,91 L89,90 L90,96 L87,97 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,92 L101,91 L102,97 L99,98 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,93 L113,92 L114,98 L111,99 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M122,94 L125,93 L126,99 L123,100 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M134,95 L137,94 L138,100 L135,101 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M146,96 L149,95 L150,101 L147,102 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M84,95 L87,94 L88,100 L85,101 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M96,96 L99,95 L100,101 L97,102 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M108,97 L111,96 L112,102 L109,103 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M120,98 L123,97 L124,103 L121,104 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M132,99 L135,98 L136,104 L133,105 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M144,100 L147,99 L148,105 L145,106 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M96,168 L99,167 L100,173 L97,174 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M84,169 L87,168 L88,174 L85,175 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M108,169 L111,168 L112,174 L109,175 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M120,170 L123,169 L124,175 L121,176 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M132,171 L135,170 L136,176 L133,177 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M144,172 L147,171 L148,177 L145,178 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M86,173 L89,172 L90,178 L87,179 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,174 L101,173 L102,179 L99,180 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,175 L113,174 L114,180 L111,181 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M122,176 L125,175 L126,181 L123,182 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M134,177 L137,176 L138,182 L135,183 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M146,178 L149,177 L150,183 L147,184 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M84,177 L87,176 L88,182 L85,183 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M96,178 L99,177 L100,183 L97,184 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M108,179 L111,178 L112,184 L109,185 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M120,180 L123,179 L124,185 L121,186 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M132,181 L135,180 L136,186 L133,187 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M144,182 L147,181 L148,187 L145,188 Z" />
+
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M86,181 L89,180 L90,186 L87,187 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M98,182 L101,181 L102,187 L99,188 Z" />
+    <path
+        android:fillColor="@color/card"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2"
+        android:pathData="M110,183 L113,182 L114,188 L111,189 Z" />
+
+    <path
+        android:strokeColor="@color/card"
+        android:strokeWidth="3"
+        android:fillColor="@color/card"
+        android:pathData="M88,212 L90,220 L112,222 L114,214 L88,212 Z" />
+    <path
+        android:strokeColor="@color/card"
+        android:strokeWidth="3"
+        android:fillColor="@color/card"
+        android:pathData="M140,218 L142,226 L164,228 L166,220 L140,218 Z" />
+    <path
+        android:strokeColor="@color/card"
+        android:strokeWidth="3"
+        android:fillColor="@color/card"
+        android:pathData="M200,210 L202,218 L224,220 L226,212 L200,210 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:pathData="M77,200 A3,3 0,1 1,83 200 A3,3 0,1 1,77 200 Z" />
+
+    <path
+        android:fillColor="@color/accent"
+        android:strokeColor="@color/accent"
+        android:strokeWidth="1"
+        android:pathData="M185,202 A3,3 0,1 1,191 202 A3,3 0,1 1,185 202 Z" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M88,52 L194,62" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M88,188 L88,52" />
+
+    <path
+        android:strokeColor="@color/accent"
+        android:strokeWidth="2.5"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M68,212 L196,202" />
+
+</group>
+</group>
+</vector>

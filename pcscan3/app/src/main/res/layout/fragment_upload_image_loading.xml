@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:elevation="8dp"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <ImageView
+        android:id="@+id/ivLoadingLogo"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:contentDescription="PC Scan logo"
+        android:src="@drawable/ic_pc_tower_blue" />
+
+    <TextView
+        android:id="@+id/tvLoadingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Checking component..."
+        android:textColor="@color/text_white"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvLoadingSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Identifying PC component from your uploaded image..."
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/pbLoadingProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/accent"
+            android:indeterminateTintMode="src_in"
+            android:progressBackgroundTint="@color/border"
+            android:splitTrack="false" />
+    </LinearLayout>
+</LinearLayout>

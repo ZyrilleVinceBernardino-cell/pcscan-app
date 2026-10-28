@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loadingFragment">
+
+    <!-- Auth Flow -->
+    <fragment
+        android:id="@+id/loadingFragment"
+        android:name="com.pcscan.pcscan.ui.auth.LoadingFragment">
+        <action
+            android:id="@+id/action_loadingFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loadingFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loadingFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/loadingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.pcscan.pcscan.ui.auth.LoginFragment">
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment"/>
+        <action
+            android:id="@+id/action_loginFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/loadingFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.pcscan.pcscan.ui.auth.RegisterFragment">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    
+    <!-- Main App Flow -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.pcscan.pcscan.ui.main.DashboardFragment">
+        <action
+            android:id="@+id/action_dashboardFragment_to_searchResultFragment"
+            app:destination="@id/searchResultFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_uploadImageFragment"
+            app:destination="@id/uploadImageFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_ocrFragment"
+            app:destination="@id/ocrFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_rangeBuildFragment"
+            app:destination="@id/rangeBuildFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_savedBuildFragment"
+            app:destination="@id/savedBuildFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rangeBuildFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.RangeBuildFragment">
+        <action
+            android:id="@+id/action_rangeBuildFragment_to_yourBuildFragment"
+            app:destination="@id/yourBuildFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/yourBuildFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.YourBuildFragment" />
+    <fragment
+        android:id="@+id/searchResultFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.SearchResultFragment">
+        <action
+            android:id="@+id/action_searchResultFragment_to_buildRecoFragment"
+            app:destination="@id/buildRecoFragment" />
+        <action
+            android:id="@+id/action_searchResultFragment_to_upgradePathFragment"
+            app:destination="@id/upgradePathFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadImageFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UploadImageFragment">
+        <action
+            android:id="@+id/action_uploadImageFragment_to_uploadImageResultFragment"
+            app:destination="@id/uploadImageResultFragment" />
+        <action
+            android:id="@+id/action_uploadImageFragment_to_uploadImageLoadingFragment"
+            app:destination="@id/uploadImageLoadingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadImageLoadingFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UploadImageLoadingFragment">
+        <action
+            android:id="@+id/action_uploadImageLoadingFragment_to_uploadImageResultFragment"
+            app:destination="@id/uploadImageResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadImageResultFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UploadImageResultFragment" />
+    <fragment
+        android:id="@+id/ocrFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.OcrFragment">
+        <action
+            android:id="@+id/action_ocrFragment_to_ocrScanningFragment"
+            app:destination="@id/ocrScanningFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ocrScanningFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.OcrScanningFragment">
+        <action
+            android:id="@+id/action_ocrScanningFragment_to_ocrResultFragment"
+            app:destination="@id/ocrResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ocrResultFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.OcrResultFragment" />
+    <fragment
+        android:id="@+id/upgradePathFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UpgradePathFragment">
+        <action
+            android:id="@+id/action_upgradePathFragment_to_upgradeCurrentFragment"
+            app:destination="@id/upgradeCurrentFragment" />
+        <action
+            android:id="@+id/action_upgradePathFragment_to_uploadImageFragment"
+            app:destination="@id/uploadImageFragment" />
+        <action
+            android:id="@+id/action_upgradePathFragment_to_noBuildYetFragment"
+            app:destination="@id/noBuildYetFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/noBuildYetFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.NoBuildYetFragment" />
+    <fragment
+        android:id="@+id/upgradeBuildPathFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UpgradeBuildPathFragment">
+        <action
+            android:id="@+id/action_upgradeBuildPathFragment_to_buildRecoFragment"
+            app:destination="@id/buildRecoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/upgradeCurrentFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UpgradeCurrentFragment">
+        <action
+            android:id="@+id/action_upgradeCurrentFragment_to_upgradeRecoFragment"
+            app:destination="@id/upgradeRecoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/upgradeRecoFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.UpgradeRecoFragment" />
+    <fragment
+        android:id="@+id/buildRecoFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.BuildRecoFragment" />
+    <fragment
+        android:id="@+id/savedBuildFragment"
+        android:name="com.pcscan.pcscan.ui.saved.SavedBuildFragment">
+        <action
+            android:id="@+id/action_savedBuildFragment_to_savedUpgradeFragment"
+            app:destination="@id/savedUpgradeFragment" />
+        <action
+            android:id="@+id/action_savedBuildFragment_to_yourBuildFragment"
+            app:destination="@id/yourBuildFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/savedUpgradeFragment"
+        android:name="com.pcscan.pcscan.ui.saved.SavedUpgradeFragment">
+        <action
+            android:id="@+id/action_savedUpgradeFragment_to_savedBuildFragment"
+            app:destination="@id/savedBuildFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.pcscan.pcscan.ui.profile.ProfileFragment">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.pcscan.pcscan.ui.profile.EditProfileFragment" />
+</navigation>
