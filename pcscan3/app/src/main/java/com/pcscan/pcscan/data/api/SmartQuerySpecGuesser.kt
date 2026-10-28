@@ -397,6 +397,120 @@ object SmartQuerySpecGuesser {
             listOf("16GB GDDR6", "320W TDP", "PCIe 5.0 x16", "287mm Length")))
     }
 
+    private val motherboardTable: Map<String, GuessEntry> = buildMap {
+        // AMD AM4
+        put("msi b450 tomahawk max", GuessEntry("MSI B450 TOMAHAWK MAX (AM4)", "MSI", "MOTHERBOARD", 78, 92,
+            listOf("Socket AM4", "AMD B450 Chipset", "4x DDR4 DIMM", "2x M.2 NVMe PCIe 3.0", "ATX Form Factor")))
+        put("asus prime b450m a", GuessEntry("ASUS PRIME B450M-A (AM4 mATX)", "ASUS", "MOTHERBOARD", 75, 91,
+            listOf("Socket AM4", "AMD B450 Chipset", "4x DDR4 DIMM", "1x M.2 NVMe PCIe 3.0", "Micro-ATX")))
+        put("msi mag b550 tomahawk wifi", GuessEntry("MSI MAG B550 TOMAHAWK WIFI (AM4)", "MSI", "MOTHERBOARD", 88, 96,
+            listOf("Socket AM4", "AMD B550 Chipset", "4x DDR4 DIMM", "2x M.2 NVMe PCIe 4.0", "ATX Form Factor", "WiFi 6")))
+        put("asus rog strix b550 f gaming wifi", GuessEntry("ASUS ROG STRIX B550-F GAMING WIFI (AM4)", "ASUS", "MOTHERBOARD", 90, 96,
+            listOf("Socket AM4", "AMD B550 Chipset", "4x DDR4 DIMM", "2x M.2 NVMe PCIe 4.0", "ATX", "WiFi 6")))
+        put("asus rog strix x570 e wifi ii", GuessEntry("ASUS ROG STRIX X570-E WIFI II (AM4)", "ASUS", "MOTHERBOARD", 93, 97,
+            listOf("Socket AM4", "AMD X570 Chipset", "4x DDR4 DIMM", "3x M.2 NVMe PCIe 4.0", "ATX", "WiFi 6E")))
+        put("asrock b450 pro4", GuessEntry("ASRock B450 Pro4 (AM4)", "ASRock", "MOTHERBOARD", 77, 92,
+            listOf("Socket AM4", "AMD B450", "4x DDR4", "2x M.2", "ATX")))
+        put("gigabyte b550 aorus elite ax", GuessEntry("GIGABYTE B550 AORUS ELITE AX (AM4)", "GIGABYTE", "MOTHERBOARD", 86, 95,
+            listOf("Socket AM4", "AMD B550", "4x DDR4", "2x M.2 PCIe 4.0", "ATX", "WiFi 6")))
+        // AMD AM5
+        put("msi mag b650 tomahawk wifi", GuessEntry("MSI MAG B650 TOMAHAWK WIFI (AM5)", "MSI", "MOTHERBOARD", 89, 95,
+            listOf("Socket AM5", "AMD B650 Chipset", "4x DDR5 DIMM", "2x M.2 NVMe PCIe 5.0", "ATX", "WiFi 6E")))
+        put("asus rog strix b650e f gaming wifi", GuessEntry("ASUS ROG STRIX B650E-F GAMING WIFI (AM5)", "ASUS", "MOTHERBOARD", 92, 97,
+            listOf("Socket AM5", "AMD B650E Chipset", "4x DDR5 DIMM", "3x M.2 PCIe 5.0", "ATX", "WiFi 6E")))
+        put("asrock x670e steel legend", GuessEntry("ASRock X670E Steel Legend (AM5)", "ASRock", "MOTHERBOARD", 91, 95,
+            listOf("Socket AM5", "AMD X670E Chipset", "4x DDR5", "4x M.2 PCIe 5.0", "ATX")))
+        put("asus rog maximus z790 hero", GuessEntry("ASUS ROG MAXIMUS Z790 HERO (LGA1700)", "ASUS", "MOTHERBOARD", 97, 98,
+            listOf("Socket LGA1700", "Intel Z790", "4x DDR5", "5x M.2 PCIe 5.0", "ATX", "WiFi 7")))
+        // Intel LGA1700 12/13/14 Gen
+        put("msi b760m mortar wifi", GuessEntry("MSI B760M MORTAR WIFI (LGA1700 mATX)", "MSI", "MOTHERBOARD", 82, 94,
+            listOf("Socket LGA1700", "Intel B760 Chipset", "4x DDR5 DIMM", "2x M.2 PCIe 4.0", "Micro-ATX", "WiFi 6")))
+        put("asus rog strix z790 a gaming wifi d4", GuessEntry("ASUS ROG STRIX Z790-A GAMING WIFI D4 (LGA1700)", "ASUS", "MOTHERBOARD", 89, 96,
+            listOf("Socket LGA1700", "Intel Z790 Chipset", "4x DDR4 DIMM", "4x M.2", "ATX", "WiFi 6E")))
+        put("msi mag z790 tomahawk wifi", GuessEntry("MSI MAG Z790 TOMAHAWK WIFI (LGA1700)", "MSI", "MOTHERBOARD", 91, 96,
+            listOf("Socket LGA1700", "Intel Z790", "4x DDR5", "4x M.2 PCIe 5.0", "ATX", "WiFi 6E")))
+        // Intel Gen 10/11 LGA1200
+        put("msi z590 a pro", GuessEntry("MSI Z590-A PRO (LGA1200)", "MSI", "MOTHERBOARD", 80, 92,
+            listOf("Socket LGA1200", "Intel Z590", "4x DDR4", "3x M.2 PCIe 4.0", "ATX")))
+        put("asus rog strix z590 e gaming", GuessEntry("ASUS ROG STRIX Z590-E GAMING (LGA1200)", "ASUS", "MOTHERBOARD", 85, 94,
+            listOf("Socket LGA1200", "Intel Z590", "4x DDR4", "4x M.2", "ATX", "WiFi 6")))
+    }
+
+    private val ramTable: Map<String, GuessEntry> = buildMap {
+        // DDR4
+        put("corsair vengeance lpx 16gb ddr4 3200", GuessEntry("Corsair Vengeance LPX 16GB (2x8GB) DDR4-3200", "Corsair", "RAM", 78, 94,
+            listOf("16GB (2x8GB) Kit", "DDR4-3200 MHz", "CL16 Latency", "1.35V", "288-Pin UDIMM", "DDR4")))
+        put("corsair vengeance lpx 32gb ddr4 3600", GuessEntry("Corsair Vengeance LPX 32GB (2x16GB) DDR4-3600", "Corsair", "RAM", 85, 95,
+            listOf("32GB (2x16GB) Kit", "DDR4-3600 MHz", "CL18 Latency", "1.35V", "288-Pin UDIMM", "DDR4")))
+        put("gskill trident z5 rgb 32gb ddr4 3600", GuessEntry("G.SKILL Trident Z5 RGB 32GB (2x16GB) DDR4-3600", "G.SKILL", "RAM", 88, 96,
+            listOf("32GB (2x16GB)", "DDR4-3600 CL16", "1.35V", "288-Pin UDIMM", "DDR4")))
+        put("kingston fury beast 16gb ddr4 3200", GuessEntry("Kingston FURY Beast 16GB (2x8GB) DDR4-3200", "Kingston", "RAM", 76, 93,
+            listOf("16GB (2x8GB)", "DDR4-3200 CL16", "1.35V", "288-Pin UDIMM", "DDR4")))
+        put("gskill ripjaws v 64gb ddr4 3600", GuessEntry("G.SKILL Ripjaws V 64GB (2x32GB) DDR4-3600", "G.SKILL", "RAM", 90, 96,
+            listOf("64GB (2x32GB)", "DDR4-3600 CL18", "1.35V", "288-Pin UDIMM", "DDR4")))
+        // DDR5
+        put("corsair vengeance 32gb ddr5 6000", GuessEntry("Corsair Vengeance 32GB (2x16GB) DDR5-6000 EXPO", "Corsair", "RAM", 88, 96,
+            listOf("32GB (2x16GB) Kit", "DDR5-6000 MHz", "CL30 Latency", "1.35V", "288-Pin UDIMM", "DDR5", "AMD EXPO / Intel XMP 3.0")))
+        put("gskill trident z5 rgb 32gb ddr5 6400", GuessEntry("G.SKILL Trident Z5 RGB 32GB (2x16GB) DDR5-6400", "G.SKILL", "RAM", 92, 97,
+            listOf("32GB (2x16GB)", "DDR5-6400 CL32", "1.35V", "288-Pin UDIMM", "DDR5", "XMP 3.0")))
+        put("kingston fury beast 64gb ddr5 5600", GuessEntry("Kingston FURY Beast 64GB (2x32GB) DDR5-5600", "Kingston", "RAM", 90, 95,
+            listOf("64GB (2x32GB)", "DDR5-5600 CL36", "1.35V", "288-Pin UDIMM", "DDR5")))
+        put("corsair dominator platinum rgb 64gb ddr5 6600", GuessEntry("Corsair DOMINATOR PLATINUM RGB 64GB (2x32GB) DDR5-6600", "Corsair", "RAM", 95, 98,
+            listOf("64GB (2x32GB)", "DDR5-6600 CL32", "1.4V", "288-Pin UDIMM", "DDR5")))
+        put("teamgroup t force delta 32gb ddr5 6000", GuessEntry("TeamGroup T-Force Delta 32GB (2x16GB) DDR5-6000 RGB", "TeamGroup", "RAM", 86, 95,
+            listOf("32GB (2x16GB)", "DDR5-6000 CL30", "1.35V", "288-Pin UDIMM", "DDR5")))
+    }
+
+    private val storageTable: Map<String, GuessEntry> = buildMap {
+        put("samsung 990 pro 1tb", GuessEntry("Samsung 990 PRO 1TB NVMe PCIe 4.0 SSD", "Samsung", "STORAGE", 88, 96,
+            listOf("1TB Capacity", "NVMe M.2 2280", "PCIe 4.0 x4", "7450 MB/s Read", "6900 MB/s Write", "NVMe SSD")))
+        put("samsung 990 pro 2tb", GuessEntry("Samsung 990 PRO 2TB NVMe PCIe 4.0 SSD", "Samsung", "STORAGE", 92, 97,
+            listOf("2TB Capacity", "NVMe M.2 2280", "PCIe 4.0 x4", "7450 MB/s Read", "6900 MB/s Write", "NVMe SSD")))
+        put("samsung 990 pro 4tb", GuessEntry("Samsung 990 PRO 4TB NVMe PCIe 4.0 SSD", "Samsung", "STORAGE", 95, 98,
+            listOf("4TB Capacity", "NVMe M.2 2280", "PCIe 4.0 x4", "7450 MB/s Read", "6900 MB/s Write", "NVMe SSD")))
+        put("wd black sn850x 2tb", GuessEntry("WD_BLACK SN850X 2TB NVMe PCIe 4.0 SSD", "Western Digital", "STORAGE", 90, 96,
+            listOf("2TB", "NVMe M.2 2280", "PCIe 4.0 x4", "7300 MB/s Read", "6300 MB/s Write", "NVMe SSD")))
+        put("crucial t700 2tb", GuessEntry("Crucial T700 2TB NVMe PCIe 5.0 SSD", "Crucial", "STORAGE", 94, 97,
+            listOf("2TB", "NVMe M.2 2280", "PCIe 5.0 x4", "12400 MB/s Read", "11800 MB/s Write", "NVMe SSD (PCIe 5)")))
+        put("crucial p5 plus 1tb", GuessEntry("Crucial P5 Plus 1TB NVMe PCIe 4.0 SSD", "Crucial", "STORAGE", 82, 93,
+            listOf("1TB", "NVMe M.2", "PCIe 4.0 x4", "6600 MB/s Read", "5000 MB/s Write", "NVMe SSD")))
+        put("kingston kc3000 2tb", GuessEntry("Kingston KC3000 2TB NVMe PCIe 4.0 SSD", "Kingston", "STORAGE", 89, 95,
+            listOf("2TB", "NVMe M.2 2280", "PCIe 4.0 x4", "7000 MB/s Read", "7000 MB/s Write", "NVMe SSD")))
+        put("sabrent rocket 4 plus 8tb", GuessEntry("Sabrent Rocket 4 PLUS 8TB NVMe PCIe 4.0 SSD", "Sabrent", "STORAGE", 93, 96,
+            listOf("8TB", "NVMe M.2", "PCIe 4.0 x4", "7100 MB/s Read", "6600 MB/s Write", "NVMe SSD")))
+        put("adata legend 970 1tb", GuessEntry("ADATA Legend 970 1TB NVMe PCIe 4.0 SSD", "ADATA", "STORAGE", 83, 93,
+            listOf("1TB", "NVMe M.2", "PCIe 4.0 x4", "7400 MB/s Read", "5800 MB/s Write", "NVMe SSD")))
+        put("samsung 980 pro 1tb", GuessEntry("Samsung 980 PRO 1TB NVMe PCIe 4.0 SSD", "Samsung", "STORAGE", 86, 95,
+            listOf("1TB", "NVMe M.2 2280", "PCIe 4.0 x4", "7000 MB/s Read", "5100 MB/s Write", "NVMe SSD")))
+    }
+
+    private val psuTable: Map<String, GuessEntry> = buildMap {
+        put("corsair rm650x", GuessEntry("Corsair RM650x 650W 80+ Gold Full Modular", "Corsair", "PSU", 84, 95,
+            listOf("650 Watts", "80 PLUS Gold Certified", "100% Modular Cables", "ATX 3.0 Ready", "10 Year Warranty", "ATX Form Factor")))
+        put("corsair rm750x", GuessEntry("Corsair RM750x 750W 80+ Gold Full Modular", "Corsair", "PSU", 87, 96,
+            listOf("750 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0", "10 Year Warranty", "ATX")))
+        put("corsair rm850x", GuessEntry("Corsair RM850x 850W 80+ Gold Full Modular", "Corsair", "PSU", 89, 96,
+            listOf("850 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0", "10 Year Warranty", "ATX")))
+        put("corsair rm1000x", GuessEntry("Corsair RM1000x 1000W 80+ Gold Full Modular", "Corsair", "PSU", 92, 97,
+            listOf("1000 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0 / PCIe 5.0 Ready", "10 Year Warranty", "ATX")))
+        put("seasonic focus gx 750", GuessEntry("Seasonic FOCUS GX-750 750W 80+ Gold Full Modular", "Seasonic", "PSU", 88, 96,
+            listOf("750 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0", "10 Year Warranty", "ATX")))
+        put("seasonic focus px 850", GuessEntry("Seasonic FOCUS PX-850 850W 80+ Platinum Full Modular", "Seasonic", "PSU", 92, 97,
+            listOf("850 Watts", "80 PLUS Platinum", "Full Modular", "ATX 3.0", "12 Year Warranty", "ATX")))
+        put("asus prime 650w bronze", GuessEntry("ASUS PRIME 650W 80+ Bronze", "ASUS", "PSU", 74, 91,
+            listOf("650 Watts", "80 PLUS Bronze Certified", "Non-Modular", "ATX Form Factor", "5 Year Warranty", "ATX")))
+        put("asus rog strix 850w gold", GuessEntry("ASUS ROG STRIX 850W 80+ Gold Full Modular", "ASUS", "PSU", 89, 96,
+            listOf("850 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0 / PCIe 5.0", "10 Year Warranty", "ATX")))
+        put("evga supernova 750 ga", GuessEntry("EVGA SuperNOVA 750 GA 750W 80+ Gold Full Modular", "EVGA", "PSU", 85, 94,
+            listOf("750 Watts", "80 PLUS Gold", "Full Modular", "ATX", "10 Year Warranty", "ATX")))
+        put("be quiet straight power 12 1000w platinum", GuessEntry("be quiet! STRAIGHT POWER 12 1000W 80+ Platinum", "be quiet!", "PSU", 94, 98,
+            listOf("1000 Watts", "80 PLUS Platinum", "Full Modular", "ATX 3.0", "10 Year Warranty", "ATX")))
+        put("nzxt c750 750w gold", GuessEntry("NZXT C750 750W 80+ Gold Full Modular", "NZXT", "PSU", 86, 95,
+            listOf("750 Watts", "80 PLUS Gold", "Full Modular", "ATX 3.0", "10 Year Warranty", "ATX")))
+        put("cooler master mwe 650 bronze v2", GuessEntry("Cooler Master MWE 650 Bronze V2 650W 80+ Bronze", "Cooler Master", "PSU", 72, 90,
+            listOf("650 Watts", "80 PLUS Bronze", "Non-Modular", "ATX", "5 Year Warranty", "ATX")))
+    }
+
     private val normalizeKey: (String) -> String = { q ->
         q.trim().lowercase()
             .replace("(\\d+)\\s*gb\\b".toRegex(), "$1gb")
@@ -432,6 +546,38 @@ object SmartQuerySpecGuesser {
             }
         }
 
+        // Then, try exact match in motherboardTable
+        motherboardTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q == nk) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try exact match in ramTable
+        ramTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q == nk) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try exact match in storageTable
+        storageTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q == nk) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try exact match in psuTable
+        psuTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q == nk) {
+                return toDetail(v)
+            }
+        }
+
         // Then, try partial match in cpuTable (query contains key)
         cpuTable.entries.forEach { (k, v) ->
             val nk = normalizeKey(k)
@@ -442,6 +588,38 @@ object SmartQuerySpecGuesser {
 
         // Then, try partial match in gpuTable (query contains key)
         gpuTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q.contains(nk)) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try partial match in motherboardTable
+        motherboardTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q.contains(nk)) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try partial match in ramTable
+        ramTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q.contains(nk)) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try partial match in storageTable
+        storageTable.entries.forEach { (k, v) ->
+            val nk = normalizeKey(k)
+            if (q.contains(nk)) {
+                return toDetail(v)
+            }
+        }
+
+        // Then, try partial match in psuTable
+        psuTable.entries.forEach { (k, v) ->
             val nk = normalizeKey(k)
             if (q.contains(nk)) {
                 return toDetail(v)
@@ -469,6 +647,29 @@ object SmartQuerySpecGuesser {
         val hasRyzen = q.contains("ryzen") || q.contains("amd")
         val hasRadeon = q.contains("radeon") || (hasRyzen && q.contains("rx "))
         val hasNvidiaGpu = q.contains("nvidia") || q.contains("geforce") || q.contains("rtx") || q.contains("gtx") || q.contains("gt ")
+        val hasMobo = q.contains("motherboard") || q.contains(" mainboard") || q.contains(" mobo") ||
+            q.contains("b450") || q.contains("b550") || q.contains("x570") || q.contains("a520") ||
+            q.contains("a620") || q.contains("b650") || q.contains("x670") || q.contains("x870") ||
+            q.contains("b760") || q.contains("b660") || q.contains("h610") || q.contains("h510") ||
+            q.contains("z590") || q.contains("z690") || q.contains("z790") || q.contains("h770") ||
+            q.contains("z890") || q.contains("b860") || q.contains("h810") ||
+            q.contains(" am4") || q.contains(" am5") || q.contains("lga1151") || q.contains("lga1200") ||
+            q.contains("lga1700") || q.contains("lga1851") || q.contains("tomahawk") || q.contains("strix") ||
+            q.contains("steel legend") || q.contains("aorus elite") || q.contains("prime b") || q.contains("mortar")
+        val hasRam = q.contains("ddr4") || q.contains("ddr5") || q.contains("ddr3") || q.contains(" udimm") ||
+            q.contains(" dimm") || q.contains("ram") || q.contains("memory") || q.contains("vengeance") ||
+            q.contains("trident") || q.contains("ripjaws") || q.contains("fury beast") || q.contains("t-force") ||
+            q.contains("dominator") || q.contains("lpx")
+        val hasStorage = q.contains("nvme") || q.contains("ssd") || q.contains("hdd") || q.contains(" m.2") ||
+            q.contains("pcie 4") || q.contains("pcie 5") || q.contains("990 pro") || q.contains("980 pro") ||
+            q.contains("sn850") || q.contains("sn770") || q.contains("t700") || q.contains("p5 plus") ||
+            q.contains("kc3000") || q.contains("rocket 4") || q.contains("firecuda") || q.contains("barracuda")
+        val hasPsu = q.contains("psu") || q.contains("power supply") || q.contains("80+") ||
+            q.contains("bronze") || q.contains("silver") || q.contains("gold") || q.contains("platinum") ||
+            q.contains("titanium") || q.contains("modular") || q.contains(" rm650") || q.contains(" rm750") ||
+            q.contains(" rm850") || q.contains(" rm1000") || q.contains("focus gx") || q.contains("focus px") ||
+            q.contains("supernova") || q.contains("straight power") || q.contains("prime 650") || q.contains("rog strix 850") ||
+            Regex("""\d{3,4}\s*w(?:atts?)?\b""", RegexOption.IGNORE_CASE).containsMatchIn(q)
 
         when {
             hasIntel || hasUltra -> {
@@ -836,6 +1037,198 @@ object SmartQuerySpecGuesser {
                         listOf("$vram GB $memType", boost, "${tdp}W TDP", pcie)
                     ).let { toDetail(it) }
                 }
+            }
+            hasPsu -> {
+                val wattMatch = Regex("""(\d{3,4})\s*w(?:atts?)?\b""", RegexOption.IGNORE_CASE).find(q)
+                val watts = wattMatch?.groupValues?.get(1)?.toIntOrNull() ?: when {
+                    q.contains("rm650", true) || q.contains("650w", true) -> 650
+                    q.contains("rm750", true) || q.contains("750w", true) || q.contains("gx 750", true) -> 750
+                    q.contains("rm850", true) || q.contains("850w", true) || q.contains("px 850", true) || q.contains("strix 850", true) -> 850
+                    q.contains("rm1000", true) || q.contains("1000w", true) -> 1000
+                    else -> 750
+                }
+                val cert = when {
+                    q.contains("titanium", true) -> "80+ Titanium"
+                    q.contains("platinum", true) -> "80+ Platinum"
+                    q.contains("gold", true) -> "80+ Gold"
+                    q.contains("silver", true) -> "80+ Silver"
+                    q.contains("bronze", true) -> "80+ Bronze"
+                    else -> "80+ Gold"
+                }
+                val modular = when {
+                    q.contains("full modular", true) -> "Full Modular"
+                    q.contains("semi modular", true) || q.contains("semi-modular", true) -> "Semi-Modular"
+                    q.contains("non modular", true) || q.contains("non-modular", true) -> "Non-Modular"
+                    watts <= 650 && cert == "80+ Bronze" -> "Non-Modular"
+                    else -> "Full Modular"
+                }
+                val brand = when {
+                    q.contains("corsair", true) -> "Corsair"
+                    q.contains("seasonic", true) -> "Seasonic"
+                    q.contains("asus", true) -> "ASUS"
+                    q.contains("evga", true) -> "EVGA"
+                    q.contains("be quiet", true) -> "be quiet!"
+                    q.contains("nzxt", true) -> "NZXT"
+                    q.contains("cooler master", true) -> "Cooler Master"
+                    q.contains("thermaltake", true) -> "Thermaltake"
+                    q.contains("deepcool", true) -> "DeepCool"
+                    q.contains("xfx", true) -> "XFX"
+                    else -> "Generic"
+                }
+                val psuScore = when {
+                    watts >= 1000 -> 93
+                    watts >= 850 -> 88
+                    watts >= 750 -> 85
+                    watts >= 650 -> 80
+                    else -> 72
+                }
+                val queryTitle = q.split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                val name = if (q.contains("rm", true) || q.contains("prime", true) || q.contains("focus", true) || q.contains("rog", true)) {
+                    "$brand $watts W $cert $modular PSU".replace(" PSU PSU", " PSU")
+                } else {
+                    "$brand $queryTitle $cert PSU"
+                }
+                return GuessEntry(
+                    name.trim().replace("  ", " "), brand, "PSU", psuScore, 92,
+                    listOf("$watts Watts", "$cert Certified", "$modular", "ATX 3.0 Ready", "ATX Form Factor", "5-10 Year Warranty")
+                ).let { toDetail(it) }
+            }
+            hasRam -> {
+                val ddr = when {
+                    q.contains("ddr5", true) -> "DDR5"
+                    q.contains("ddr3", true) -> "DDR3"
+                    else -> "DDR4"
+                }
+                val capMatch = Regex("""(\d{1,2})\s*gb\b""", RegexOption.IGNORE_CASE).findAll(q).mapNotNull { it.groupValues[1].toIntOrNull() }.toList()
+                val totalCap = if (capMatch.size >= 2) capMatch.sum() else capMatch.firstOrNull() ?: when (ddr) {
+                    "DDR5" -> 32
+                    else -> 16
+                }
+                val speedMatch = Regex("""(?:$ddr[-\s]?)(\d{3,4})""", RegexOption.IGNORE_CASE).find(q)
+                val speed = speedMatch?.groupValues?.get(1)?.toIntOrNull() ?: when (ddr) {
+                    "DDR5" -> 6000
+                    "DDR4" -> 3600
+                    else -> 3200
+                }
+                val brand = when {
+                    q.contains("corsair", true) || q.contains("vengeance", true) || q.contains("dominator", true) -> "Corsair"
+                    q.contains("gskill", true) || q.contains("g.skill", true) || q.contains("trident", true) || q.contains("ripjaws", true) -> "G.SKILL"
+                    q.contains("kingston", true) || q.contains("fury beast", true) -> "Kingston"
+                    q.contains("teamgroup", true) || q.contains("team group", true) || q.contains("t force", true) || q.contains("t-force", true) -> "TeamGroup"
+                    q.contains("adata", true) || q.contains("xpg", true) || q.contains("lancer", true) -> "ADATA"
+                    q.contains("patriot", true) || q.contains("viper", true) -> "Patriot"
+                    else -> "Generic"
+                }
+                val ramScore = when {
+                    totalCap >= 64 -> 92
+                    totalCap >= 32 -> 86
+                    totalCap >= 16 -> 80
+                    else -> 72
+                }
+                val sticks = if (totalCap == 16) "2x8GB" else if (totalCap == 32) "2x16GB" else if (totalCap == 64) "2x32GB" else "${totalCap}GB"
+                val cl = when (ddr) {
+                    "DDR5" -> if (speed >= 6400) "CL32" else if (speed >= 6000) "CL30" else "CL36"
+                    else -> if (speed >= 3600) "CL18" else "CL16"
+                }
+                return GuessEntry(
+                    "$brand $totalCap GB (${sticks}) $ddr-$speed", brand, "RAM", ramScore, 93,
+                    listOf("$totalCap GB ($sticks Kit)", "$ddr-$speed MHz", "$cl Latency", "1.35V", "288-Pin UDIMM", ddr, if (ddr=="DDR5") "AMD EXPO / Intel XMP 3.0" else "Intel XMP 2.0")
+                ).let { toDetail(it) }
+            }
+            hasStorage -> {
+                val pcieVer = when {
+                    q.contains("pcie 5", true) || q.contains("pcie5", true) || q.contains("gen 5", true) || q.contains("t700", true) -> "PCIe 5.0"
+                    else -> "PCIe 4.0"
+                }
+                val isHdd = q.contains("hdd", true) || q.contains("barracuda", true) && !q.contains("nvme", true) && !q.contains("ssd", true)
+                val capMatch = Regex("""(\d{1,3})\s*(tb|gb)\b""", RegexOption.IGNORE_CASE).find(q)
+                val capacity = if (capMatch != null) {
+                    val num = capMatch.groupValues[1].toIntOrNull() ?: 1
+                    val unit = capMatch.groupValues[2].uppercase()
+                    "$num $unit"
+                } else if (q.contains("8tb", true)) "8 TB" else if (q.contains("4tb", true)) "4 TB" else "2 TB"
+                val type = when {
+                    isHdd -> "3.5 SATA HDD"
+                    else -> "NVMe M.2 2280 SSD"
+                }
+                val brand = when {
+                    q.contains("samsung", true) -> "Samsung"
+                    q.contains("wd", true) || q.contains("western digital", true) || q.contains("black sn", true) -> "Western Digital"
+                    q.contains("crucial", true) -> "Crucial"
+                    q.contains("kingston", true) -> "Kingston"
+                    q.contains("sabrent", true) -> "Sabrent"
+                    q.contains("adata", true) || q.contains("legend", true) -> "ADATA"
+                    q.contains("seagate", true) || q.contains("firecuda", true) || q.contains("barracuda", true) -> "Seagate"
+                    q.contains("lexar", true) -> "Lexar"
+                    q.contains("teamgroup", true) || q.contains("team group", true) -> "TeamGroup"
+                    q.contains("toshiba", true) -> "Toshiba"
+                    else -> "Generic"
+                }
+                val read = when (pcieVer) {
+                    "PCIe 5.0" -> "12400 MB/s Read"
+                    else -> "7400 MB/s Read"
+                }
+                val write = when (pcieVer) {
+                    "PCIe 5.0" -> "11800 MB/s Write"
+                    else -> "6500 MB/s Write"
+                }
+                val storScore = when {
+                    capacity.contains("8") -> 93
+                    capacity.contains("4") -> 90
+                    capacity.contains("2") -> 86
+                    else -> 80
+                }
+                return GuessEntry(
+                    "$brand $capacity $pcieVer NVMe SSD".replace("NVMe NVMe", "NVMe").replace("  ", " "), brand, "STORAGE", storScore, 93,
+                    listOf("$capacity Capacity", type, "$pcieVer x4", read, write, if (isHdd) "SATA HDD" else "NVMe SSD")
+                ).let { toDetail(it) }
+            }
+            hasMobo -> {
+                val socket = when {
+                    q.contains("am5", true) || q.contains("b650", true) || q.contains("x670", true) || q.contains("x870", true) || q.contains("a620", true) -> "Socket AM5"
+                    q.contains("am4", true) || q.contains("b450", true) || q.contains("b550", true) || q.contains("x570", true) || q.contains("x470", true) || q.contains("a520", true) -> "Socket AM4"
+                    q.contains("lga1851", true) || q.contains("z890", true) || q.contains("b860", true) -> "Socket LGA1851"
+                    q.contains("lga1700", true) || q.contains("z790", true) || q.contains("b760", true) || q.contains("z690", true) || q.contains("b660", true) || q.contains("h610", true) || q.contains("h770", true) || q.contains("h810", true) -> "Socket LGA1700"
+                    q.contains("lga1200", true) || q.contains("z590", true) || q.contains("b560", true) || q.contains("h510", true) -> "Socket LGA1200"
+                    q.contains("lga1151", true) -> "Socket LGA1151 v2"
+                    else -> "Socket AM4"
+                }
+                val ddr = when (socket) {
+                    "Socket AM5", "Socket LGA1700", "Socket LGA1851" -> "DDR5"
+                    else -> "DDR4"
+                }
+                val brand = when {
+                    q.contains("msi", true) || q.contains("mag", true) || q.contains("mpg", true) || q.contains("meg", true) -> "MSI"
+                    q.contains("asus", true) || q.contains("rog", true) || q.contains("strix", true) || q.contains("tuf", true) || q.contains("prime", true) -> "ASUS"
+                    q.contains("asrock", true) || q.contains("steel legend", true) || q.contains("pro4", true) || q.contains("pro rs", true) -> "ASRock"
+                    q.contains("gigabyte", true) || q.contains("aorus", true) -> "GIGABYTE"
+                    q.contains("biostar", true) -> "BIOSTAR"
+                    else -> "Generic"
+                }
+                val form = when {
+                    q.contains("micro atx", true) || q.contains("matx", true) || q.contains("-m ", true) || q.contains(" m a", true) -> "Micro-ATX"
+                    q.contains("mini itx", true) || q.contains("itx", true) -> "Mini-ITX"
+                    q.contains("e-atx", true) || q.contains("eatx", true) -> "E-ATX"
+                    else -> "ATX"
+                }
+                val chipset = listOf("b450","b550","x570","x470","a520","a620","b650","x670","x870","b760","z790","z690","b660","h610","h770","z590","h510","b560","z890","b860","h810").firstOrNull { chip -> q.contains(chip, true) }?.uppercase() ?: when (socket) {
+                    "Socket AM4" -> "B550"
+                    "Socket AM5" -> "B650"
+                    "Socket LGA1700" -> "Z790"
+                    "Socket LGA1200" -> "Z590"
+                    "Socket LGA1851" -> "Z890"
+                    else -> "B550"
+                }
+                val moboScore = when {
+                    socket.contains("1851") -> 94
+                    socket.contains("AM5") || socket.contains("1700") -> 90
+                    socket.contains("AM4") || socket.contains("1200") -> 82
+                    else -> 78
+                }
+                return GuessEntry(
+                    "$brand $chipset ${socket.replace("Socket ","")} ($form $ddr)".replace("  "," "), brand, "MOTHERBOARD", moboScore, 93,
+                    listOf(socket, "$chipset Chipset", "4x $ddr DIMM", "2x M.2 NVMe ${if (ddr=="DDR5") "PCIe 5.0" else "PCIe 4.0"}", "$form Form Factor", if (socket!="Socket LGA1200" && socket!="LGA1151 v2") "WiFi 6" else "Gigabit LAN")
+                ).let { toDetail(it) }
             }
         }
         return null

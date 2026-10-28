@@ -88,3 +88,26 @@ kotlin/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# -----------------------------
+# BUILD NOISE / TOOL ARTIFACTS
+# -----------------------------
+# Kotlin compiler scratch output (was tracked; keep it out)
+**/.kotlin/
+.kotlin/
+# Local Gradle home used only for this machine
+**/_local_gradle_home/
+_local_gradle_home/
+# Android release build output
+pcscan3/app/release/
+# Build / service logs
+*.log
+**/*.log
+build_log*.txt
+# Agent + IDE planning artifacts
+.trae/
+**/.trae/
+# Stray shell redirect output
+/default
+# Raw design reference export (not app resources)
+pcscan3/Pc scan ui/

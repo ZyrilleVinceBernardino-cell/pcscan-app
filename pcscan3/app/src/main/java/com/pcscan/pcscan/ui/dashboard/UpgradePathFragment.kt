@@ -30,12 +30,17 @@ class UpgradePathFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            safePopBackToDashboard()
         }
 
         arguments?.getString(ARG_SELECTED_COMPONENT)
             ?.takeIf { it.isNotBlank() }
             ?.let(viewModel::ensureSelectedComponent)
+
+        val selectedComponent = arguments?.getString(ARG_SELECTED_COMPONENT).orEmpty()
+        if (selectedComponent.isNotBlank()) {
+            binding.tvBasedOn.text = "Based on: $selectedComponent"
+        }
 
         viewModel.upgradePathScreenState.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -43,7 +48,9 @@ class UpgradePathFragment : Fragment() {
                 ScreenState.Loading -> binding.tvBasedOn.text = "Loading upgrade path..."
                 is ScreenState.Success -> {
                     val uiState = state.data
-                    binding.tvBasedOn.text = uiState.basedOnText
+                    if (uiState.basedOnText.isNotBlank()) {
+                        binding.tvBasedOn.text = uiState.basedOnText
+                    }
                 }
 
                 is ScreenState.Error -> {
@@ -52,13 +59,12 @@ class UpgradePathFragment : Fragment() {
             }
         }
 
-        val selectedComponent = arguments?.getString(ARG_SELECTED_COMPONENT).orEmpty()
-
         binding.btnYesBuild.setOnClickListener {
             findNavController().navigate(
-                R.id.action_upgradePathFragment_to_upgradeCurrentFragment,
+                R.id.action_upgradePathFragment_to_noBuildYetFragment,
                 Bundle().apply {
-                    putString(UpgradeCurrentFragment.ARG_SELECTED_COMPONENT, selectedComponent)
+                    putString(NoBuildYetFragment.ARG_SELECTED_COMPONENT, selectedComponent)
+                    putBoolean(NoBuildYetFragment.ARG_HAS_EXISTING_BUILD, true)
                 }
             )
         }
@@ -68,8 +74,22 @@ class UpgradePathFragment : Fragment() {
                 R.id.action_upgradePathFragment_to_noBuildYetFragment,
                 Bundle().apply {
                     putString(NoBuildYetFragment.ARG_SELECTED_COMPONENT, selectedComponent)
+                    putBoolean(NoBuildYetFragment.ARG_HAS_EXISTING_BUILD, false)
                 }
             )
+        }
+    }
+
+    private fun safePopBackToDashboard() {
+        try {
+            if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
+            val navController = findNavController()
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

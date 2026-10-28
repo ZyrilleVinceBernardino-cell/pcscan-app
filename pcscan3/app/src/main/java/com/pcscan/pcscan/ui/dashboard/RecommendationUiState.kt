@@ -36,6 +36,8 @@ data class BuildRecommendationUiState(
     val basedOnText: String = "Based on: GPU",
     val selectedTier: BuildTier = BuildTier.ENTRY,
     val currentBuildTier: BuildTier? = null,
+    val detectedComponentTier: String = "",
+    val detectedTierLabel: String = "",
     val build: BuildRecommendation? = null
 )
 

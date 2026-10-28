@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    android:fillViewport="true">
+    android:background="@color/background">
+
+    <ScrollView
+        android:id="@+id/svNoBuildYetContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="visible">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,7 +60,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="14dp"
             android:paddingBottom="8dp"
-            android:text="Based on: RTX 3080 Ti"
+            android:text="Based on: Component"
             android:textColor="@color/text_white"
             android:textSize="13sp" />
 
@@ -235,40 +241,98 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGenerateBuild"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="60dp"
                 android:layout_marginBottom="12dp"
                 android:background="@drawable/bg_primary_button"
                 app:backgroundTint="@null"
-                app:icon="@drawable/upload_build_reco_icon"
-                app:iconGravity="textStart"
-                app:iconPadding="10dp"
-                app:iconSize="24dp"
-                app:strokeWidth="0dp"
-                android:text="Generate Build Recommendation"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveUpgrade"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_upgrade_no_button"
-                app:backgroundTint="@null"
-                app:icon="@drawable/saved_upgrade_save_icon"
+                app:icon="@drawable/upgrade_save_all_icon"
                 app:iconGravity="textStart"
                 app:iconPadding="10dp"
                 app:iconSize="24dp"
                 app:strokeWidth="0dp"
                 android:text="Save Upgrade Path"
                 android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveUpgrade"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_upgrade_no_button"
+                app:backgroundTint="@null"
+                app:icon="@drawable/ic_arrow_back"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconSize="24dp"
+                app:strokeWidth="0dp"
+                android:text="Back to Dashboard"
+                android:textAllCaps="false"
                 android:textColor="@color/text_white"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="8dp" />
+                app:cornerRadius="18dp" />
         </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivLoadingLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:contentDescription="PC Scan logo"
+            android:src="@drawable/ic_pc_tower_blue" />
+
+        <TextView
+            android:id="@+id/tvLoadingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="Preparing Upgrade Path..."
+            android:textColor="@color/text_white"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvLoadingSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Analyzing your component and preparing upgrade tiers..."
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/pbLoadingProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="12dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/accent"
+                android:indeterminateTintMode="src_in"
+                android:progressBackgroundTint="@color/border"
+                android:splitTrack="false" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

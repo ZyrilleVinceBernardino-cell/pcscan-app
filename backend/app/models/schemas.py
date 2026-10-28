@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, Dict, Any, Tuple
 
 
 # =============================================================
@@ -385,4 +385,77 @@ class BuildRecoResponse(BaseModel):
     mid: BuildRecoTierBundle = Field(..., description="Mid-range tier build bundle")
     high: BuildRecoTierBundle = Field(..., description="High-end tier build bundle")
     processing_time_ms: int = Field(default=0, description="Total processing time in milliseconds")
-    error_message: Optional[str] = Field(default=None, description="Error message if success=False")
+
+
+# =====================================================================
+# 12. NEW: TARGETED UPGRADE ADVISOR (3-step spec + strict JSON output)
+# =====================================================================
+class UpgradeComponentSnapshot(BaseModel):
+    """Full snapshot of a component at any point: current or recommended."""
+    id: Optional[str] = Field(default=None, description="Optional unique ID")
+    category: str = Field(..., description="cpu | gpu | ram | storage | motherboard | psu | case | cooler")
+    name: str = Field(..., description="Full specific model name. NO placeholders, NO generic brand-only names.")
+    tier: Optional[str] = Field(default=None, description="entry | midrange | high-end | flagship")
+    specs: Dict[str, Any] = Field(default_factory=dict, description="Category-specific specs: socket, chipset, memory_type, tdp, wattage_rating, vram_gb, capacity_gb, speed_mhz, pcie_version, etc.")
+
+
+class TargetComponentReport(BaseModel):
+    """Step 1 result: target component tier identification + recommended replacement (if any)."""
+    current: UpgradeComponentSnapshot = Field(..., description="User's original target component (searched/scanned/uploaded)")
+    current_tier: Literal["entry", "midrange", "high-end", "flagship"] = Field(..., description="Determined performance tier of current target")
+    upgrade_needed: bool = Field(..., description="False only if target is already flagship/super-high-end and no upgrade should be made.")
+    recommended_replacement: Optional[UpgradeComponentSnapshot] = Field(default=None, description="Next-tier-up replacement. Null if upgrade_needed == False.")
+    reason: str = Field(..., description="Short justification, e.g. 'entry -> midrange upgrade' or 'already flagship tier, no upgrade needed'")
+
+
+class RequiredCompatChange(BaseModel):
+    """Step 2 result: parts that MUST be replaced because the new target component is NOT compatible with them."""
+    category: str = Field(..., description="cpu | gpu | ram | storage | motherboard | psu | case | cooler")
+    current: UpgradeComponentSnapshot = Field(..., description="Original part in user's current build")
+    recommended_replacement: UpgradeComponentSnapshot = Field(..., description="Required replacement that restores full compatibility")
+    reason: str = Field(..., description="Why this is required, e.g. 'socket mismatch with new CPU: AM4 vs AM5' or 'existing 550W PSU cannot supply total draw with new RTX 4090 (headroom below 1.3x)'")
+
+
+class OptionalUpgradeItem(BaseModel):
+    """Step 3 result: further recommendations (not required for compat, but recommended because they fix bottleneck / weak point)."""
+    category: str = Field(..., description="cpu | gpu | ram | storage | motherboard | psu | case | cooler")
+    current: UpgradeComponentSnapshot = Field(..., description="Original part in user's current build")
+    recommended_replacement: UpgradeComponentSnapshot = Field(..., description="Recommended improved replacement (specific real model, never generic)")
+    reason: str = Field(..., description="Functional rationale: bottleneck, tier mismatch, capacity too low, storage full/slow, PSU insufficient wattage, etc. Never 'complete a matching set'.")
+
+
+class UnchangedComponentItem(BaseModel):
+    """Parts of CURRENT_BUILD that are kept as-is because they are adequate and compatible with final upgraded build."""
+    category: str = Field(..., description="cpu | gpu | ram | storage | motherboard | psu | case | cooler")
+    current: UpgradeComponentSnapshot = Field(..., description="The component that is preserved unchanged.")
+    reason: str = Field(default="still adequate", description="Why no change is needed, e.g. 'still adequate', 'compatible with new target', 'PSU has sufficient headroom'.")
+
+
+class FinalBuildCheck(BaseModel):
+    """Hard-constraint verification of FINAL build (target upgraded + required changes + optional upgrades + unchanged parts)."""
+    compatibility_ok: bool = Field(..., description="True ONLY if every pair of components in final build is 100% compatible. Zero exceptions.")
+    bottleneck_percent: float = Field(..., ge=0.0, le=100.0, description="CPU-GPU bottleneck of FINAL component pairing, in either direction, 0-100. Must be <=20.")
+    bottleneck_warning: bool = Field(..., description="True if bottleneck_percent > 20. If True, recommendation set MUST be rejected and re-evaluated.")
+    estimated_total_draw_watts: int = Field(..., description="Estimated total system power draw (watts, integer), sum of all final components, used for PSU headroom check.")
+    current_psu_sufficient: bool = Field(..., description="True if existing PSU is sufficient using 1.3x-1.5x headroom over estimated_total_draw_watts.")
+    recommended_psu_watts: Optional[int] = Field(default=None, description="Recommended new PSU wattage if current PSU is insufficient; null otherwise.")
+
+
+class TargetedUpgradeResponse(BaseModel):
+    """Full 5-section strict JSON output of the new targeted upgrade advisor spec."""
+    target_component: TargetComponentReport = Field(..., description="Step 1: Target component tier identification and next-tier replacement (if applicable).")
+    required_compatibility_changes: List[RequiredCompatChange] = Field(default_factory=list, description="Step 2: Components that MUST be changed to keep the build physically/electrically compatible with the target upgrade.")
+    optional_recommended_upgrades: List[OptionalUpgradeItem] = Field(default_factory=list, description="Step 3: Components that SHOULD be changed because they bottleneck the target or are a clear functional weak point.")
+    unchanged_components: List[UnchangedComponentItem] = Field(default_factory=list, description="Components of CURRENT_BUILD that are intentionally preserved because they are adequate and compatible.")
+    final_build_check: FinalBuildCheck = Field(..., description="Final validation of the entire recommended build against all 5 hard constraints. If bottleneck_warning or compatibility_ok==False, discard and re-run recommendation.")
+    processing_time_ms: int = Field(default=0, description="Total processing time in milliseconds.")
+    source: Literal["deterministic", "llm", "mock"] = Field(default="deterministic", description="Where the recommendation came from.")
+    error_message: Optional[str] = Field(default=None)
+
+
+class TargetedUpgradeRequest(BaseModel):
+    """Input payload for the new /upgrade/advisor endpoint."""
+    target_component: UpgradeComponentSnapshot = Field(..., description="The component the user wants to start with (searched/scanned/uploaded). PRIMARY upgrade focus.")
+    current_build: Dict[str, Optional[UpgradeComponentSnapshot]] = Field(default_factory=dict, description="User's full existing build. Keys: cpu, gpu, ram, storage, motherboard, psu, case, cooler. Some entries may be null/absent if unknown.")
+    component_catalog_override: Optional[Dict[str, List[Dict[str, Any]]]] = Field(default=None, description="Optional override of component catalog. If omitted, local CompatibilityEngine database is used.")
+    use_llm_if_needed: bool = Field(default=True, description="If deterministic engine cannot cover a case, fall back to LLM with the spec as system prompt.")

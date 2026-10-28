@@ -2,6 +2,7 @@ package com.pcscan.pcscan.ui.dashboard
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +39,7 @@ class UpgradeRecoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            safePopBack()
         }
 
         binding.btnSaveUpgrade.setIconResource(R.drawable.upgrade_save_all_icon)
@@ -48,6 +49,116 @@ class UpgradeRecoFragment : Fragment() {
         binding.btnBackToDashboard.setIconResource(R.drawable.ic_arrow_back)
         binding.btnBackToDashboard.iconGravity = com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START
         binding.btnBackToDashboard.iconPadding = (10 * resources.displayMetrics.density).toInt()
+
+        val isViewingSaved = arguments?.getBoolean(ARG_IS_VIEWING_SAVED, false) == true
+
+        if (isViewingSaved) {
+            // Offline viewing mode: hydrate UI state DIRECTLY from saved bundle args.
+            // Do NOT call loadUpgradeRecommendations which triggers network/GPT.
+            val entryComps = deserializeViewingComponents(arguments?.getString(ARG_VIEWING_ENTRY_PATH_COMPS).orEmpty())
+            val midComps = deserializeViewingComponents(arguments?.getString(ARG_VIEWING_MID_PATH_COMPS).orEmpty())
+            val highComps = deserializeViewingComponents(arguments?.getString(ARG_VIEWING_HIGH_PATH_COMPS).orEmpty())
+
+            val baseTitleEntry = arguments?.getString(ARG_VIEWING_ENTRY_PATH_TITLE)
+            val baseTitleMid = arguments?.getString(ARG_VIEWING_MID_PATH_TITLE)
+            val baseTitleHigh = arguments?.getString(ARG_VIEWING_HIGH_PATH_TITLE)
+            val hasAny = !listOf(baseTitleEntry, baseTitleMid, baseTitleHigh).all { it.isNullOrBlank() }
+
+            val entryPath = if (entryComps.isNotEmpty()) {
+                UpgradePath(
+                    title = baseTitleEntry.takeUnless { it.isNullOrBlank() } ?: "Entry Upgrade Path",
+                    description = arguments?.getString(ARG_VIEWING_ENTRY_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "entry",
+                    components = entryComps,
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else if (hasAny && entryComps.isEmpty() && baseTitleEntry != null) {
+                UpgradePath(
+                    title = baseTitleEntry,
+                    description = arguments?.getString(ARG_VIEWING_ENTRY_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "entry",
+                    components = emptyList(),
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else null
+
+            val midPath = if (midComps.isNotEmpty()) {
+                UpgradePath(
+                    title = baseTitleMid.takeUnless { it.isNullOrBlank() } ?: "Midrange Upgrade Path",
+                    description = arguments?.getString(ARG_VIEWING_MID_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "midrange",
+                    components = midComps,
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else if (hasAny && baseTitleMid != null) {
+                UpgradePath(
+                    title = baseTitleMid,
+                    description = arguments?.getString(ARG_VIEWING_MID_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "midrange",
+                    components = emptyList(),
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else null
+
+            val highPath = if (highComps.isNotEmpty()) {
+                UpgradePath(
+                    title = baseTitleHigh.takeUnless { it.isNullOrBlank() } ?: "High-End Upgrade Path",
+                    description = arguments?.getString(ARG_VIEWING_HIGH_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "high-end",
+                    components = highComps,
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else if (hasAny && baseTitleHigh != null) {
+                UpgradePath(
+                    title = baseTitleHigh,
+                    description = arguments?.getString(ARG_VIEWING_HIGH_PATH_DESCRIPTION, "").orEmpty(),
+                    tier = "high-end",
+                    components = emptyList(),
+                    stepOne = "",
+                    stepTwo = "",
+                    stepThree = ""
+                )
+            } else null
+
+            val tierLabelArg = arguments?.getString(ARG_VIEWING_CURRENT_BUILD_TIER_LABEL).orEmpty()
+            val basedOnArg = arguments?.getString(ARG_VIEWING_BASED_ON_TEXT).orEmpty()
+                .ifBlank { arguments?.getString(ARG_SELECTED_COMPONENT).orEmpty().let { "Based on: $it" } }
+            val allPaths = listOfNotNull(entryPath, midPath, highPath)
+
+            viewModel.forceUpgradeRecoUiStateFromSaved(
+                basedOnText = basedOnArg,
+                currentBuildTierLabel = tierLabelArg,
+                entry = entryPath,
+                mid = midPath,
+                high = highPath
+            )
+
+            // Render with observer below, then hide save button
+            viewModel.upgradeRecoScreenState.observe(viewLifecycleOwner) { state ->
+                when (state) {
+                    ScreenState.Idle -> Unit
+                    ScreenState.Loading -> binding.tvBasedOn.text = "Loading saved recommendation..."
+                    is ScreenState.Success -> renderSuccess(state.data)
+                    is ScreenState.Error ->
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+            binding.btnSaveUpgrade.visibility = View.GONE
+            binding.btnBack.setOnClickListener { safePopBackToDashboard() }
+            @Suppress("UNUSED_VALUE")
+            val allTiersCountSnapshot = allPaths.size.coerceAtLeast(1)
+            return
+        }
 
         val argComponent = arguments?.getString(ARG_SELECTED_COMPONENT)
         val argHasExistingBuild = arguments?.getBoolean(ARG_HAS_EXISTING_BUILD, true) ?: true
@@ -115,64 +226,8 @@ class UpgradeRecoFragment : Fragment() {
                 ScreenState.Idle -> Unit
                 ScreenState.Loading -> binding.tvBasedOn.text = "Loading recommendations..."
                 is ScreenState.Success -> {
-                    val uiState = state.data
-                    binding.tvBasedOn.text = uiState.basedOnText
-
-                    val tierLabel = uiState.currentBuildTierLabel
-                    val hasTier = tierLabel.isNotBlank()
-                    if (hasTier) {
-                        binding.tvCurrentBuildTier.visibility = View.VISIBLE
-                        binding.tvCurrentBuildTier.text =
-                            "Your build tier: $tierLabel"
-                    } else {
-                        binding.tvCurrentBuildTier.visibility = View.GONE
-                    }
-
-                    val count = uiState.tierCount.coerceAtLeast(1)
-                    val hasExistingBuild = !uiState.currentBuild.isEmpty
-                    val tierSuffix = if (count == 1) "tier:" else "tiers:"
-                    binding.tvIntroTiers.text = when {
-                        hasExistingBuild && hasTier ->
-                            "AI has classified your build as $tierLabel. Prepared $count upgrade $tierSuffix"
-                        else ->
-                            "AI has analyzed your component and prepared $count upgrade $tierSuffix"
-                    }
-
-                    if (uiState.entryPath != null) {
-                        binding.layoutEntryCard.visibility = View.VISIBLE
-                        binding.tvEntryTitle.text = uiState.entryPath.title
-                        binding.tvEntryDescription.text = uiState.entryPath.description
-                        binding.layoutEntryComponents.removeAllViews()
-                        uiState.entryPath.components.forEach { comp ->
-                            binding.layoutEntryComponents.addView(buildComponentRow(comp))
-                        }
-                    } else {
-                        binding.layoutEntryCard.visibility = View.GONE
-                    }
-
-                    if (uiState.midPath != null) {
-                        binding.layoutMidCard.visibility = View.VISIBLE
-                        binding.tvMidTitle.text = uiState.midPath.title
-                        binding.tvMidDescription.text = uiState.midPath.description
-                        binding.layoutMidComponents.removeAllViews()
-                        uiState.midPath.components.forEach { comp ->
-                            binding.layoutMidComponents.addView(buildComponentRow(comp))
-                        }
-                    } else {
-                        binding.layoutMidCard.visibility = View.GONE
-                    }
-
-                    if (uiState.highPath != null) {
-                        binding.layoutHighCard.visibility = View.VISIBLE
-                        binding.tvHighTitle.text = uiState.highPath.title
-                        binding.tvHighDescription.text = uiState.highPath.description
-                        binding.layoutHighComponents.removeAllViews()
-                        uiState.highPath.components.forEach { comp ->
-                            binding.layoutHighComponents.addView(buildComponentRow(comp))
-                        }
-                    } else {
-                        binding.layoutHighCard.visibility = View.GONE
-                    }
+                    renderSuccess(state.data)
+                    updateSaveUpgradeButtonVisibility()
                 }
                 is ScreenState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -181,18 +236,63 @@ class UpgradeRecoFragment : Fragment() {
         }
 
         binding.btnSaveUpgrade.setOnClickListener {
-            val savedCount = viewModel.saveAllUpgradeRecommendations()
-            val message = when {
-                savedCount == 0 -> "All recommendations are already saved"
-                savedCount == 1 -> "1 recommendation saved"
-                else -> "$savedCount recommendations saved"
+            val state = viewModel.upgradeRecoScreenState.value as? ScreenState.Success
+            val allPaths = listOfNotNull(state?.data?.entryPath, state?.data?.midPath, state?.data?.highPath)
+            val isBuildTopTier = allPaths.isNotEmpty() && allPaths.all {
+                it.title.startsWith("Your build is already") || it.title.startsWith("Your component is already")
             }
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            val isBuildMessage = allPaths.any { it.title.startsWith("Your build is already") }
+
+            if (isBuildTopTier) {
+                val msg = if (isBuildMessage) {
+                    "Nothing to save - your build is already high-end top tier."
+                } else {
+                    "Nothing to save - your component is already high-end top tier."
+                }
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val (upgradeSavedCount, buildSavedCount) = viewModel.saveAllUpgradeRecommendations()
+            val hasCurrentBuildArg = (arguments?.getBoolean(ARG_HAS_EXISTING_BUILD, true) ?: true)
+            val upgradeMessage = when {
+                upgradeSavedCount == 0 && buildSavedCount == 0 -> "All recommendations are already saved"
+                upgradeSavedCount == 0 && buildSavedCount > 0 -> "Your current build was saved (upgrade recommendations already saved)"
+                upgradeSavedCount > 0 && buildSavedCount == 0 -> {
+                    if (hasCurrentBuildArg) {
+                        val tierLabel = if (upgradeSavedCount == 1) "tier" else "tiers"
+                        "$upgradeSavedCount upgrade $tierLabel saved (build already saved)"
+                    } else {
+                        val tierLabel = if (upgradeSavedCount == 1) "tier" else "tiers"
+                        "$upgradeSavedCount upgrade $tierLabel saved"
+                    }
+                }
+                else -> {
+                    val tierLabel = if (upgradeSavedCount == 1) "tier" else "tiers"
+                    "$upgradeSavedCount upgrade $tierLabel + your current build saved"
+                }
+            }
+            Toast.makeText(requireContext(), upgradeMessage, Toast.LENGTH_SHORT).show()
+            // After saving, refresh the generated recommendation and return to the dashboard.
+            safePopBackToDashboard()
+        }
+
+        updateSaveUpgradeButtonVisibility()
+        viewModel.savedUpgrades.observe(viewLifecycleOwner) {
+            if (_binding == null) return@observe
+            updateSaveUpgradeButtonVisibility()
         }
 
         binding.btnBackToDashboard.setOnClickListener {
-            findNavController().popBackStack(R.id.dashboardFragment, false)
+            safePopBackToDashboard()
         }
+    }
+
+    /** Hides the Save Upgrade button once these recommendations are already stored for the user. */
+    private fun updateSaveUpgradeButtonVisibility() {
+        if (_binding == null) return
+        binding.btnSaveUpgrade.visibility =
+            if (viewModel.isCurrentUpgradeSaved()) View.GONE else View.VISIBLE
     }
 
     private fun buildComponentRow(comp: UpgradeComponent): View {
@@ -293,10 +393,13 @@ class UpgradeRecoFragment : Fragment() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 topMargin = (2 * density).toInt()
+                marginEnd = (8 * density).toInt()
             }
             text = comp.description
             setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
             textSize = 12f
+            maxLines = 2
+            ellipsize = TextUtils.TruncateAt.END
         }
 
         textContainer.addView(categoryLabel)
@@ -318,74 +421,22 @@ class UpgradeRecoFragment : Fragment() {
         topRow.addView(textContainer)
         topRow.addView(compatValue)
 
-        val progressContainer = LinearLayout(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = (10 * density).toInt()
-            }
-            orientation = LinearLayout.VERTICAL
-        }
-
-        val progressLabelRow = LinearLayout(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-
-        val progressLabel = TextView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-            text = "Compatibility Score"
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
-            textSize = 11f
-            setTypeface(null, Typeface.BOLD)
-        }
-
-        val progressPercent = TextView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            text = "${(comp.progressPercent * 100).toInt()}%"
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
-            textSize = 11f
-        }
-
-        progressLabelRow.addView(progressLabel)
-        progressLabelRow.addView(progressPercent)
-
-        val progressBar = ProgressBar(
-            requireContext(),
-            null,
-            android.R.attr.progressBarStyleHorizontal
-        ).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                (8 * density).toInt()
-            ).apply {
-                topMargin = (4 * density).toInt()
-            }
-            isIndeterminate = false
-            max = 100
-            progress = (comp.progressPercent * 100).toInt()
-            progressDrawable?.let { drawable ->
-                drawable.setTint(ContextCompat.getColor(requireContext(), categoryColor))
-            }
-        }
-
-        progressContainer.addView(progressLabelRow)
-        progressContainer.addView(progressBar)
-
         row.addView(topRow)
-        row.addView(progressContainer)
+
+        val progress = ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (6 * density).toInt()
+            ).apply {
+                topMargin = (8 * density).toInt()
+            }
+            max = 100
+            progress = comp.compatibility.coerceIn(0, 100)
+            isIndeterminate = false
+            progressDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.progress_gradient_bar)
+        }
+        row.addView(progress)
+
         return row
     }
 
@@ -394,8 +445,140 @@ class UpgradeRecoFragment : Fragment() {
         _binding = null
     }
 
+    private fun renderSuccess(uiState: UpgradeRecoUiState) {
+        binding.tvBasedOn.text = uiState.basedOnText
+        val baseCompName = uiState.basedOnText.substringAfter("Based on: ", "")
+        val cat = if (baseCompName.isNotBlank())
+            RecommendationMockData.resolveCategory(baseCompName).uppercase()
+        else "CPU"
+        val icon = when (cat) {
+            "CPU" -> R.drawable.build_reco_cpu_icon
+            "GPU" -> R.drawable.build_reco_gpu_icon
+            "MOTHERBOARD" -> R.drawable.build_reco_mobo_icon
+            "RAM" -> R.drawable.build_reco_ram_icon
+            "STORAGE" -> R.drawable.build_reco_storage_icon
+            "PSU" -> R.drawable.build_reco_psu_icon
+            else -> R.drawable.build_reco_cpu_icon
+        }
+        val drawable = AppCompatResources.getDrawable(requireContext(), icon)
+        binding.tvBasedOn.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+        binding.tvBasedOn.compoundDrawablePadding = (8 * resources.displayMetrics.density).toInt()
+
+        val tierLabel = uiState.currentBuildTierLabel
+        val hasTier = tierLabel.isNotBlank()
+        if (hasTier) {
+            binding.tvCurrentBuildTier.visibility = View.VISIBLE
+            binding.tvCurrentBuildTier.text = "Your build tier: $tierLabel"
+        } else {
+            binding.tvCurrentBuildTier.visibility = View.GONE
+        }
+
+        val hasAnyPath = listOfNotNull(uiState.entryPath, uiState.midPath, uiState.highPath).isNotEmpty()
+        val count = (if (hasAnyPath) listOfNotNull(uiState.entryPath, uiState.midPath, uiState.highPath).size else uiState.tierCount).coerceAtLeast(1)
+        val hasExistingBuild = !uiState.currentBuild.isEmpty
+        val tierSuffix = if (count == 1) "tier:" else "tiers:"
+        binding.tvIntroTiers.text = when {
+            hasExistingBuild && hasTier ->
+                "AI has classified your build as $tierLabel. Prepared $count upgrade $tierSuffix"
+            else ->
+                "AI has analyzed your component and prepared $count upgrade $tierSuffix"
+        }
+
+        if (uiState.entryPath != null) {
+            binding.layoutEntryCard.visibility = View.VISIBLE
+            binding.tvEntryTitle.text = uiState.entryPath.title
+            binding.tvEntryDescription.text = uiState.entryPath.description
+            binding.tvEntryDescription.maxLines = 2
+            binding.tvEntryDescription.ellipsize = TextUtils.TruncateAt.END
+            binding.layoutEntryComponents.removeAllViews()
+            uiState.entryPath.components.forEach { comp ->
+                binding.layoutEntryComponents.addView(buildComponentRow(comp))
+            }
+        } else {
+            binding.layoutEntryCard.visibility = View.GONE
+        }
+
+        if (uiState.midPath != null) {
+            binding.layoutMidCard.visibility = View.VISIBLE
+            binding.tvMidTitle.text = uiState.midPath.title
+            binding.tvMidDescription.text = uiState.midPath.description
+            binding.tvMidDescription.maxLines = 2
+            binding.tvMidDescription.ellipsize = TextUtils.TruncateAt.END
+            binding.layoutMidComponents.removeAllViews()
+            uiState.midPath.components.forEach { comp ->
+                binding.layoutMidComponents.addView(buildComponentRow(comp))
+            }
+        } else {
+            binding.layoutMidCard.visibility = View.GONE
+        }
+
+        if (uiState.highPath != null) {
+            binding.layoutHighCard.visibility = View.VISIBLE
+            binding.tvHighTitle.text = uiState.highPath.title
+            binding.tvHighDescription.text = uiState.highPath.description
+            binding.tvHighDescription.maxLines = 2
+            binding.tvHighDescription.ellipsize = TextUtils.TruncateAt.END
+            binding.layoutHighComponents.removeAllViews()
+            uiState.highPath.components.forEach { comp ->
+                binding.layoutHighComponents.addView(buildComponentRow(comp))
+            }
+        } else {
+            binding.layoutHighCard.visibility = View.GONE
+        }
+    }
+
+    private fun deserializeViewingComponents(raw: String): List<UpgradeComponent> {
+        if (raw.isBlank()) return emptyList()
+        val rows = raw.split("||")
+        return rows.mapNotNull { row ->
+            if (row.isBlank()) return@mapNotNull null
+            val cols = row.split("|~|")
+            if (cols.size < 5) return@mapNotNull null
+            runCatching {
+                val compScore = cols.getOrNull(4)?.toIntOrNull()
+                val progressRaw = cols.getOrNull(4)
+                val progressPctVal = progressRaw?.toIntOrNull() ?: 0
+                val compatInt = cols.getOrNull(3)?.toIntOrNull() ?: 90
+                UpgradeComponent(
+                    category = cols[0].uppercase(),
+                    name = cols[1],
+                    description = cols.getOrNull(2).orEmpty(),
+                    compatibility = compatInt,
+                    progressPercent = if (progressPctVal > 1) progressPctVal / 100f else compScore?.toFloat() ?: 0.90f
+                )
+            }.getOrNull()
+        }
+    }
+
+    /** Normal back: return to the previous result screen WITHOUT resetting the generated state. */
+    private fun safePopBack() {
+        try {
+            if (_binding == null || !isAdded) return
+            val navController = findNavController()
+            if (!navController.popBackStack()) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun safePopBackToDashboard() {
+        try {
+            if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
+            val navController = findNavController()
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     companion object {
         const val ARG_SELECTED_COMPONENT = "selectedComponent"
+        const val ARG_IS_VIEWING_SAVED = "isViewingSaved"
         const val ARG_HAS_EXISTING_BUILD = "hasExistingBuild"
         const val ARG_CURRENT_BUILD_CPU = "currentBuildCpu"
         const val ARG_CURRENT_BUILD_GPU = "currentBuildGpu"
@@ -403,5 +586,16 @@ class UpgradeRecoFragment : Fragment() {
         const val ARG_CURRENT_BUILD_RAM = "currentBuildRam"
         const val ARG_CURRENT_BUILD_STORAGE = "currentBuildStorage"
         const val ARG_CURRENT_BUILD_PSU = "currentBuildPsu"
+        const val ARG_VIEWING_BASED_ON_TEXT = "viewing_based_on_text"
+        const val ARG_VIEWING_CURRENT_BUILD_TIER_LABEL = "viewing_current_tier_label"
+        const val ARG_VIEWING_ENTRY_PATH_TITLE = "viewing_entry_title"
+        const val ARG_VIEWING_ENTRY_PATH_DESCRIPTION = "viewing_entry_desc"
+        const val ARG_VIEWING_ENTRY_PATH_COMPS = "viewing_entry_comps"
+        const val ARG_VIEWING_MID_PATH_TITLE = "viewing_mid_title"
+        const val ARG_VIEWING_MID_PATH_DESCRIPTION = "viewing_mid_desc"
+        const val ARG_VIEWING_MID_PATH_COMPS = "viewing_mid_comps"
+        const val ARG_VIEWING_HIGH_PATH_TITLE = "viewing_high_title"
+        const val ARG_VIEWING_HIGH_PATH_DESCRIPTION = "viewing_high_desc"
+        const val ARG_VIEWING_HIGH_PATH_COMPS = "viewing_high_comps"
     }
 }

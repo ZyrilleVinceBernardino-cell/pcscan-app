@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -52,6 +53,9 @@ class UploadImageResultFragment : Fragment() {
                 name = selectedComponent,
                 category = category
             )
+            val ts = arguments?.getLong("scan_ts") ?: System.currentTimeMillis()
+            val dedup = "upload_${ts}_$selectedComponent"
+            viewModel.incrementScanCount(dedup)
         }
 
         renderResult(detectedText = detectedText, selectedComponent = selectedComponent)
@@ -59,11 +63,24 @@ class UploadImageResultFragment : Fragment() {
 
     private fun renderResult(detectedText: String, selectedComponent: String) {
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            safePopBackToDashboard()
         }
 
         val hasMatch = selectedComponent.isNotBlank()
-        binding.tvStatus.text = if (hasMatch) "Component Detected" else "No Match Found"
+        if (hasMatch) {
+            val cat = RecommendationMockData.resolveCategory(selectedComponent).uppercase()
+            val icon = when (cat) {
+                "CPU" -> R.drawable.build_reco_cpu_icon
+                "GPU" -> R.drawable.build_reco_gpu_icon
+                "MOTHERBOARD" -> R.drawable.build_reco_mobo_icon
+                "RAM" -> R.drawable.build_reco_ram_icon
+                "STORAGE" -> R.drawable.build_reco_storage_icon
+                "PSU" -> R.drawable.build_reco_psu_icon
+                else -> R.drawable.build_reco_cpu_icon
+            }
+            binding.ivResultIcon.setImageResource(icon)
+        }
+        binding.tvStatus.text = if (hasMatch) "Confirm Detected Component (review before next step)" else "No Match Found -- Re-upload a clearer photo"
         binding.tvSelectedComponent.text = if (hasMatch) {
             selectedComponent
         } else {
@@ -76,7 +93,7 @@ class UploadImageResultFragment : Fragment() {
         val start = text.indexOf(confidence.toString())
         val end = start + confidence.toString().length + 1
         spannable.setSpan(
-            android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#19D39A")),
+            android.text.style.ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.success)),
             start,
             end,
             android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -91,9 +108,10 @@ class UploadImageResultFragment : Fragment() {
         binding.btnUpgradePath.setOnClickListener {
             if (!hasMatch) return@setOnClickListener
             findNavController().navigate(
-                R.id.upgradePathFragment,
+                R.id.noBuildYetFragment,
                 Bundle().apply {
-                    putString(ARG_SELECTED_COMPONENT, selectedComponent)
+                    putString(NoBuildYetFragment.ARG_SELECTED_COMPONENT, selectedComponent)
+                    putBoolean(NoBuildYetFragment.ARG_HAS_EXISTING_BUILD, false)
                 }
             )
         }
@@ -115,7 +133,7 @@ class UploadImageResultFragment : Fragment() {
         if (!hasMatch) {
             Toast.makeText(
                 requireContext(),
-                "No supported RAM or PSU match found. Try uploading a clearer image.",
+                "No matching PC component found. Try uploading a clearer, well-lit photo of the box label.",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -173,6 +191,19 @@ class UploadImageResultFragment : Fragment() {
         }
         val ratio = overlap.toFloat() / componentTokens.size.toFloat()
         return (70 + (ratio * 30f)).toInt().coerceIn(70, 99)
+    }
+
+    private fun safePopBackToDashboard() {
+        try {
+            if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
+            val navController = findNavController()
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     companion object {

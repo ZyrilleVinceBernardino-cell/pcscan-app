@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.initialize(this)
+        ThemeManager.applyCurrentMode()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 

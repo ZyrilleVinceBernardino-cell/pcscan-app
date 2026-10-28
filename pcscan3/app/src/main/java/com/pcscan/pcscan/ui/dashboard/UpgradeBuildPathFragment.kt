@@ -49,14 +49,14 @@ class UpgradeBuildPathFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            safePopBackToDashboard()
         }
 
-        binding.btnGenerateBuild.setIconResource(R.drawable.build_reco_icon)
+        binding.btnGenerateBuild.setIconResource(R.drawable.upgrade_save_all_icon)
         binding.btnGenerateBuild.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
         binding.btnGenerateBuild.iconPadding = (10 * resources.displayMetrics.density).toInt()
 
-        binding.btnSavePath.setIconResource(R.drawable.saved_upgrade_save_icon)
+        binding.btnSavePath.setIconResource(R.drawable.ic_arrow_back)
         binding.btnSavePath.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
         binding.btnSavePath.iconPadding = (10 * resources.displayMetrics.density).toInt()
 
@@ -88,9 +88,6 @@ class UpgradeBuildPathFragment : Fragment() {
 
         viewModel.upgradePrepareProgress.observe(viewLifecycleOwner) { progress ->
             if (!isAdded || _binding == null) return@observe
-            binding.pbLoadingProgress.progress = progress.coerceIn(0, 100)
-            binding.tvLoadingPercent.text = "${progress.coerceIn(0, 100)}%"
-
             if (progress >= 50 && progress < 100) {
                 if (binding.tvLoadingTitle.text != "Generating...") {
                     binding.tvLoadingTitle.text = "Generating..."
@@ -114,7 +111,24 @@ class UpgradeBuildPathFragment : Fragment() {
                     entryPath = uiState.entryPath
                     midPath = uiState.midPath
                     highPath = uiState.highPath
-                    
+
+                    binding.chipEntry.visibility = if (entryPath == null) View.GONE else View.VISIBLE
+                    binding.chipMid.visibility = if (midPath == null) View.GONE else View.VISIBLE
+                    binding.chipHigh.visibility = if (highPath == null) View.GONE else View.VISIBLE
+
+                    val firstNonNullTier = when {
+                        entryPath != null -> BuildTier.ENTRY
+                        midPath != null -> BuildTier.MID
+                        highPath != null -> BuildTier.HIGH
+                        else -> selectedTier
+                    }
+                    if (selectedTier != firstNonNullTier) {
+                        selectedTier = firstNonNullTier
+                    }
+                    if (getCurrentTierPath() == null) {
+                        selectedTier = firstNonNullTier
+                    }
+
                     updateChipsAppearance()
                     renderTier(selectedTier)
                     stateIsSuccess = true
@@ -150,14 +164,27 @@ class UpgradeBuildPathFragment : Fragment() {
                 Toast.makeText(requireContext(), "No tier loaded yet", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (path.title.startsWith("Your component is already")) {
+                Toast.makeText(requireContext(), "Nothing to save - your component is already high-end top tier.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (path.title.startsWith("Your build is already")) {
+                Toast.makeText(requireContext(), "Nothing to save - your build is already high-end top tier.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val component = arguments?.getString(ARG_SELECTED_COMPONENT).orEmpty()
                 .ifBlank { viewModel. selectedComponent.value.orEmpty() }
             val hasExistingBuild = arguments?.getBoolean(ARG_HAS_EXISTING_BUILD, false) ?: false
 
-            val saved = viewModel.saveUpgradeItem(component, hasExistingBuild, path)
+            val savedCount = viewModel.saveUpgradePaths(
+                component = component,
+                hasExistingBuild = hasExistingBuild,
+                paths = listOf(path),
+                displayTitle = ""
+            )
             Toast.makeText(
                 requireContext(),
-                if (saved) "Saved" else "Already saved",
+                if (savedCount == 1) "Saved" else "Already saved",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -170,8 +197,6 @@ class UpgradeBuildPathFragment : Fragment() {
     private fun resetLoadingLabels() {
         binding.tvLoadingTitle.text = "Verifying..."
         binding.tvLoadingSubtitle.text = "Determining component type and tier..."
-        binding.pbLoadingProgress.progress = 0
-        binding.tvLoadingPercent.text = "0%"
     }
 
     private fun tryHideLoadingOverlay() {
@@ -425,6 +450,19 @@ class UpgradeBuildPathFragment : Fragment() {
             }
         })
         binding.loadingOverlay.startAnimation(anim)
+    }
+
+    private fun safePopBackToDashboard() {
+        try {
+            if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
+            val navController = findNavController()
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onDestroyView() {

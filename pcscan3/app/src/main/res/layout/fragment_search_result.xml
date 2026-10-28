@@ -29,8 +29,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="8dp"
-                android:src="@android:drawable/ic_menu_revert"
-                android:tint="@color/text_white" />
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@color/white" />
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -52,10 +52,13 @@
             android:padding="16dp">
 
             <ImageView
+                android:id="@+id/ivResultIcon"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
+                android:adjustViewBounds="true"
                 android:contentDescription="Identified component"
-                android:src="@drawable/ic_search_result" />
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_search_result" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -69,7 +72,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Component Identified"
-                    android:textColor="#19D39A"
+                    android:textColor="@color/success"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -146,22 +149,25 @@
             app:strokeWidth="0dp" />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:id="@+id/btnBackToDashboard"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_ocr_result_outline_button"
-            app:backgroundTint="@null"
             android:text="Back to Dashboard"
             android:textAllCaps="false"
-            android:textColor="@color/primary_light"
+            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:icon="@drawable/dashboard_home_icon_click"
+            app:icon="@drawable/ic_arrow_back"
             app:iconGravity="textStart"
             app:iconPadding="8dp"
+            app:iconSize="24dp"
+            app:iconTint="@color/white"
             app:cornerRadius="18dp"
-            app:strokeWidth="0dp" />
+            app:strokeColor="@color/accent"
+            app:strokeWidth="1dp"
+            app:backgroundTint="@android:color/transparent" />
     </LinearLayout>
 
     <LinearLayout
@@ -175,12 +181,12 @@
         android:padding="32dp"
         android:visibility="visible">
 
-        <ProgressBar
-            android:id="@+id/pbLoadingSpinner"
+        <ImageView
+            android:id="@+id/ivLoadingLogo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:indeterminate="true"
-            android:indeterminateDrawable="@drawable/progress_gradient_spinner" />
+            android:contentDescription="PC Scan logo"
+            android:src="@drawable/ic_pc_tower_blue" />
 
         <TextView
             android:id="@+id/tvLoadingTitle"
@@ -212,20 +218,11 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="12dp"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/progress_gradient_bar" />
-
-            <TextView
-                android:id="@+id/tvLoadingPercent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="end"
-                android:text="0%"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:indeterminate="true"
+                android:indeterminateTint="@color/accent"
+                android:indeterminateTintMode="src_in"
+                android:progressBackgroundTint="@color/border"
+                android:splitTrack="false" />
         </LinearLayout>
     </LinearLayout>
 

@@ -1739,9 +1739,6 @@ async def api_build_recommendation(req: BuildRecoRequest):
                       "gpu_nvidia_tier": "high", "gpu_amd_tier": "high",
                       "psu_efficiency_tier": "Gold"},
         }
-        if cpu_performance_tier == "entry":
-            default_descriptors["high"]["gpu_nvidia_tier"] = "mid"
-            default_descriptors["high"]["gpu_amd_tier"] = "mid"
 
         tier_descriptors_deterministic = default_descriptors
 
@@ -1808,13 +1805,10 @@ async def api_build_recommendation(req: BuildRecoRequest):
             target_tier = tier_descriptors_deterministic[tier]["gpu_nvidia_tier"]
             tier_idx = tier_order_map.get(target_tier, 1)
             cpu_tier_idx = tier_order_map.get(cpu_performance_tier, 1)
-            if cpu_tier_idx + 1 < tier_idx:
-                new_tier_key = list(tier_order_map.keys())[min(cpu_tier_idx + 1, len(tier_order_map) - 1)]
+            if cpu_tier_idx + 2 < tier_idx:
+                new_tier_key = list(tier_order_map.keys())[min(cpu_tier_idx + 2, len(tier_order_map) - 1)]
                 target_tier = new_tier_key
                 tier_idx = tier_order_map.get(target_tier, 1)
-            if cpu_performance_tier == "entry" and target_tier == "high":
-                target_tier = "mid"
-                tier_idx = tier_order_map[target_tier]
             candidates = [g for g in GPU_DATABASE.values() if g.brand.upper() == "NVIDIA" and g.performance_tier == target_tier]
             if not candidates:
                 for fti in range(tier_idx, -1, -1):
@@ -1834,13 +1828,10 @@ async def api_build_recommendation(req: BuildRecoRequest):
             target_tier = tier_descriptors_deterministic[tier]["gpu_amd_tier"]
             tier_idx = tier_order_map.get(target_tier, 1)
             cpu_tier_idx = tier_order_map.get(cpu_performance_tier, 1)
-            if cpu_tier_idx + 1 < tier_idx:
-                new_tier_key = list(tier_order_map.keys())[min(cpu_tier_idx + 1, len(tier_order_map) - 1)]
+            if cpu_tier_idx + 2 < tier_idx:
+                new_tier_key = list(tier_order_map.keys())[min(cpu_tier_idx + 2, len(tier_order_map) - 1)]
                 target_tier = new_tier_key
                 tier_idx = tier_order_map.get(target_tier, 1)
-            if cpu_performance_tier == "entry" and target_tier == "high":
-                target_tier = "mid"
-                tier_idx = tier_order_map[target_tier]
             candidates = [g for g in GPU_DATABASE.values() if g.brand.upper() == "AMD" and g.performance_tier == target_tier]
             if not candidates:
                 for fti in range(tier_idx, -1, -1):

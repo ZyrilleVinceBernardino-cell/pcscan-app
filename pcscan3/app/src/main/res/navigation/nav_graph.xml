@@ -53,12 +53,25 @@
             android:id="@+id/action_dashboardFragment_to_ocrFragment"
             app:destination="@id/ocrFragment" />
         <action
+            android:id="@+id/action_dashboardFragment_to_rangeBuildFragment"
+            app:destination="@id/rangeBuildFragment" />
+        <action
             android:id="@+id/action_dashboardFragment_to_savedBuildFragment"
             app:destination="@id/savedBuildFragment" />
         <action
             android:id="@+id/action_dashboardFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/rangeBuildFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.RangeBuildFragment">
+        <action
+            android:id="@+id/action_rangeBuildFragment_to_yourBuildFragment"
+            app:destination="@id/yourBuildFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/yourBuildFragment"
+        android:name="com.pcscan.pcscan.ui.dashboard.YourBuildFragment" />
     <fragment
         android:id="@+id/searchResultFragment"
         android:name="com.pcscan.pcscan.ui.dashboard.SearchResultFragment">
@@ -75,6 +88,9 @@
         <action
             android:id="@+id/action_uploadImageFragment_to_uploadImageResultFragment"
             app:destination="@id/uploadImageResultFragment" />
+        <action
+            android:id="@+id/action_uploadImageFragment_to_uploadImageLoadingFragment"
+            app:destination="@id/uploadImageLoadingFragment" />
     </fragment>
     <fragment
         android:id="@+id/uploadImageLoadingFragment"
@@ -145,6 +161,9 @@
         <action
             android:id="@+id/action_savedBuildFragment_to_savedUpgradeFragment"
             app:destination="@id/savedUpgradeFragment" />
+        <action
+            android:id="@+id/action_savedBuildFragment_to_yourBuildFragment"
+            app:destination="@id/yourBuildFragment" />
     </fragment>
     <fragment
         android:id="@+id/savedUpgradeFragment"

@@ -154,10 +154,13 @@ object HardwareDatabase {
             n.contains("rx 7800 xt") -> 263
             n.contains("rx 7900 xt") -> 315
             n.contains("rx 7900 xtx") -> 355
-            n.contains("rx 9060") -> 240
-            n.contains("rx 9070") -> 320
-            n.contains("rx 9070 xt") -> 400
-            n.contains("rx 9090") -> 600
+            n.contains("rx 9060 xt") || n.contains("rx 9060xt") -> 240
+            n.contains("rx 9070 xt") || n.contains("rx 9070xt") -> 400
+            n.contains("arc a380") -> 75
+            n.contains("arc a580") -> 185
+            n.contains("arc a750") || n.contains("arc a770") -> 225
+            n.contains("arc b570") -> 150
+            n.contains("arc b580") -> 190
             else -> 150
         }
     }
@@ -177,6 +180,10 @@ object HardwareDatabase {
             n.contains("rtx 4080") || n.contains("4080 super") || n.contains("rtx 5080") -> 16
             n.contains("rtx 3090") || n.contains("rtx 4090") -> 24
             n.contains("rtx 5090") -> 32
+            n.contains("arc a380") -> 6
+            n.contains("arc a580") || n.contains("arc a750") || n.contains("arc a770") -> 8
+            n.contains("arc b570") -> 10
+            n.contains("arc b580") -> 12
             else -> 8
         }
     }
@@ -643,25 +650,30 @@ object RecommendationMockData {
             return when {
                 normalized.contains("rtx 20") || normalized.contains("gtx 16") ||
                     normalized.contains("rx 5") || normalized.contains("rx 4") ||
-                    normalized.contains("rx vega") || normalized.contains("gtx 10") ->
+                    normalized.contains("rx vega") || normalized.contains("gtx 10") ||
+                    normalized.contains("arc a380") ->
                     ComponentTier.LEGACY_BUDGET
 
                 normalized.contains("rtx 3050") || normalized.contains("rtx 3060") ||
                     normalized.contains("rtx 4060") || normalized.contains("rx 66") ||
                     normalized.contains("rx 67") || normalized.contains("rx 76") ||
-                    normalized.contains("rx 7700") ->
+                    normalized.contains("rx 7700") ||
+                    normalized.contains("arc a580") || normalized.contains("arc a750") ||
+                    normalized.contains("arc a770") || normalized.contains("arc b570") ||
+                    normalized.contains("arc b580") ->
                     ComponentTier.MIDRANGE
 
                 normalized.contains("rtx 3070") || normalized.contains("rtx 3080") ||
                     normalized.contains("rtx 4070") || normalized.contains("rtx 4080") ||
                     normalized.contains("rx 68") || normalized.contains("rx 69") ||
                     normalized.contains("rx 7800") || normalized.contains("rx 7900 xt") ||
-                    normalized.contains("rx 9060") || normalized.contains("rx 9070") ->
+                    normalized.contains("rx 9060 xt") || normalized.contains("rx 9060xt") ||
+                    normalized.contains("rx 9070 xt") || normalized.contains("rx 9070xt") ->
                     ComponentTier.HIGH_END_CURRENT
 
                 normalized.contains("rtx 3090") || normalized.contains("rtx 4090") ||
                     normalized.contains("rtx 5080") || normalized.contains("rtx 5090") ||
-                    normalized.contains("rx 7900 xtx") || normalized.contains("rx 9090") ->
+                    normalized.contains("rx 7900 xtx") ->
                     ComponentTier.ENTHUSIAST_FLAGSHIP
 
                 else -> ComponentTier.MIDRANGE
@@ -679,18 +691,20 @@ object RecommendationMockData {
                 normalized.contains("ryzen 5 5") || normalized.contains("ryzen 5 7") ||
                     normalized.contains("ryzen 5 8") ||
                     normalized.contains("i5-12") || normalized.contains("i5-13") ||
-                    normalized.contains("i5-14") || normalized.contains("ryzen 7 5700x") ->
+                    normalized.contains("i5-14") || normalized.contains("ultra 5") ||
+                    normalized.contains("ryzen 7 5700x") ->
                     ComponentTier.MIDRANGE
 
                 normalized.contains("ryzen 7 7") || normalized.contains("ryzen 7 8") ||
                     normalized.contains("ryzen 7 9") || normalized.contains("ryzen 9 7900") ||
-                    normalized.contains("i7-13") || normalized.contains("i7-14") ->
+                    normalized.contains("i7-13") || normalized.contains("i7-14") ||
+                    normalized.contains("ultra 7") ->
                     ComponentTier.HIGH_END_CURRENT
 
                 normalized.contains("ryzen 9 8") || normalized.contains("ryzen 9 9") ||
                     normalized.contains("ryzen 9 7950") ||
                     normalized.contains("i9-13") || normalized.contains("i9-14") ||
-                    normalized.contains("threadripper") ->
+                    normalized.contains("ultra 9") || normalized.contains("threadripper") ->
                     ComponentTier.ENTHUSIAST_FLAGSHIP
 
                 else -> ComponentTier.MIDRANGE
@@ -731,28 +745,92 @@ object RecommendationMockData {
     }
 
     fun detectBuildTier(currentBuild: CurrentBuild): BuildTier {
-        fun rankOf(name: String, category: String): Double {
-            if (name.isBlank()) return 2.0
+        fun bucketOf(name: String, category: String): Int? {
+            if (name.isBlank()) return null
             val t = estimateComponentPerformanceTier(name, category)
             return when (t) {
-                ComponentTier.LEGACY_BUDGET -> 1.0
-                ComponentTier.MIDRANGE -> 2.0
-                ComponentTier.HIGH_END_CURRENT -> 3.0
-                ComponentTier.ENTHUSIAST_FLAGSHIP -> 4.0
+                ComponentTier.LEGACY_BUDGET -> 0
+                ComponentTier.MIDRANGE -> 1
+                ComponentTier.HIGH_END_CURRENT,
+                ComponentTier.ENTHUSIAST_FLAGSHIP -> 2
             }
         }
-        val gpuR = rankOf(currentBuild.gpu, "gpu")
-        val cpuR = rankOf(currentBuild.cpu, "cpu")
-        val moboR = rankOf(currentBuild.motherboard, "motherboard")
-        val ramR = rankOf(currentBuild.ram, "ram")
-        val stR = rankOf(currentBuild.storage, "storage")
-        val psuR = rankOf(currentBuild.psu, "psu")
-        val weighted = (gpuR * 0.60) + (cpuR * 0.30) + ((moboR + ramR + stR + psuR) / 4.0) * 0.10
-        return when {
-            weighted < 1.6 -> BuildTier.ENTRY
-            weighted < 2.6 -> BuildTier.MID
+        val cpuBucket = bucketOf(currentBuild.cpu, "cpu")
+        val gpuBucket = bucketOf(currentBuild.gpu, "gpu")
+        val moboBucket = bucketOf(currentBuild.motherboard, "motherboard")
+        val ramBucket = bucketOf(currentBuild.ram, "ram")
+        val storageBucket = bucketOf(currentBuild.storage, "storage")
+        val psuBucket = bucketOf(currentBuild.psu, "psu")
+        val all = listOfNotNull(cpuBucket, gpuBucket, moboBucket, ramBucket, storageBucket, psuBucket)
+        if (all.isEmpty()) return BuildTier.MID
+        val equalAvg: Double = all.sumOf { it.toDouble() } / all.size.toDouble()
+        val weighted = mutableListOf<Int>()
+        weighted.addAll(all)
+        if (gpuBucket != null) {
+            weighted.add(gpuBucket)
+            weighted.add(gpuBucket)
+        }
+        val gpuWeightedAvg: Double = weighted.sumOf { it.toDouble() } / weighted.size.toDouble()
+        val baselineAvg = (equalAvg * 0.5) + (gpuWeightedAvg * 0.5)
+        val finalAvg = if (gpuBucket != null) {
+            minOf(baselineAvg, (gpuBucket.toDouble() + 0.6))
+        } else baselineAvg
+        val rounded = kotlin.math.round(finalAvg).toInt().coerceIn(0, 2)
+        return when (rounded) {
+            0 -> BuildTier.ENTRY
+            1 -> BuildTier.MID
             else -> BuildTier.HIGH
         }
+    }
+
+    fun detectMainBottleneck(build: CurrentBuild): String {
+        val cpuRank = performanceRank4(build.cpu.ifBlank { "mid cpu" }, "cpu")
+        val gpuRank = performanceRank4(build.gpu.ifBlank { "mid gpu" }, "gpu")
+        val cpuBucket = runCatching { estimateComponentPerformanceTier(build.cpu, "cpu") }.getOrDefault(ComponentTier.MIDRANGE)
+        val gpuBucket = runCatching { estimateComponentPerformanceTier(build.gpu, "gpu") }.getOrDefault(ComponentTier.MIDRANGE)
+        val cpuScore = when (cpuBucket) { ComponentTier.LEGACY_BUDGET -> 0; ComponentTier.MIDRANGE -> 1; else -> 2 }
+        val gpuScore = when (gpuBucket) { ComponentTier.LEGACY_BUDGET -> 0; ComponentTier.MIDRANGE -> 1; else -> 2 }
+        val rawDelta = gpuRank - cpuRank
+        val worstGaming = worstCaseBottleneckPercent(build.cpu.ifBlank { "mid" }, build.gpu.ifBlank { "mid" })
+        return when {
+            build.gpu.isBlank() -> "CPU"
+            build.cpu.isBlank() -> "GPU"
+            gpuScore <= 0 && cpuScore >= 1 -> "GPU"
+            worstGaming > 14 && rawDelta > 0 -> "GPU"
+            worstGaming > 14 && rawDelta < 0 -> "CPU"
+            gpuScore < cpuScore -> "GPU"
+            cpuScore < gpuScore -> "CPU"
+            else -> "Balanced -- no dominant single bottleneck"
+        }
+    }
+
+    private fun performanceRank4(name: String, category: String): Int {
+        val tier = estimateComponentPerformanceTier(name, category)
+        return when (tier) {
+            ComponentTier.LEGACY_BUDGET -> 0
+            ComponentTier.MIDRANGE -> 1
+            ComponentTier.HIGH_END_CURRENT -> 2
+            ComponentTier.ENTHUSIAST_FLAGSHIP -> 3
+        }
+    }
+
+    fun estimateCpuGpuBalance(cpuName: String, gpuName: String): Triple<Int, Int, Int> {
+        val cpuRank = performanceRank4(cpuName, "cpu")
+        val gpuRank = performanceRank4(gpuName, "gpu")
+        val delta = (gpuRank - cpuRank)
+        val cpuLim = cpuRank < gpuRank
+        val raw1080: Int = if (cpuLim) 1 + kotlin.math.abs(delta) * 12 else 1 + kotlin.math.abs(delta) * 10
+        val raw1440: Int = if (cpuLim) 1 + kotlin.math.abs(delta) * 8 else 1 + kotlin.math.abs(delta) * 7
+        val raw4k: Int = if (cpuLim) 1 + kotlin.math.abs(delta) * 5 else 1 + kotlin.math.abs(delta) * 4
+        val b1080 = raw1080.coerceIn(1, 35)
+        val b1440 = raw1440.coerceIn(1, 35)
+        val b4k = raw4k.coerceIn(1, 35)
+        return Triple(b1080, b1440, b4k)
+    }
+
+    fun worstCaseBottleneckPercent(cpuName: String, gpuName: String): Int {
+        val (b1080, b1440, b4k) = estimateCpuGpuBalance(cpuName, gpuName)
+        return maxOf(b1080, b1440, b4k)
     }
 
     fun capRecommendationTier(requested: BuildTier, currentBuildTier: BuildTier): BuildTier {
@@ -843,6 +921,61 @@ object RecommendationMockData {
             return false
         }
         return tgt >= curr
+    }
+
+    private fun candidateCpuUpgradesForCurrentPlatform(build: CurrentBuild): List<String> {
+        val socket = listOf(
+            detectSocketByName(build.motherboard),
+            detectSocketByName(build.cpu)
+        ).firstOrNull { it != Socket.UNKNOWN } ?: Socket.UNKNOWN
+
+        return when (socket) {
+            Socket.AM4 -> listOf(
+                "AMD Ryzen 7 5700X3D",
+                "AMD Ryzen 7 5800X3D",
+                "AMD Ryzen 9 5900X",
+                "AMD Ryzen 9 5950X"
+            )
+            Socket.AM5 -> listOf(
+                "AMD Ryzen 7 7800X3D",
+                "AMD Ryzen 7 9700X",
+                "AMD Ryzen 9 7900",
+                "AMD Ryzen 9 9950X"
+            )
+            Socket.LGA1700 -> listOf(
+                "Intel Core i7-14700K",
+                "Intel Core i9-14900K"
+            )
+            Socket.LGA1851 -> listOf(
+                "Intel Core Ultra 7 265K",
+                "Intel Core Ultra 9 285K"
+            )
+            Socket.UNKNOWN -> when {
+                build.cpu.contains("ryzen", ignoreCase = true) || build.motherboard.contains("b550", ignoreCase = true) ||
+                    build.motherboard.contains("x570", ignoreCase = true) || build.motherboard.contains("am4", ignoreCase = true) ->
+                    listOf("AMD Ryzen 7 5700X3D", "AMD Ryzen 7 5800X3D", "AMD Ryzen 9 5900X")
+                build.motherboard.contains("b650", ignoreCase = true) || build.motherboard.contains("x670", ignoreCase = true) ||
+                    build.motherboard.contains("x870", ignoreCase = true) || build.motherboard.contains("am5", ignoreCase = true) ->
+                    listOf("AMD Ryzen 7 7800X3D", "AMD Ryzen 7 9700X", "AMD Ryzen 9 7900")
+                build.cpu.contains("intel", ignoreCase = true) || build.motherboard.contains("b760", ignoreCase = true) ||
+                    build.motherboard.contains("z790", ignoreCase = true) || build.motherboard.contains("lga1700", ignoreCase = true) ->
+                    listOf("Intel Core i7-14700K", "Intel Core i9-14900K")
+                else -> listOf("AMD Ryzen 7 5700X3D", "AMD Ryzen 7 7800X3D", "Intel Core i7-14700K")
+            }
+        }
+    }
+
+    private fun findBalancedCpuSupportUpgrade(build: CurrentBuild, targetGpu: String): String? {
+        if (targetGpu.isBlank()) return null
+        val candidates = candidateCpuUpgradesForCurrentPlatform(build)
+        val currentCpu = build.cpu
+        val actualCandidates = candidates.filter { candidate ->
+            currentCpu.isBlank() || isActualUpgrade("cpu", currentCpu, candidate)
+        }
+        val balanced = actualCandidates.firstOrNull { candidate ->
+            worstCaseBottleneckPercent(candidate, targetGpu) <= 20
+        }
+        return balanced ?: actualCandidates.firstOrNull()
     }
 
     fun assessCpuGpuBalance(cpuName: String, gpuName: String): HardwareCompatibilityResult {
@@ -2210,8 +2343,8 @@ object RecommendationMockData {
                 BuildTier.HIGH -> UpgradeComponent("GPU", "NVIDIA RTX 4080 Super / AMD RX 7900 XTX",
                     "Cross-brand high-end: NVIDIA RTX 4080 Super or AMD RX 7900 XTX (24GB) - extreme 4K gaming performance.", 93, 0.93f)
             }
-            gpuFlagship = UpgradeComponent("GPU", "NVIDIA RTX 4090 / AMD RX 9090",
-                "Cross-brand flagship: NVIDIA RTX 4090 (24GB GDDR6X) or AMD RX 9090 - absolute peak 4K/8K GPU performance.", 97, 0.97f)
+            gpuFlagship = UpgradeComponent("GPU", "NVIDIA RTX 4090",
+                "Flagship GPU: NVIDIA RTX 4090 (24GB GDDR6X) -- current absolute peak 4K rasterization and 8K gaming GPU performance.", 97, 0.97f)
         } else {
             gpuForTier = when (tier) {
                 BuildTier.ENTRY -> UpgradeComponent("GPU", "RTX 3060", "Solid 1080p graphics card", 65, 0.65f)
@@ -2435,7 +2568,8 @@ object RecommendationMockData {
             normalized.contains("rx ") ||
             normalized.startsWith("rx") ||
             Regex("""rx\s*[5-8]\s*\d{2,3}[a-z]*\s*xt\b""", RegexOption.IGNORE_CASE).containsMatchIn(normalized)
-        val isGPU = normalized.contains("gpu") || isRTX || isRadeon
+        val isIntelArc = Regex("""\barc\s*[ab]\s*\d{3}\b""", RegexOption.IGNORE_CASE).containsMatchIn(normalized)
+        val isGPU = normalized.contains("gpu") || isRTX || isRadeon || isIntelArc
 
         val isMoboChipset = listOf(
             "b450", "b550", "x570", "x470", "a520", "b350",
@@ -2451,12 +2585,35 @@ object RecommendationMockData {
 
         val isPSUKeywords = listOf(
             "psu", "power supply", "80+", "80 plus",
-            "bronze", "platinum", "titanium", "atx 3.0", "atx 3.1",
-            "rm1000", "rm850", "watts"
+            "bronze", "platinum", "titanium", "silver", "gold", "atx 3.0", "atx 3.1",
+            "watts", "modular",
+            // PSU SERIES BRANDS (RM/CV/SF Corsair, MSI MAG A/MPG A, ROG THOR/LOKI, Seasonic Focus, NZXT C, Cooler Master MWE, EVGA SuperNOVA, be quiet Straight Power etc)
+            " rm650", " rm750", " rm850", " rm1000", " rm1200",
+            " rm550", "rm650x", "rm750x", "rm850x", "rm1000x",
+            "hx650", "hx750", "hx850", "hx1000",
+            "cv450", "cv550", "cv650", "cv750",
+            "cx450", "cx550", "cx650", "cx750", "cxm",
+            "sf450", "sf600", "sf750", "sf850", "sf1000",
+            "focus gx", "focus px", "focus gm", "focus ga", "focus sgx",
+            "mag a550", "mag a650", "mag a750", "mag a850", "mag a1000",
+            "mpg a650", "mpg a750", "mpg a850", "mpg a1000",
+            "prime 450w", "prime 550w", "prime 650w", "prime 750w", "prime 850w", "prime 1000w",
+            "rog strix 550w", "rog strix 650w", "rog strix 750w", "rog strix 850w", "rog strix 1000w",
+            "rog thor", "rog loki",
+            "supernova", "mwe bronze", "mwe gold", "mwe v2",
+            "straight power", "pure power", "dark power",
+            "nzxt c450", "nzxt c550", "nzxt c650", "nzxt c750", "nzxt c850", "nzxt c1000",
+            "toughpower", "antec neo eco", "antec hcg", "antec ne ",
+            "deepcool dq", "deepcool pk", "deepcool pm", "deepcool da",
+            " be quiet", "evga supernova", "seasonic focus"
         ).any { normalized.contains(it) }
         val isPSUWattagePattern = (normalized.contains("w ") && normalized.any { it.isDigit() } &&
             listOf("bronze", "gold", "platinum", "titanium").any { normalized.contains(it) }) ||
-            normalized.matches(Regex(".*\\d{3,4}w.*(bronze|gold|platinum).*", RegexOption.IGNORE_CASE))
+            normalized.matches(Regex(".*\\d{3,4}w.*(bronze|gold|platinum).*", RegexOption.IGNORE_CASE)) ||
+            // PSU series regex pattern: RM650x / MAG A650GL etc -> catches any psu model name even without "W"
+            Regex("""\b(rm|hx|cv|cx|sf|mag|mpg)[\s-]?[a-z]?\d{3,4}[a-z]{0,2}\b""", RegexOption.IGNORE_CASE).containsMatchIn(normalized) ||
+            // (3-digit watts + PSU cert OR gold/bronze word nearby + atx psu shape names)
+            (Regex("""\d{3,4}[a-z]{0,2}""").containsMatchIn(normalized) && (normalized.contains("gold") || normalized.contains("bronze") || normalized.contains("modular")))
         val isPSU = isPSUKeywords || isPSUWattagePattern
 
         val isStorageKeywords = listOf(
@@ -2473,13 +2630,20 @@ object RecommendationMockData {
 
         val isCPU = normalized.contains("cpu") || isIntelCPU || isAMDCPU
 
+        val bareWattage = Regex("""\b\d{3,4}w\b""", RegexOption.IGNORE_CASE).containsMatchIn(normalized)
+        val noGpuHints = !listOf("rtx","rx","gtx","radeon","geforce","nvidia","arc","gpu","graphics","vram").any { normalized.contains(it) }
+        val isBareWattagePSU = bareWattage && noGpuHints
+
         return when {
             isCPU -> "cpu"
             isGPU -> "gpu"
-            isMotherboard -> "motherboard"
-            isPSU -> "psu"
-            isStorage -> "storage"
+            // PSU FIRST before motherboard: MSI MAG A650GL has "msi " substring also matches mobo brand list, so PSU wins priority here!
+            isPSU || isBareWattagePSU -> "psu"
+            // RAM/STORAGE next, before motherboard
             isRam -> "ram"
+            isStorage -> "storage"
+            isMotherboard -> "motherboard"
+            // LAST fallback: gpu
             else -> "gpu"
         }
     }
@@ -2996,5 +3160,633 @@ object RecommendationMockData {
             resolveDescriptionForComponent(category, searchedTier),
             baseScore
         )
+    }
+
+    data class CompatibilityResult(
+        val pass: Boolean,
+        val requiredSupportingUpgrades: Map<String, String> = emptyMap(),
+        val reason: String = ""
+    )
+
+    data class PrimaryUpgradeDecision(
+        val upgraded: Boolean,
+        val newName: String,
+        val newTier: ComponentTier,
+        val requiredSupporting: Map<String, String>,
+        val reason: String,
+        val finalCpu: String,
+        val finalGpu: String,
+        val bottleneckWorst: Int
+    )
+
+    private fun parsePsuWatts(psuName: String): Int {
+        val regex = Regex("""(\d{3,4})\s*w""", RegexOption.IGNORE_CASE)
+        val match = regex.find(psuName.lowercase())
+        return match?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 550
+    }
+
+    private fun standardPsuSizeAtLeast(minWatts: Int): Int {
+        return listOf(550, 650, 750, 850, 1000, 1200, 1600).firstOrNull { it >= minWatts }
+            ?: (minWatts + 100)
+    }
+
+    private fun pickPrimary(a: String, b: String): String = a
+
+    fun resolvePrimaryCandidates(
+        selectedComponentName: String,
+        selectedCategory: String,
+        currentBuildTier: BuildTier,
+        targetTier: BuildTier
+    ): List<Pair<String, ComponentTier>> {
+        val targetBucket = when (targetTier) {
+            BuildTier.ENTRY -> return emptyList()
+            BuildTier.MID -> listOf(ComponentTier.MIDRANGE)
+            BuildTier.HIGH -> listOf(ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP)
+        }
+        val allowFlagship = targetTier == BuildTier.HIGH && currentBuildTier == BuildTier.HIGH
+        val candidates = mutableListOf<Pair<String, ComponentTier>>()
+        fun add(name: String, tier: ComponentTier) {
+            if (tier !in targetBucket) return
+            if (tier == ComponentTier.ENTHUSIAST_FLAGSHIP && !allowFlagship) return
+            val normalized = name.lowercase().replace(Regex("""[\s\-_/()]+"""), "")
+            val curNorm = selectedComponentName.lowercase().replace(Regex("""[\s\-_/()]+"""), "")
+            if (normalized == curNorm) return
+            if (candidates.any { it.first.lowercase().replace(Regex("""[\s\-_/()]+"""), "") == normalized }) return
+            candidates.add(name to tier)
+        }
+        when (selectedCategory) {
+            "cpu" -> {
+                add("AMD Ryzen 5 7600", ComponentTier.MIDRANGE)
+                add("AMD Ryzen 5 7600X", ComponentTier.MIDRANGE)
+                add("AMD Ryzen 7 5700X", ComponentTier.MIDRANGE)
+                add("AMD Ryzen 7 5700X3D", ComponentTier.MIDRANGE)
+                add("Intel Core i5-14600K", ComponentTier.MIDRANGE)
+                add("Intel Core i5-13600K", ComponentTier.MIDRANGE)
+                add("AMD Ryzen 7 7700", ComponentTier.HIGH_END_CURRENT)
+                add("AMD Ryzen 7 9700X", ComponentTier.HIGH_END_CURRENT)
+                add("AMD Ryzen 7 9800X3D", ComponentTier.HIGH_END_CURRENT)
+                add("Intel Core i7-14700K", ComponentTier.HIGH_END_CURRENT)
+                add("Intel Core i9-14900K", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("AMD Ryzen 9 7950X3D", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("AMD Ryzen 9 9950X", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            "gpu" -> {
+                add("NVIDIA RTX 4060", ComponentTier.MIDRANGE)
+                add("NVIDIA RTX 4060 Ti", ComponentTier.MIDRANGE)
+                add("NVIDIA RTX 4070", ComponentTier.MIDRANGE)
+                add("AMD RX 7600 XT", ComponentTier.MIDRANGE)
+                add("AMD RX 7700 XT", ComponentTier.MIDRANGE)
+                add("NVIDIA RTX 4070 Super", ComponentTier.HIGH_END_CURRENT)
+                add("NVIDIA RTX 4070 Ti Super", ComponentTier.HIGH_END_CURRENT)
+                add("NVIDIA RTX 4080 Super", ComponentTier.HIGH_END_CURRENT)
+                add("AMD RX 7800 XT", ComponentTier.HIGH_END_CURRENT)
+                add("AMD RX 7900 XT", ComponentTier.HIGH_END_CURRENT)
+                add("NVIDIA RTX 4090", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("NVIDIA RTX 5080", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("NVIDIA RTX 5090", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("AMD RX 7900 XTX", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            "motherboard" -> {
+                add("ASUS B650M-A", ComponentTier.MIDRANGE)
+                add("MSI B650M Mortar", ComponentTier.MIDRANGE)
+                add("ASRock B760M Pro RS", ComponentTier.MIDRANGE)
+                add("Gigabyte B650 AORUS Elite AX", ComponentTier.MIDRANGE)
+                add("MSI MAG X670E Tomahawk", ComponentTier.HIGH_END_CURRENT)
+                add("ASUS ROG STRIX X670E-A", ComponentTier.HIGH_END_CURRENT)
+                add("Gigabyte Z790 AORUS Elite AX", ComponentTier.HIGH_END_CURRENT)
+                add("ASUS ROG CROSSHAIR X870E HERO", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("MSI MEG X870E ACE", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            "ram" -> {
+                add("32GB DDR5-6000 (2x16GB)", ComponentTier.MIDRANGE)
+                add("32GB DDR4-3600 (2x16GB)", ComponentTier.MIDRANGE)
+                add("64GB DDR5-6000 (2x32GB)", ComponentTier.HIGH_END_CURRENT)
+                add("64GB DDR5-6400 (2x32GB)", ComponentTier.HIGH_END_CURRENT)
+                add("96GB DDR5-6400 (2x48GB)", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("128GB DDR5-6400 (4x32GB)", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            "storage" -> {
+                add("2TB PCIe 4.0 NVMe SSD", ComponentTier.MIDRANGE)
+                add("1TB PCIe 4.0 NVMe SSD", ComponentTier.MIDRANGE)
+                add("4TB PCIe 4.0 NVMe SSD", ComponentTier.HIGH_END_CURRENT)
+                add("2TB PCIe 5.0 NVMe SSD", ComponentTier.HIGH_END_CURRENT)
+                add("8TB PCIe 4.0 NVMe SSD", ComponentTier.ENTHUSIAST_FLAGSHIP)
+                add("4TB PCIe 5.0 NVMe SSD", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            "psu" -> {
+                add("750W 80+ Gold ATX 3.0", ComponentTier.MIDRANGE)
+                add("850W 80+ Gold ATX 3.0", ComponentTier.MIDRANGE)
+                add("1000W 80+ Platinum ATX 3.1", ComponentTier.HIGH_END_CURRENT)
+                add("1200W 80+ Platinum ATX 3.1", ComponentTier.HIGH_END_CURRENT)
+                add("1600W 80+ Titanium ATX 3.1", ComponentTier.ENTHUSIAST_FLAGSHIP)
+            }
+            else -> {
+                add("Upgrade (selected -- see reason)", ComponentTier.MIDRANGE)
+            }
+        }
+        val currentTierOfSel = estimateComponentPerformanceTier(selectedComponentName, selectedCategory)
+        return candidates.filter { (name, tier) ->
+            val candBucket = when (tier) {
+                ComponentTier.LEGACY_BUDGET -> 0
+                ComponentTier.MIDRANGE -> 1
+                ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP -> 2
+            }
+            val curBucketCompat = when (currentTierOfSel) {
+                ComponentTier.LEGACY_BUDGET -> 0
+                ComponentTier.MIDRANGE -> 1
+                ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP -> 2
+            }
+            candBucket >= curBucketCompat && isActualUpgrade(selectedCategory, selectedComponentName, name)
+        }.sortedByDescending { (name, _) ->
+            performanceRank4(name, selectedCategory)
+        }.ifEmpty {
+            val actualOnly = candidates.filter { (name, _) ->
+                isActualUpgrade(selectedCategory, selectedComponentName, name)
+            }
+            if (actualOnly.isNotEmpty()) actualOnly.take(2) else emptyList()
+        }
+    }
+
+    fun validatePrimaryUpgradeCompatibility(
+        primaryCategory: String,
+        primaryNewName: String,
+        currentBuild: CurrentBuild
+    ): CompatibilityResult {
+        val required = linkedMapOf<String, String>()
+        val reasons = mutableListOf<String>()
+        val baseCandidateCpuName = if (primaryCategory == "cpu") primaryNewName else currentBuild.cpu
+        val baseCandidateGpuName = if (primaryCategory == "gpu") primaryNewName else currentBuild.gpu
+        if (primaryCategory == "cpu") {
+            val newSocket = detectSocketByName(primaryNewName)
+            val currentMobo = currentBuild.motherboard
+            val currentMoboSocket = if (currentMobo.isNotBlank()) detectSocketByName(currentMobo) else Socket.UNKNOWN
+            if (currentMobo.isNotBlank() && newSocket != Socket.UNKNOWN && currentMoboSocket != Socket.UNKNOWN && newSocket != currentMoboSocket) {
+                val targetMobo = when (newSocket) {
+                    Socket.AM5 -> "MSI B650M Mortar AM5"
+                    Socket.LGA1700 -> "ASUS B760M-A LGA1700 DDR4"
+                    Socket.LGA1851 -> "ASUS Z890-A LGA1851"
+                    else -> "MSI Pro Motherboard (matching socket)"
+                }
+                required["motherboard"] = targetMobo
+                reasons.add("Platform jump required (${currentMoboSocket.name} -> ${newSocket.name}): new motherboard required.")
+                val currentRam = currentBuild.ram.lowercase()
+                if (newSocket == Socket.AM5 || newSocket == Socket.LGA1851) {
+                    if (!currentRam.contains("ddr5")) {
+                        required["ram"] = "32GB DDR5-6000 (2x16GB)"
+                        reasons.add("New platform requires DDR5 memory upgrade.")
+                    } else if (currentBuild.ram.isBlank()) {
+                        required["ram"] = "32GB DDR5-6000 (2x16GB)"
+                    }
+                }
+            }
+            val (biosOk, biosReason) = checkBiosSupport(currentBuild.motherboard.ifBlank { "default" }, primaryNewName)
+            if (!biosOk && biosReason.isNotBlank()) {
+                reasons.add(biosReason)
+            }
+        }
+        if (primaryCategory == "gpu") {
+            if (baseCandidateCpuName.isNotBlank() && baseCandidateGpuName.isNotBlank()) {
+                val worst = worstCaseBottleneckPercent(baseCandidateCpuName, baseCandidateGpuName)
+                if (worst > 20) {
+                    val cpuSupport = findBalancedCpuSupportUpgrade(currentBuild, baseCandidateGpuName)
+                    if (!cpuSupport.isNullOrBlank()) {
+                        required["cpu"] = cpuSupport
+                        reasons.add("CPU upgrade required to keep $primaryNewName under the 20% bottleneck rule.")
+                    } else {
+                        reasons.add("Warning: Estimated CPU limitation at 1080p of ~$worst % (worst case > 20%). Consider a supporting CPU upgrade or more balanced GPU.")
+                    }
+                }
+            }
+        }
+
+        val candidateCpuName = when {
+            primaryCategory == "cpu" -> primaryNewName
+            required["cpu"].isNullOrBlank().not() -> required["cpu"].orEmpty()
+            else -> currentBuild.cpu
+        }
+        val candidateGpuName = if (primaryCategory == "gpu") primaryNewName else currentBuild.gpu
+        var requiredPsuName: String? = null
+        if (candidateCpuName.isNotBlank() && candidateGpuName.isNotBlank()) {
+            val calcNeed = calculateRequiredPsu(candidateCpuName, candidateGpuName)
+            val currentPsuWatts = if (primaryCategory == "psu") parsePsuWatts(primaryNewName) else parsePsuWatts(currentBuild.psu.ifBlank { "550W" })
+            if (currentPsuWatts < calcNeed) {
+                val size = standardPsuSizeAtLeast(calcNeed)
+                val targetTierPsu = estimateComponentPerformanceTier(primaryNewName.ifBlank { "x" }, primaryCategory)
+                val psuName = when {
+                    targetTierPsu == ComponentTier.ENTHUSIAST_FLAGSHIP -> "${size}W 80+ Platinum ATX 3.1"
+                    size >= 1000 -> "${size}W 80+ Gold ATX 3.0"
+                    else -> "${size}W 80+ Gold ATX 3.0"
+                }
+                requiredPsuName = psuName
+                required["psu"] = psuName
+                reasons.add("PSU upgrade required ($currentPsuWatts W -> $size W recommended with headroom).")
+            }
+        }
+        return CompatibilityResult(
+            pass = true,
+            requiredSupportingUpgrades = required,
+            reason = reasons.joinToString(" ")
+        )
+    }
+
+    fun selectBestPrimaryUpgrade(
+        build: CurrentBuild,
+        selectedCompName: String,
+        selectedCategory: String,
+        currentBuildTier: BuildTier,
+        targetTier: BuildTier
+    ): PrimaryUpgradeDecision {
+        val candidates = resolvePrimaryCandidates(selectedCompName, selectedCategory, currentBuildTier, targetTier)
+        if (candidates.isEmpty()) {
+            return PrimaryUpgradeDecision(
+                upgraded = false,
+                newName = selectedCompName,
+                newTier = estimateComponentPerformanceTier(selectedCompName, selectedCategory),
+                requiredSupporting = emptyMap(),
+                reason = "KEEP: $selectedCompName. Already top tier for this platform; wait for next-gen.",
+                finalCpu = build.cpu.ifBlank { selectedCompName },
+                finalGpu = build.gpu.ifBlank { selectedCompName },
+                bottleneckWorst = worstCaseBottleneckPercent(build.cpu.ifBlank { "mid" }, build.gpu.ifBlank { "mid" }).coerceAtMost(20)
+            )
+        }
+        var bestName = ""
+        var bestTier: ComponentTier = ComponentTier.LEGACY_BUDGET
+        var bestSupporting: Map<String, String> = emptyMap()
+        var bestReason = ""
+        var bestCpu = build.cpu
+        var bestGpu = build.gpu
+        var bestWorst = 35
+        for ((candName, candTier) in candidates) {
+            val compat = validatePrimaryUpgradeCompatibility(selectedCategory, candName, build)
+            val afterCpu = if (selectedCategory == "cpu") candName else (compat.requiredSupportingUpgrades["cpu"] ?: build.cpu)
+            val afterGpu = if (selectedCategory == "gpu") candName else (compat.requiredSupportingUpgrades["gpu"] ?: build.gpu)
+            val worst = if (afterCpu.isNotBlank() && afterGpu.isNotBlank()) {
+                worstCaseBottleneckPercent(afterCpu, afterGpu)
+            } else 5
+            if (worst > 20) {
+                continue
+            }
+            val candBucket = when (candTier) {
+                ComponentTier.LEGACY_BUDGET -> 0
+                ComponentTier.MIDRANGE -> 1
+                ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP -> 2
+            }
+            val bestBucket = when (bestTier) {
+                ComponentTier.LEGACY_BUDGET -> -1
+                ComponentTier.MIDRANGE -> 1
+                ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP -> 2
+            }
+            if (candBucket >= bestBucket && worst <= bestWorst) {
+                bestName = candName
+                bestTier = candTier
+                bestSupporting = compat.requiredSupportingUpgrades
+                bestReason = compat.reason.ifBlank { "Upgrade to target tier ${targetTier.name}." }
+                bestCpu = afterCpu
+                bestGpu = afterGpu
+                bestWorst = worst
+            }
+        }
+        if (bestName.isBlank()) {
+            return PrimaryUpgradeDecision(
+                upgraded = false,
+                newName = selectedCompName,
+                newTier = estimateComponentPerformanceTier(selectedCompName, selectedCategory),
+                requiredSupporting = emptyMap(),
+                reason = "KEEP: $selectedCompName. Tier upgrades fail 20% rule; upgrade CPU+GPU together.",
+                finalCpu = build.cpu,
+                finalGpu = build.gpu,
+                bottleneckWorst = 25
+            )
+        }
+        val finalCpuForRes = bestCpu.ifBlank { build.cpu.ifBlank { selectedCompName } }
+        val finalGpuForRes = bestGpu.ifBlank { build.gpu.ifBlank { selectedCompName } }
+        val (b1080, b1440, b4k) = if (finalCpuForRes.isNotBlank() && finalGpuForRes.isNotBlank()) {
+            estimateCpuGpuBalance(finalCpuForRes, finalGpuForRes)
+        } else Triple(5, 4, 3)
+        val worstCalc = maxOf(b1080, b1440, b4k).coerceAtMost(bestWorst.coerceAtLeast(1))
+        val bottleneck20Pass = worstCalc <= 20
+        val primaryDesc = buildString {
+            append("PRIMARY UPGRADE: $bestName. From: $selectedCompName. ")
+            append("Compat: PASS | Worst-Case Bottleneck: ${worstCalc}% | 20% Rule: ${if (bottleneck20Pass) "PASS" else "FAIL"}. ")
+            if (bestSupporting.isNotEmpty()) append("Platform jump requires new ${bestSupporting.keys.joinToString("/")}.")
+        }
+        return PrimaryUpgradeDecision(
+            upgraded = true,
+            newName = bestName,
+            newTier = bestTier,
+            requiredSupporting = bestSupporting,
+            reason = primaryDesc,
+            finalCpu = bestCpu.ifBlank { build.cpu },
+            finalGpu = bestGpu.ifBlank { build.gpu },
+            bottleneckWorst = bestWorst
+        )
+    }
+
+    private data class RamParse(
+        val capacityGb: Int,
+        val modules: Int,
+        val ddrGen: Int,
+        val speedMhz: Int,
+        val isDualChannel: Boolean
+    )
+
+    private fun parseRam(ramName: String): RamParse {
+        val n = ramName.lowercase()
+        val capMatch = Regex("""(\d+)\s*gb""").find(n)
+        val capacityGb = capMatch?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
+        val modMatch = Regex("""\(\s*(\d+)\s*[x]\s*(\d+)\s*gb?\s*\)""").find(n)
+        val modules = modMatch?.groupValues?.getOrNull(1)?.toIntOrNull() ?: if (capacityGb >= 16) 2 else 1
+        val ddrMatch = Regex("""ddr(\d)""").find(n)
+        val ddrGen = ddrMatch?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 4
+        val speedMatch = Regex("""(?:ddr[45]-?)?(\d{4})""").find(n)
+        val speedMhz = speedMatch?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
+        val isDualChannel = modules >= 2 || n.contains("dual") || (capacityGb >= 16 && !n.contains("single"))
+        return RamParse(capacityGb, modules, ddrGen, speedMhz, isDualChannel)
+    }
+
+    fun analyzeSupportingComponents(
+        build: CurrentBuild,
+        primaryDecision: PrimaryUpgradeDecision,
+        primaryCategory: String,
+        targetTier: BuildTier
+    ): List<UpgradeComponent> {
+        val categories = listOf("cpu", "gpu", "motherboard", "ram", "storage", "psu")
+        val finalCpu = primaryDecision.finalCpu
+        val finalGpu = primaryDecision.finalGpu
+        val requiredPsuWatts = calculateRequiredPsu(finalCpu, finalGpu)
+        val out = mutableListOf<UpgradeComponent>()
+        val mainBottleneckNow = detectMainBottleneck(build)
+        val gpuIsDominantBottleneck = mainBottleneckNow == "GPU"
+        for (cat in categories) {
+            if (cat == primaryCategory) continue
+            val currentName = build.componentByName(cat).ifBlank { cat.uppercase() }
+            val requiredName: String? = primaryDecision.requiredSupporting[cat]
+            val hasNvme = currentName.lowercase().let { it.contains("nvme") || it.contains("pcie") || it.contains("m.2") }
+            val storageCapMatch = Regex("""(\d+)\s*(gb|tb)""", RegexOption.IGNORE_CASE).find(currentName)
+            val storageCapGbRaw = storageCapMatch?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
+            val unit = storageCapMatch?.groupValues?.getOrNull(2)?.lowercase() ?: ""
+            val storageCapGb = if (unit == "tb") storageCapGbRaw * 1000 else storageCapGbRaw
+            val ddr5 = currentName.lowercase().contains("ddr5")
+            val ram = parseRam(currentName)
+            val psuWattsCurrent = if (cat == "psu") parsePsuWatts(currentName) else 0
+            val needPsu = cat == "psu" && psuWattsCurrent < requiredPsuWatts
+            val finalCpuForBalance = finalCpu.ifBlank { build.cpu }
+            val finalGpuForBalance = finalGpu.ifBlank { build.gpu }
+            val cpuBottleneckWorst = if (cat == "cpu" && currentName.isNotBlank() && finalGpuForBalance.isNotBlank()) {
+                worstCaseBottleneckPercent(currentName, finalGpuForBalance)
+            } else 0
+            val gpuBottleneckWorst = if (cat == "gpu" && finalCpuForBalance.isNotBlank() && currentName.isNotBlank()) {
+                worstCaseBottleneckPercent(finalCpuForBalance, currentName)
+            } else 0
+            val cpuTooWeak = cat == "cpu" && cpuBottleneckWorst > 20
+            val gpuTooWeak = cat == "gpu" && gpuBottleneckWorst > 20
+            if (requiredName != null) {
+                val (compat, prog) = 92 to 92f
+                val shortReason = when (cat) {
+                    "motherboard" -> "platform/memory-gen change"
+                    "cpu" -> "needed to support the final GPU under the 20% rule"
+                    "psu" -> "higher wattage needed (requires ~$requiredPsuWatts W)"
+                    "ram" -> "capacity/gen requirement for target tier"
+                    else -> "platform/power/gen requirement"
+                }
+                out.add(UpgradeComponent(category = cat, name = requiredName, description = "UPGRADE REQUIRED: $shortReason. Supports: ${primaryDecision.newName}.", compatibility = compat, progressPercent = prog))
+                continue
+            }
+            var keep = true
+            val keepReasons = mutableListOf<String>()
+            if (cat == "ram") {
+                val requiredDdrAfterPrimary = primaryDecision.requiredSupporting.containsKey("ram")
+                val lowCap = ram.capacityGb < 16
+                val tooLowForHigh = targetTier == BuildTier.HIGH && ram.capacityGb < 16
+                if (requiredDdrAfterPrimary) keep = false
+                else if (ddr5 && ram.ddrGen == 4) keep = false
+                else if (lowCap) keep = false
+                else if (tooLowForHigh) keep = false
+                else {
+                    val configText = if (ram.isDualChannel) "${ram.capacityGb}GB DDR${ram.ddrGen}-${ram.speedMhz} DC" else "${ram.capacityGb}GB DDR${ram.ddrGen}-${ram.speedMhz}"
+                    keepReasons.add("$configText OK for ${targetTier.name} tier.")
+                }
+            }
+            if (cat == "storage") {
+                val tooSmall = storageCapGb in 1..255
+                val sataOnly = !hasNvme
+                val gpuFirst = gpuIsDominantBottleneck && primaryCategory != "storage"
+                if (tooSmall) {
+                    keep = false
+                } else if (sataOnly && targetTier == BuildTier.HIGH && !gpuFirst) {
+                    keepReasons.add("${storageCapGb}GB OK; NVMe upgrade optional.")
+                }
+                if (gpuFirst && !tooSmall) {
+                    keep = true
+                    keepReasons.add("Lower priority; GPU is the main bottleneck.")
+                } else if (!tooSmall && (hasNvme || targetTier != BuildTier.HIGH)) {
+                    keepReasons.add("${storageCapGb}GB ${if (hasNvme) "NVMe" else "storage"} sufficient.")
+                }
+            }
+            if (cat == "psu") {
+                if (needPsu) keep = false else keepReasons.add("$psuWattsCurrent W OK; need ~$requiredPsuWatts W, has headroom.")
+            }
+            if (cat == "gpu") {
+                if (gpuTooWeak) keep = false else keepReasons.add("Balanced with final CPU; worst ~${gpuBottleneckWorst.coerceAtMost(20)}% OK.")
+            }
+            if (cat == "motherboard") {
+                keepReasons.add("Socket/BIOS compatible; platform unchanged.")
+            }
+            if (cat == "cpu") {
+                if (cpuTooWeak) keep = false else keepReasons.add("Balanced with final GPU; worst ~${cpuBottleneckWorst.coerceAtMost(20)}% OK.")
+            }
+            if (!keep) {
+                val upgradeName = when (cat) {
+                    "cpu" -> findBalancedCpuSupportUpgrade(build, finalGpuForBalance) ?: currentName
+                    "ram" -> {
+                        val targetDdr = if (primaryDecision.requiredSupporting.containsKey("motherboard") && (primaryDecision.requiredSupporting["motherboard"]?.contains("AM5") == true || primaryDecision.requiredSupporting["motherboard"]?.contains("LGA1851") == true)) 5 else ram.ddrGen.coerceAtLeast(4)
+                        when {
+                            targetDdr == 5 && targetTier == BuildTier.HIGH -> "32GB DDR5-6000 (2x16GB) dual-channel"
+                            targetDdr == 5 -> "32GB DDR5-6000 (2x16GB) dual-channel"
+                            targetTier == BuildTier.HIGH -> "32GB DDR4-3600 (2x16GB) dual-channel"
+                            else -> "32GB DDR4-3600 (2x16GB) dual-channel"
+                        }
+                    }
+                    "storage" -> "2TB PCIe 4.0 NVMe SSD"
+                    "psu" -> "${standardPsuSizeAtLeast(requiredPsuWatts)}W 80+ Gold ATX 3.0"
+                    "gpu" -> {
+                        val pair = resolvePrimaryCandidates(currentName, "gpu", BuildTier.MID, targetTier).firstOrNull()
+                        pair?.first ?: "Balanced GPU upgrade (see detail)"
+                    }
+                    else -> currentName
+                }
+                val (compat, prog) = 88 to 88f
+                val desc = buildString {
+                    append("UPGRADE REQUIRED: ")
+                    when (cat) {
+                        "cpu" -> append("~$cpuBottleneckWorst% imbalance (>20% rule); stronger CPU needed for the final GPU.")
+                        "ram" -> {
+                            if (ram.capacityGb < 16) append("${ram.capacityGb}GB < 16GB min.")
+                            else if (ddr5 && ram.ddrGen == 4) append("New platform needs DDR5.")
+                            else append("Larger kit for ${targetTier.name} tier.")
+                        }
+                        "storage" -> append(if (storageCapGb in 1..255) "${storageCapGb}GB too small; larger NVMe needed." else "NVMe upgrade for ${targetTier.name} tier.")
+                        "psu" -> append("$psuWattsCurrent W below ~$requiredPsuWatts W needed.")
+                        "gpu" -> append("~$gpuBottleneckWorst% imbalance (>20% rule); GPU upgrade needed.")
+                        else -> append("Supporting upgrade required.")
+                    }
+                }
+                out.add(UpgradeComponent(cat, upgradeName, description = desc, compatibility = compat, progressPercent = prog))
+            } else {
+                val shortReason = keepReasons.firstOrNull().orEmpty()
+                val desc = "KEEP: $currentName. $shortReason"
+                out.add(UpgradeComponent(cat, name = currentName, description = desc, compatibility = 99, progressPercent = 99f))
+            }
+        }
+        return out
+    }
+
+    fun buildV3UpgradeUiState(
+        searchedComponent: String,
+        hasExistingBuild: Boolean,
+        build: CurrentBuild
+    ): UpgradeRecoUiState {
+        val currentBuildTier = detectBuildTier(build)
+        val primaryCategory = run {
+            val r = resolveCategory(searchedComponent)
+            if (r.isNullOrBlank()) "gpu" else r
+        }
+        val currentCompName = build.componentByName(primaryCategory).takeIf { it.isNotBlank() } ?: searchedComponent
+        val targetTier = when (currentBuildTier) {
+            BuildTier.ENTRY -> BuildTier.MID
+            BuildTier.MID -> BuildTier.HIGH
+            BuildTier.HIGH -> BuildTier.HIGH
+        }
+        val decision = selectBestPrimaryUpgrade(build, currentCompName, primaryCategory, currentBuildTier, targetTier)
+        val supporting = analyzeSupportingComponents(build, decision, primaryCategory, targetTier)
+        val hasSupportingUpgrades = supporting.any { it.description.startsWith("UPGRADE REQUIRED:", ignoreCase = true) }
+        val primaryCompat = if (decision.upgraded) (90 + (decision.bottleneckWorst.coerceAtMost(8))).coerceAtMost(98) else 99
+        val primaryProg = primaryCompat.toFloat()
+        val primaryCard = UpgradeComponent(
+            category = primaryCategory,
+            name = if (decision.upgraded) decision.newName else currentCompName,
+            description = if (!decision.upgraded && hasSupportingUpgrades) {
+                "KEEP: $currentCompName. This searched ${primaryCategory.uppercase()} is already strong enough for the target tier; upgrade the surrounding parts to unlock it within the 20% bottleneck rule."
+            } else {
+                decision.reason
+            },
+            compatibility = primaryCompat,
+            progressPercent = primaryProg
+        )
+        val unsorted = mutableListOf<UpgradeComponent>()
+        unsorted.add(primaryCard)
+        unsorted.addAll(supporting)
+        val order = listOf("cpu", "gpu", "motherboard", "ram", "storage", "psu")
+        val sorted = order.map { cat -> unsorted.firstOrNull { it.category.lowercase() == cat } }
+            .filterNotNull()
+        val mainBottleneck = detectMainBottleneck(build)
+        val plannedCpu = sorted.firstOrNull { it.category.equals("cpu", ignoreCase = true) }?.name
+            ?: decision.finalCpu.ifBlank { build.cpu }
+        val plannedGpu = sorted.firstOrNull { it.category.equals("gpu", ignoreCase = true) }?.name
+            ?: decision.finalGpu.ifBlank { build.gpu }
+        val finalWorstPercent = if (plannedCpu.isNotBlank() && plannedGpu.isNotBlank()) {
+            worstCaseBottleneckPercent(plannedCpu, plannedGpu).coerceAtMost(20)
+        } else {
+            decision.bottleneckWorst.coerceAtMost(20)
+        }
+        val title: String
+        val description: String
+        val tier: String
+        if (!decision.upgraded && targetTier == BuildTier.HIGH && currentBuildTier == BuildTier.HIGH) {
+            if (hasSupportingUpgrades) {
+                title = "High-End Adjustments"
+                description = buildString {
+                    append("Worst-Case Balance: ${finalWorstPercent}% OK (<=20% rule). Main Bottleneck: $mainBottleneck. ")
+                    append("Your searched $primaryCategory is already strong, but a few supporting upgrades can still improve the overall build.")
+                }
+            } else {
+                title = "Current Build Analysis -- Top of the Line"
+                description = buildString {
+                    append("Worst-Case Balance: ${finalWorstPercent}% OK (<=20% rule). Main Bottleneck: $mainBottleneck. ")
+                    append("Your build is already using the latest components, no more upgrades can be recommended.")
+                }
+            }
+            tier = "HIGH_END"
+        } else {
+            title = when (targetTier) {
+                BuildTier.ENTRY -> "Entry-Level Upgrade Path"
+                BuildTier.MID -> "Mid-Range Upgrade Path"
+                BuildTier.HIGH -> "High-End Upgrade Path"
+            }
+            val currentLabel = when (currentBuildTier) { BuildTier.ENTRY -> "Entry-Level"; BuildTier.MID -> "Mid-Range"; BuildTier.HIGH -> "High-End" }
+            val targetLabel = when (targetTier) { BuildTier.ENTRY -> "Entry-Level"; BuildTier.MID -> "Mid-Range"; BuildTier.HIGH -> "High-End" }
+            val primaryCatPretty = primaryCategory.replaceFirstChar { it.uppercase() }
+            val worstPercent = finalWorstPercent
+            val rulePass = worstPercent <= 20
+            description = buildString {
+                append("Target: $targetLabel | Main Bottleneck: $mainBottleneck | Worst-Case: ${worstPercent}% | 20% Rule: ${if (rulePass) "PASS" else "FAIL"}. ")
+                if (!decision.upgraded && hasSupportingUpgrades) {
+                    append("BASE COMPONENT: $currentCompName (from $currentLabel $primaryCatPretty). Upgrade the supporting parts around it.")
+                } else {
+                    append("PRIMARY UPGRADE: ${decision.newName} (from $currentLabel $primaryCatPretty: $currentCompName).")
+                }
+            }
+            tier = when (targetTier) {
+                BuildTier.MID -> "MIDRANGE"
+                else -> "HIGH_END"
+            }
+        }
+        val tierLabel = when (currentBuildTier) {
+            BuildTier.ENTRY -> "Entry-Level Build"
+            BuildTier.MID -> "Mid-Range Build"
+            BuildTier.HIGH -> "High-End Build"
+        }
+        val path = UpgradePath(title = title, description = description, tier = tier, components = sorted)
+        val midPath: UpgradePath? = if (targetTier == BuildTier.MID) path else null
+        val highPath: UpgradePath? = if (targetTier == BuildTier.HIGH || (!decision.upgraded && currentBuildTier == BuildTier.HIGH)) path else null
+        return UpgradeRecoUiState(
+            basedOnText = "Based on: $searchedComponent",
+            currentBuild = build,
+            currentBuildTier = currentBuildTier,
+            currentBuildTierLabel = tierLabel,
+            tierCount = 1,
+            entryPath = null,
+            midPath = midPath,
+            highPath = highPath
+        )
+    }
+
+    enum class UserCompTier3 { ENTRY, MIDRANGE, HIGH_END }
+
+    fun classifyUserComponentTier3(componentName: String, categoryType: String): UserCompTier3 {
+        val n = componentName.lowercase()
+        val tier4 = estimateComponentPerformanceTier(componentName, categoryType)
+        return when (tier4) {
+            ComponentTier.LEGACY_BUDGET -> UserCompTier3.ENTRY
+            ComponentTier.MIDRANGE -> UserCompTier3.MIDRANGE
+            ComponentTier.HIGH_END_CURRENT, ComponentTier.ENTHUSIAST_FLAGSHIP -> UserCompTier3.HIGH_END
+        }
+    }
+
+    fun findStrongerHighEndUpgradeOrNull(componentName: String, categoryType: String): String? {
+        val n = componentName.lowercase()
+        if (categoryType == "gpu") {
+            when {
+                n.contains("rtx 5090") -> return null
+                n.contains("rtx 4090") -> return "NVIDIA GeForce RTX 5090"
+                n.contains("rtx 4080 super") || n.contains("rtx 4080") -> return "NVIDIA GeForce RTX 5090"
+                n.contains("rtx 4070 ti super") || n.contains("rtx 4070 ti") || n.contains("rtx 4070 super") || n.contains("rtx 4070") -> return "NVIDIA GeForce RTX 4080 Super"
+                n.contains("rtx 3090 ti") || n.contains("rtx 3090") || n.contains("rtx 3080 ti") || n.contains("rtx 3080") -> return "NVIDIA GeForce RTX 5090"
+                n.contains("rx 7900 xtx") || n.contains("rx 7900 gre") || n.contains("rx 7900 xt") -> return "NVIDIA GeForce RTX 5090"
+                n.contains("rx 9060 xt") || n.contains("rx 9060xt") || n.contains("rx 9070 xt") || n.contains("rx 9070xt") -> return "AMD Radeon RX 9070 XT"
+            }
+        }
+        if (categoryType == "cpu") {
+            when {
+                n.contains("9950x") || n.contains("9960x") || n.contains("ultra 9 285k") || n.contains("ultra 9 288k") || n.contains("threadripper") -> return null
+                n.contains("9900x") || n.contains("9920x") -> return "AMD Ryzen 9 9950X"
+                n.contains("ryzen 9 7950x3d") || n.contains("ryzen 9 7950x") -> return "AMD Ryzen 9 9950X"
+                n.contains("ryzen 9 7900x3d") || n.contains("ryzen 9 7900x") || n.contains("ryzen 9 7900 ") -> return "AMD Ryzen 9 9950X"
+                n.contains("ryzen 7 7800x3d") || n.contains("ryzen 7 7700x") || n.contains("ryzen 7 7700 ") -> return "AMD Ryzen 9 7900X"
+                n.contains("i7-14700k") || n.contains("i7-14700") || n.contains("i7-13700k") || n.contains("i7-13700") -> return "Intel Core Ultra 9 285K"
+                n.contains("i9-14900k") || n.contains("i9-14900") || n.contains("i9-13900k") || n.contains("ultra 7 265k") || n.contains("ultra 7 268k") || n.contains("ultra 9 275k") || n.contains("ultra 9 278k") -> return "Intel Core Ultra 9 285K"
+            }
+        }
+        return null
     }
 }

@@ -29,7 +29,14 @@ import java.util.concurrent.TimeUnit
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
+    private val safeBinding: FragmentDashboardBinding? get() = _binding
     private val binding get() = _binding!!
+    private inline fun withBinding(block: FragmentDashboardBinding.() -> Unit) {
+        val b = safeBinding
+        if (b != null && isAdded) {
+            block(b)
+        }
+    }
     private val recommendationViewModel: RecommendationViewModel by activityViewModels()
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -48,6 +55,8 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        recommendationViewModel.resetAllSearchAndBuildState()
+
         binding.ivProfileBadge.outlineProvider = object : android.view.ViewOutlineProvider() {
             override fun getOutline(view: View, outline: android.graphics.Outline) {
                 val radius = Math.min(view.width, view.height) / 2
@@ -57,6 +66,8 @@ class DashboardFragment : Fragment() {
         binding.ivProfileBadge.clipToOutline = true
 
         binding.tvGreeting.text = getGreetingLabel()
+        binding.etSearch.text.clear()
+        binding.ivClearSearch.visibility = View.GONE
         loadUserInfo()
         loadProfilePicture()
         observeDashboardStats()
@@ -90,13 +101,18 @@ class DashboardFragment : Fragment() {
         })
 
         binding.cardUpload.setOnClickListener {
-            incrementScanCount()
+            recommendationViewModel.resetAllSearchAndBuildState()
             findNavController().navigate(R.id.action_dashboardFragment_to_uploadImageFragment)
         }
 
         binding.cardOcr.setOnClickListener {
-            incrementScanCount()
+            recommendationViewModel.resetAllSearchAndBuildState()
             findNavController().navigate(R.id.action_dashboardFragment_to_ocrFragment)
+        }
+
+        binding.cardRangeBuild.setOnClickListener {
+            recommendationViewModel.resetAllSearchAndBuildState()
+            findNavController().navigate(R.id.action_dashboardFragment_to_rangeBuildFragment)
         }
 
         binding.tvProfileBadge.setOnClickListener {
@@ -156,6 +172,10 @@ class DashboardFragment : Fragment() {
         super.onResume()
         loadProfilePicture()
         recommendationViewModel.resetAllSearchAndBuildState()
+        withBinding {
+            etSearch.text.clear()
+            ivClearSearch.visibility = View.GONE
+        }
     }
 
     private fun observeDashboardStats() {
@@ -172,7 +192,10 @@ class DashboardFragment : Fragment() {
             renderRecentActivities(recentActivities)
         }
 
-        binding.tvScanCount.text = getScanCount().toString()
+        recommendationViewModel.scanCount.observe(viewLifecycleOwner) { count ->
+            binding.tvScanCount.text = count.toString()
+        }
+        recommendationViewModel.refreshScanCount()
     }
 
     private fun renderRecentActivities(activities: List<RecentActivityItem>) {
@@ -186,7 +209,7 @@ class DashboardFragment : Fragment() {
                 )
                 text = "No recent activity yet"
                 textSize = 14f
-                setTextColor(Color.parseColor("#7081A5"))
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.muted))
                 gravity = Gravity.CENTER
                 setPadding(0, 16.dpToPx(), 0, 0)
             }
@@ -235,8 +258,15 @@ class DashboardFragment : Fragment() {
                     RecentActivityType.SEARCH -> R.drawable.dashboard_search_icon
                     RecentActivityType.UPLOAD -> R.drawable.dashboard_upload_icon
                     RecentActivityType.OCR -> R.drawable.dashboard_ocr_icon
-                    RecentActivityType.SAVED_BUILD -> R.drawable.dashboard_build_count_icon
+                    RecentActivityType.SAVED_BUILD -> {
+                        if (activity.name.contains("Range Build", ignoreCase = true)) {
+                            R.drawable.dashboard_range_build_icon
+                        } else {
+                            R.drawable.buildrecoiconactivity
+                        }
+                    }
                     RecentActivityType.SAVED_UPGRADE -> R.drawable.dashboard_save_count_icon
+                    RecentActivityType.RANGE_BUILD -> R.drawable.dashboard_range_build_icon
                 }
                 setImageResource(iconRes)
                 contentDescription = activity.type.name
@@ -276,7 +306,7 @@ class DashboardFragment : Fragment() {
                 }
                 text = "${activity.category} | ${formatTime(activity.timestamp)}"
                 textSize = 14f
-                setTextColor(Color.parseColor("#7081A5"))
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.muted))
             }
             textContainer.addView(categoryTimeText)
 
@@ -307,28 +337,32 @@ class DashboardFragment : Fragment() {
     }
 
     private fun updateSavedCount(buildCount: Int, upgradeCount: Int) {
-        binding.tvSavedCount.text = (buildCount + upgradeCount).toString()
+        withBinding {
+            tvSavedCount.text = (buildCount + upgradeCount).toString()
+        }
     }
 
     private fun loadUserInfo() {
         val userId = auth.currentUser?.uid
         val prefs = requireContext().getSharedPreferences("user_prefs", 0)
-        
+
         // First load from cache for instant display
         val cachedName = prefs.getString("user_name", null)
-                    if (cachedName != null) {
-                        binding.tvWelcome.text = "Hello, ${cachedName.substringBefore(' ').ifBlank { cachedName }}"
-                        binding.tvProfileInitial.text = cachedName.firstOrNull()?.uppercase() ?: "A"
-                    } else {
-                        // Fall back to email if no name yet
-                        val email = auth.currentUser?.email
-                        if (email != null) {
-                            binding.tvWelcome.text = "Hello there"
-                            binding.tvProfileInitial.text = email.firstOrNull()?.uppercase() ?: "A"
-                        }
-                    }
+        if (cachedName != null) {
+            withBinding {
+                tvWelcome.text = "Hello, ${cachedName.substringBefore(' ').ifBlank { cachedName }}"
+                tvProfileInitial.text = cachedName.firstOrNull()?.uppercase() ?: "A"
+            }
+        } else {
+            val email = auth.currentUser?.email
+            if (email != null) {
+                withBinding {
+                    tvWelcome.text = "Hello there"
+                    tvProfileInitial.text = email.firstOrNull()?.uppercase() ?: "A"
+                }
+            }
+        }
 
-        // Then load from Firestore to get latest and update cache
         if (userId != null) {
             db.collection("users").document(userId)
                 .get()
@@ -337,10 +371,10 @@ class DashboardFragment : Fragment() {
                         val name = document.getString("fullName")
                             ?: document.getString("name")
                         if (name != null) {
-                            // Update UI
-                            binding.tvWelcome.text = "Hello, ${name.substringBefore(' ').ifBlank { name }}"
-                            binding.tvProfileInitial.text = name.firstOrNull()?.uppercase() ?: "A"
-                            // Save to cache
+                            withBinding {
+                                tvWelcome.text = "Hello, ${name.substringBefore(' ').ifBlank { name }}"
+                                tvProfileInitial.text = name.firstOrNull()?.uppercase() ?: "A"
+                            }
                             prefs.edit().putString("user_name", name).apply()
                         }
                     }
@@ -355,7 +389,9 @@ class DashboardFragment : Fragment() {
         val prefs = requireContext().getSharedPreferences(PREF_DASHBOARD, 0)
         val updated = prefs.getInt(KEY_SCAN_COUNT, 0) + 1
         prefs.edit().putInt(KEY_SCAN_COUNT, updated).apply()
-        binding.tvScanCount.text = updated.toString()
+        withBinding {
+            tvScanCount.text = updated.toString()
+        }
     }
 
     private fun getScanCount(): Int {
@@ -379,6 +415,6 @@ class DashboardFragment : Fragment() {
 
     companion object {
         private const val PREF_DASHBOARD = "dashboard_prefs"
-        private const val KEY_SCAN_COUNT = "scan_count"
+        private const val KEY_SCAN_COUNT = "key_scan_count"
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentEditProfileBinding
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -31,6 +33,10 @@ class EditProfileFragment : Fragment() {
     private lateinit var db: FirebaseFirestore
     private var currentName: String = ""
     private var hasChanges = false
+
+    companion object {
+        private const val FIELD_PROFILE_IMAGE = "profileImageBase64"
+    }
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -191,11 +197,14 @@ class EditProfileFragment : Fragment() {
     private fun saveProfilePicture(bitmap: Bitmap) {
         val user = auth.currentUser ?: return
         try {
-            val file = File(requireContext().filesDir, "profile_${user.uid}.jpg")
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-            outputStream.flush()
-            outputStream.close()
+            val imageBytes = ByteArrayOutputStream().use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+                stream.toByteArray()
+            }
+            cacheProfilePicture(user.uid, imageBytes)
+            val base64Image = Base64.encodeToString(imageBytes, Base64.NO_WRAP)
+            db.collection("users").document(user.uid)
+                .set(mapOf(FIELD_PROFILE_IMAGE to base64Image), SetOptions.merge())
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to save profile picture: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -211,10 +220,35 @@ class EditProfileFragment : Fragment() {
                 binding.tvAvatarInitial.visibility = View.GONE
             } else {
                 binding.tvAvatarInitial.visibility = View.VISIBLE
+                restoreProfilePictureFromFirestore(user.uid)
             }
         } catch (e: Exception) {
             binding.tvAvatarInitial.visibility = View.VISIBLE
         }
+    }
+
+    private fun cacheProfilePicture(userId: String, imageBytes: ByteArray) {
+        val file = File(requireContext().filesDir, "profile_$userId.jpg")
+        FileOutputStream(file).use { outputStream ->
+            outputStream.write(imageBytes)
+            outputStream.flush()
+        }
+    }
+
+    private fun restoreProfilePictureFromFirestore(userId: String) {
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val base64Image = document.getString(FIELD_PROFILE_IMAGE).orEmpty()
+                if (base64Image.isBlank()) return@addOnSuccessListener
+                runCatching {
+                    val imageBytes = Base64.decode(base64Image, Base64.DEFAULT)
+                    cacheProfilePicture(userId, imageBytes)
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    binding.ivAvatar.setImageBitmap(bitmap)
+                    binding.tvAvatarInitial.visibility = View.GONE
+                }
+            }
     }
 
     private fun saveChanges() {

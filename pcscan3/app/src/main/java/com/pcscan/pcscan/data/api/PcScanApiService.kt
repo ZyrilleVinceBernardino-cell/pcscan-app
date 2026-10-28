@@ -5,6 +5,8 @@ import com.pcscan.pcscan.data.api.SearchApiDto.AnalyzeTextRequestDto
 import com.pcscan.pcscan.data.api.SearchApiDto.AnalyzeTextResponseDto
 import com.pcscan.pcscan.data.api.SearchApiDto.BuildRecoRequestDto
 import com.pcscan.pcscan.data.api.SearchApiDto.BuildRecoResponseDto
+import com.pcscan.pcscan.data.api.SearchApiDto.FuzzySearchRequestDto
+import com.pcscan.pcscan.data.api.SearchApiDto.FuzzySearchResponseDto
 import com.pcscan.pcscan.data.api.SearchApiDto.SearchRequestDto
 import com.pcscan.pcscan.data.api.SearchApiDto.SearchResponseDto
 import okhttp3.OkHttpClient
@@ -25,6 +27,9 @@ interface PcScanApiService {
 
     @POST("api/search")
     suspend fun searchExact(@Body request: SearchRequestDto): Response<SearchResponseDto>
+
+    @POST("api/search-fuzzy")
+    suspend fun searchFuzzy(@Body request: FuzzySearchRequestDto): Response<FuzzySearchResponseDto>
 
     @POST("api/build-recommendation")
     suspend fun buildRecommendation(@Body request: BuildRecoRequestDto): Response<BuildRecoResponseDto>
@@ -71,9 +76,10 @@ interface PcScanApiService {
 
         private val baseClient: OkHttpClient by lazy {
             OkHttpClient.Builder()
-                .connectTimeout(90, TimeUnit.SECONDS)
-                .readTimeout(90, TimeUnit.SECONDS)
-                .writeTimeout(90, TimeUnit.SECONDS)
+                .connectTimeout(12, TimeUnit.SECONDS)
+                .readTimeout(12, TimeUnit.SECONDS)
+                .writeTimeout(12, TimeUnit.SECONDS)
+                .callTimeout(20, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
                 .build()
         }
@@ -209,6 +215,53 @@ interface PcScanApiService {
             }
             if (lastHttpErrorResponse != null) return lastHttpErrorResponse
             throw lastException ?: IOException("All build-reco base URLs failed. Start backend or check WIFI. Tried: $URL_FALLBACK_ORDER")
+        }
+
+        suspend fun searchFuzzyWithFallback(request: FuzzySearchRequestDto): Response<FuzzySearchResponseDto> {
+            val startIdx = lastWorkingIndex
+            val tryOrder = (startIdx until URL_FALLBACK_ORDER.size) + (0 until startIdx)
+            var lastException: Throwable? = null
+            var lastHttpErrorResponse: Response<FuzzySearchResponseDto>? = null
+            for (idx in tryOrder) {
+                val url = URL_FALLBACK_ORDER[idx]
+                try {
+                    Log.d(TAG, "Trying search-fuzzy base URL=$url (lastWorkingIdx=$lastWorkingIndex)")
+                    val response = buildForUrl(url).searchFuzzy(request)
+                    when {
+                        response.isSuccessful -> {
+                            lastWorkingIndex = idx
+                            Log.i(TAG, "Search-fuzzy URL=$url working (HTTP ${response.code()}), saved as primary")
+                            return response
+                        }
+                        response.code() == 404 -> {
+                            Log.w(TAG, "NOT FOUND: search-fuzzy endpoint missing on $url (expected /api/search-fuzzy). Will return empty candidates, L0 DB-first chain skips to standalone GPT L1.")
+                            lastWorkingIndex = idx
+                            lastHttpErrorResponse = response
+                        }
+                        response.code() in 400..499 -> {
+                            Log.w(TAG, "WARN: Search-fuzzy URL=$url returned client error HTTP ${response.code()}. Request invalid, will NOT retry other URLs.")
+                            lastWorkingIndex = idx
+                            return response
+                        }
+                        else -> {
+                            Log.w(TAG, "RETRY: Search-fuzzy URL=$url returned server error HTTP ${response.code()}, trying next fallback")
+                            lastHttpErrorResponse = response
+                            lastException = IOException("Search-fuzzy server error HTTP ${response.code()} on $url")
+                        }
+                    }
+                } catch (e: SocketTimeoutException) {
+                    Log.w(TAG, "TIMEOUT: Search-fuzzy timeout on $url")
+                    lastException = e
+                } catch (e: ConnectException) {
+                    Log.w(TAG, "CONNECT FAIL: Search-fuzzy connect fail on $url")
+                    lastException = e
+                } catch (e: IOException) {
+                    Log.w(TAG, "IO ERROR: Search-fuzzy IO fail on $url: ${e.message}")
+                    lastException = e
+                }
+            }
+            if (lastHttpErrorResponse != null) return lastHttpErrorResponse
+            throw lastException ?: IOException("All search-fuzzy base URLs failed. Start backend or check WIFI. Tried: $URL_FALLBACK_ORDER")
         }
 
         private fun buildForUrl(url: String): PcScanApiService {

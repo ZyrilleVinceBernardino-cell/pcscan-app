@@ -23,8 +23,8 @@
             android:clickable="true"
             android:focusable="true"
             android:padding="8dp"
-            android:src="@android:drawable/ic_menu_revert"
-            android:tint="@color/text_white" />
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/accent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -45,10 +45,13 @@
         android:padding="16dp">
 
         <ImageView
+            android:id="@+id/ivResultIcon"
             android:layout_width="44dp"
             android:layout_height="44dp"
+            android:adjustViewBounds="true"
             android:contentDescription="Detected component"
-            android:src="@drawable/upload_img" />
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/upload_img" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -62,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Component Detected"
-                android:textColor="#19D39A"
+                android:textColor="@color/success"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -147,12 +150,13 @@
         app:backgroundTint="@null"
         android:text="Re-upload Image"
         android:textAllCaps="false"
-        android:textColor="@color/primary_light"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
         app:icon="@drawable/re_upload_icon"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
+        app:iconTint="@color/white"
         app:cornerRadius="18dp"
         app:strokeWidth="0dp" />
 </LinearLayout>

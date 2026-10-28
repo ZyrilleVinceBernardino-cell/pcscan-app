@@ -43,7 +43,7 @@
                 android:padding="8dp"
                 android:text="Build Recommendations"
                 android:textAllCaps="false"
-                android:textColor="#7081A5"
+                android:textColor="@color/textSecondary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -110,6 +110,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Home"
+                android:tint="@color/textMuted"
                 android:src="@drawable/saved_home_icon_not_click" />
         </LinearLayout>
 
@@ -125,6 +126,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Saved"
+                android:tint="@color/accent"
                 android:src="@drawable/saved_save_icon_click" />
         </LinearLayout>
 
@@ -142,6 +144,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Profile"
+                android:tint="@color/textMuted"
                 android:src="@drawable/dashboard_profile_icon_not_click" />
         </LinearLayout>
     </LinearLayout>

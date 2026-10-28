@@ -15,10 +15,22 @@ from app.models.schemas import (
     CaseSpec,
     ComponentInfo,
     OCRScanResult,
+    AnalyzeTextResponse,
     CompatibilityIssue,
     BottleneckAnalysis,
     UpgradeStep,
     UpgradePathResult,
+    UpgradePathResult as UpgradePathResponse,
+    BuildRecommendationResult,
+    BuildRecommendationResult as BuildRecommendationResponse,
+    UpgradeComponentSnapshot,
+    TargetComponentReport,
+    RequiredCompatChange,
+    OptionalUpgradeItem,
+    UnchangedComponentItem,
+    FinalBuildCheck,
+    TargetedUpgradeResponse,
+    TargetedUpgradeRequest,
 )
 from app.services.compatibility_engine import (
     compatibility_engine,
@@ -614,6 +626,371 @@ def mock_upgrade_path_response(request_obj) -> UpgradePathResponse:
         total_estimated_cost=total_cost,
         summary=" ".join(summary_parts),
         error=None,
+    )
+
+
+def mock_targeted_upgrade_response(
+    request_obj,
+) -> TargetedUpgradeResponse:
+    """
+    Mock response for the new TARGETED UPGRADE ADVISOR endpoint (/upgrade/advisor).
+    Produces spec-compliant 5-section output targeting the user's searched component.
+    """
+    t0 = time.time()
+    target = request_obj.target_component
+    target_cat = (target.category or "").lower()
+    target_name = (target.name or "").lower()
+    current_build = request_obj.current_build or {}
+
+    # ------- Step 1: classify target tier + next-tier replacement ---------
+    def tier_from_name(cat: str, name_lower: str) -> str:
+        if any(x in name_lower for x in ("ryzen 9", "i9-14", "i9-13", "7950x", "7900x3d", "4090", "4080 super", "rx 7900 xtx", "titanium")):
+            return "flagship"
+        if any(x in name_lower for x in ("ryzen 7", "i7-14", "i7-13", "7800x3d", "4070 ti", "4080", "rx 7900 xt", "x670", "z790", "rm1000", "rm850")):
+            return "high-end"
+        if any(x in name_lower for x in ("ryzen 5", "i5-14", "i5-13", "i5-12", "7600", "4060", "4070", "rx 7800", "rx 7700", "b650", "b760", "b550", "32gb ddr5", "2tb", "rm750", "750w")):
+            return "midrange"
+        return "entry"
+
+    cur_tier = tier_from_name(target_cat, target_name)
+    next_map = {"entry": "midrange", "midrange": "high-end", "high-end": "high-end", "flagship": None}
+    upgrade_needed = cur_tier != "flagship"
+    next_tier = next_map[cur_tier] if upgrade_needed else None
+    if not upgrade_needed:
+        reason = "already flagship tier, no upgrade needed"
+    else:
+        reason = f"{cur_tier} -> {next_tier} upgrade"
+
+    # Build specific replacements (real model names, never generic)
+    def pick_replacement(cat: str, cur_name: str, target_t: str) -> UpgradeComponentSnapshot:
+        n = cur_name.lower()
+        if cat == "cpu":
+            if "ryzen 5 5600" in n or target_t == "midrange":
+                return UpgradeComponentSnapshot(
+                    category="cpu",
+                    name="AMD Ryzen 7 7700",
+                    tier="high-end",
+                    specs={
+                        "socket": "AM5",
+                        "memory_type": "DDR5",
+                        "tdp_watts": 65,
+                        "core_count": 8,
+                        "thread_count": 16,
+                        "generation": "Zen 4",
+                        "supported_chipsets": ["B650", "X670", "X670E"],
+                    },
+                )
+            if target_t == "high-end":
+                return UpgradeComponentSnapshot(
+                    category="cpu",
+                    name="AMD Ryzen 9 7900",
+                    tier="high-end",
+                    specs={
+                        "socket": "AM5",
+                        "memory_type": "DDR5",
+                        "tdp_watts": 65,
+                        "core_count": 12,
+                        "thread_count": 24,
+                        "generation": "Zen 4",
+                        "supported_chipsets": ["B650", "X670", "X670E"],
+                    },
+                )
+            return UpgradeComponentSnapshot(
+                category="cpu",
+                name="Intel Core i5-13400F",
+                tier="midrange",
+                specs={"socket": "LGA1700", "memory_type": "DDR4/DDR5", "tdp_watts": 65, "core_count": 10, "thread_count": 16, "generation": "13th Gen", "supported_chipsets": ["B760", "Z790"]},
+            )
+        if cat == "gpu":
+            if target_t == "midrange":
+                return UpgradeComponentSnapshot(
+                    category="gpu",
+                    name="NVIDIA GeForce RTX 4070 12GB",
+                    tier="high-end",
+                    specs={"vram_gb": 12, "memory_type": "GDDR6X", "recommended_psu_watts": 650, "power_draw_watts": 200, "generation": "RTX 40-series", "target_resolution": "1440p", "pcie_interface": "PCIe 4.0"},
+                )
+            if target_t == "high-end":
+                return UpgradeComponentSnapshot(
+                    category="gpu",
+                    name="NVIDIA GeForce RTX 4080 SUPER 16GB",
+                    tier="high-end",
+                    specs={"vram_gb": 16, "memory_type": "GDDR6X", "recommended_psu_watts": 850, "power_draw_watts": 320, "generation": "RTX 40-series", "target_resolution": "4K", "pcie_interface": "PCIe 4.0"},
+                )
+            return UpgradeComponentSnapshot(
+                category="gpu",
+                name="AMD Radeon RX 7800 XT 16GB",
+                tier="midrange",
+                specs={"vram_gb": 16, "memory_type": "GDDR6", "recommended_psu_watts": 650, "power_draw_watts": 263, "generation": "RX 7000-series", "target_resolution": "1440p", "pcie_interface": "PCIe 4.0"},
+            )
+        if cat == "ram":
+            return UpgradeComponentSnapshot(
+                category="ram",
+                name="G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5-6000 CL30",
+                tier="midrange",
+                specs={"type": "DDR5", "capacity_gb": 32, "speed_mhz": 6000, "cas_latency": 30, "kit_configuration": "2x16GB"},
+            )
+        if cat == "storage":
+            return UpgradeComponentSnapshot(
+                category="storage",
+                name="Samsung 990 PRO 2TB PCIe 4.0 NVMe SSD",
+                tier="midrange",
+                specs={"type": "NVMe SSD", "capacity_gb": 2000, "interface": "M.2 PCIe 4.0 x4", "read_speed_mbps": 7450, "write_speed_mbps": 6900},
+            )
+        if cat == "motherboard":
+            return UpgradeComponentSnapshot(
+                category="motherboard",
+                name="MSI MAG X670E TOMAHAWK WIFI",
+                tier="high-end",
+                specs={"socket": "AM5", "chipset": "X670E", "memory_type": "DDR5", "max_ram_gb": 128, "ram_slots": 4, "m2_slots": 3, "pcie_generation": "PCIe 5.0"},
+            )
+        if cat == "psu":
+            return UpgradeComponentSnapshot(
+                category="psu",
+                name="Corsair RM850e (2024) 850W 80+ Gold Fully Modular",
+                tier="midrange",
+                specs={
+                    "wattage": 850,
+                    "efficiency": "80+ Gold",
+                    "modular": "Fully Modular",
+                    "atx_version": "ATX 3.1",
+                },
+            )
+
+    replacement: Optional[UpgradeComponentSnapshot] = None
+    if upgrade_needed and next_tier:
+        replacement = pick_replacement(target_cat, target_name, next_tier)
+
+    target_report = TargetComponentReport(
+        current=target,
+        current_tier=cur_tier,
+        upgrade_needed=upgrade_needed,
+        recommended_replacement=replacement,
+        reason=reason,
+    )
+
+    # ------- Step 2: Required compatibility changes -----------------------
+    required_changes: List[RequiredCompatChange] = []
+
+    # CPU replacement: if new CPU.socket != existing mobo.socket, mobo + ram required
+    if target_cat == "cpu" and replacement is not None:
+        existing_mobo = current_build.get("motherboard")
+        new_socket = (replacement.specs or {}).get("socket") or ""
+        if existing_mobo is not None:
+            existing_socket_name = (
+                ((existing_mobo.specs or {}).get("socket")) or existing_mobo.name or ""
+            )
+            socket_matches = (
+                str(new_socket).lower().replace(" ", "") in existing_socket_name.lower().replace(" ", "")
+            ) or (new_socket.lower() == str(((existing_mobo.specs or {}).get("socket") or "")).lower())
+            if not socket_matches or "am4" in str(existing_mobo.name).lower() and "am5" in str(new_socket).lower():
+                new_mobo = UpgradeComponentSnapshot(
+                    category="motherboard",
+                    name="MSI MAG B650 TOMAHAWK WIFI (AM5)" if new_socket.lower() == "am5" else "ASUS TUF GAMING Z790-PLUS WIFI",
+                    tier="high-end",
+                    specs={"socket": new_socket, "chipset": "B650" if new_socket.lower() == "am5" else "Z790", "memory_type": "DDR5", "form_factor": "ATX"},
+                )
+                required_changes.append(RequiredCompatChange(
+                    category="motherboard",
+                    current=existing_mobo,
+                    recommended_replacement=new_mobo,
+                    reason=(
+                        f"socket mismatch with new CPU ({new_socket}); original motherboard socket "
+                        f"{((existing_mobo.specs or {}).get('socket') or 'unknown')} is incompatible — platform upgrade required."
+                    ),
+                ))
+                existing_ram = current_build.get("ram")
+                if existing_ram is not None:
+                    # DDR4/DDR5 mismatch detection
+                    ram_name_or_spec = str(((existing_ram.specs or {}).get("type")) or existing_ram.name or "")
+                    ram_is_ddr4_only = "ddr4" in ram_name_or_spec.lower() or (
+                        "ddr5" not in ram_name_or_spec.lower() and "ddr4" in existing_ram.name.lower()
+                    )
+                    if ram_is_ddr4_only and "DDR5" in str((new_mobo.specs or {}).get("memory_type", "DDR5")).upper():
+                        new_ram = UpgradeComponentSnapshot(
+                            category="ram",
+                            name="G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5-6000 CL30",
+                            tier="midrange",
+                            specs={"type": "DDR5", "capacity_gb": 32, "speed_mhz": 6000, "kit_configuration": "2x16GB"},
+                        )
+                        required_changes.append(RequiredCompatChange(
+                            category="ram",
+                            current=existing_ram,
+                            recommended_replacement=new_ram,
+                            reason="DDR4 vs DDR5 mismatch: new AM5 motherboard requires DDR5; existing DDR4 kit cannot physically fit the new platform DIMM slots.",
+                        ))
+
+    # GPU replacement: if PSU wattage < 1.3x draw => PSU required upgrade
+    if target_cat == "gpu" and replacement is not None:
+        tdp = (replacement.specs or {}).get("watt") or (replacement.specs or {}).get("power_draw_watts") or 200
+        existing_cpu = current_build.get("cpu")
+        cpu_tdp = (
+            (existing_cpu.specs or {}).get("tdp_watts") if existing_cpu and isinstance(existing_cpu, UpgradeComponentSnapshot)
+            else 65
+        )
+        est_draw = tdp + 65 + 150
+        existing_psu = current_build.get("psu")
+        needs_psu = False
+        existing_psu_watts: Optional[int] = None
+        if existing_psu is not None:
+            import re
+            watt_str = str((existing_psu.specs or {}).get("watt") or existing_psu.name or "")
+            digits = re.findall(r"\d{3,4}", watt_str) or ["0"]
+            existing_psu_watts = int(digits[0])
+            needs_psu = existing_psu_watts < int(est_draw * 1.3)
+        if needs_psu and existing_psu is not None:
+            watt_int = 850 if est_draw <= 700 else 1000
+            new_psu = UpgradeComponentSnapshot(
+                category="psu",
+                name="Corsair RM850e (2024) 850W 80+ Gold Fully Modular" if watt_int == 850 else "Corsair RM1000x Shift 1000W 80+ Gold Fully Modular",
+                tier="midrange",
+                specs={"wattage": watt_int, "efficiency": "80+ Gold", "modular": "Fully Modular", "atx_version": "ATX 3.1"},
+            )
+            required_changes.append(RequiredCompatChange(
+                category="psu",
+                current=existing_psu,
+                recommended_replacement=new_psu,
+                reason=f"existing PSU wattage ({existing_psu_watts}W) drops below the 1.3x safety headroom floor over estimated total draw ({est_draw}W). Required to reliably power the upgraded {replacement.name} GPU.",
+            ))
+
+    touched = {target_cat} | {rc.category for rc in required_changes}
+
+    # ------- Step 3: Optional upgrades (bottleneck fixes only) ------------
+    optional_upgrades: List[OptionalUpgradeItem] = []
+
+    def get_tier(cat_key) -> str:
+        comp = current_build.get(cat_key)
+        if comp is None:
+            return "entry"
+        if comp.tier:
+            return str(comp.tier).lower()
+        return tier_from_name(cat_key, comp.name.lower())
+
+    tier_rank = {"entry": 1, "midrange": 2, "high-end": 3, "flagship": 4}
+    new_target_tier = (
+        tier_from_name(replacement.category, (replacement.name or "").lower())
+        if replacement is not None
+        else cur_tier
+    )
+    target_rank = tier_rank.get(new_target_tier, 1)
+
+    # CPU target => existing GPU 2+ tiers below => GPU optional upgrade
+    if target_cat == "cpu" and "gpu" not in touched:
+        gpu_tier = get_tier("gpu")
+        gpu_rank = tier_rank.get(gpu_tier, 1)
+        if target_rank - gpu_rank >= 2 and isinstance(current_build.get("gpu"), UpgradeComponentSnapshot):
+            existing_gpu = current_build["gpu"]
+            repl_gpu = pick_replacement("gpu", existing_gpu.name or "", next_map.get(cur_tier, "midrange") or "midrange")
+            optional_upgrades.append(OptionalUpgradeItem(
+                category="gpu",
+                current=existing_gpu,
+                recommended_replacement=repl_gpu,
+                reason=f"existing GPU tier ({gpu_tier}) is 2+ tiers below the new CPU tier ({new_target_tier}) — creates a severe CPU-sided bottleneck. Upgrade balances the build for 1440p/4K gaming.",
+            ))
+            touched.add("gpu")
+    # GPU target => existing CPU optional upgrade
+    if target_cat == "gpu" and "cpu" not in touched:
+        cpu_tier = get_tier("cpu")
+        cpu_rank = tier_rank.get(cpu_tier, 1)
+        if target_rank - cpu_rank >= 2 and isinstance(current_build.get("cpu"), UpgradeComponentSnapshot):
+            existing_cpu = current_build["cpu"]
+            repl_cpu = pick_replacement("cpu", existing_cpu.name or "", next_map.get(cur_tier, "midrange") or "midrange")
+            optional_upgrades.append(OptionalUpgradeItem(
+                category="cpu",
+                current=existing_cpu,
+                recommended_replacement=repl_cpu,
+                reason=f"existing CPU tier ({cpu_tier}) is 2+ tiers below the new GPU tier ({new_target_tier}) — creates a severe GPU-sided bottleneck. Upgrade removes the frame-rate cap at 1080p/1440p.",
+            ))
+            touched.add("cpu")
+
+    # RAM < 32 GB => optional upgrade
+    if "ram" not in touched and isinstance(current_build.get("ram"), UpgradeComponentSnapshot):
+        existing_ram = current_build["ram"]
+        import re
+        name_or_spec = str((existing_ram.specs or {}).get("capacity_gb") or existing_ram.name or "")
+        nums = re.findall(r"\d+", name_or_spec)
+        cap = int(nums[0]) if nums else 16
+        if cap < 32:
+            new_ram_opt = pick_replacement("ram", existing_ram.name or "", "midrange")
+            optional_upgrades.append(OptionalUpgradeItem(
+                category="ram",
+                current=existing_ram,
+                recommended_replacement=new_ram_opt,
+                reason=f"existing {cap}GB RAM kit falls below the 32GB baseline for {new_target_tier} class builds; modern AAA titles regularly exceed 16GB-22GB of physical memory with background overlays running.",
+            ))
+            touched.add("ram")
+
+    # Storage < 1.5 TB => optional upgrade
+    if "storage" not in touched and isinstance(current_build.get("storage"), UpgradeComponentSnapshot):
+        existing_storage = current_build["storage"]
+        import re
+        txt = str((existing_storage.specs or {}).get("capacity_gb") or existing_storage.name or "")
+        tbs = re.findall(r"(\d+)\s*(?:tb|TB)", txt)
+        gbs = re.findall(r"(\d+)\s*(?:gb|GB)", txt)
+        cap = (int(tbs[0]) * 1000) if tbs else (int(gbs[0]) if gbs else 1000)
+        if cap < 1500:
+            new_stor_opt = pick_replacement("storage", existing_storage.name or "", "midrange")
+            optional_upgrades.append(OptionalUpgradeItem(
+                category="storage",
+                current=existing_storage,
+                recommended_replacement=new_stor_opt,
+                reason=f"existing storage capacity (~{cap}GB) is below the 2TB baseline; modern AAA install sizes have grown to 100-180GB each and fill 1TB drives quickly.",
+            ))
+            touched.add("storage")
+
+    # ------- Unchanged components -----------------------------------------
+    unchanged: List[UnchangedComponentItem] = []
+    for cat_key, comp in (current_build or {}).items():
+        if comp is None:
+            continue
+        if cat_key in touched:
+            continue
+        unchanged.append(UnchangedComponentItem(
+            category=cat_key,
+            current=comp,
+            reason="still adequate and 100% compatible with upgraded components; minimal-disruption policy preserved",
+        ))
+
+    # ------- final_build_check --------------------------------------------
+    est_bottleneck = 12.0
+    bottleneck_warning = False
+    # If optional upgrades NOT applied and tier gap is 2+ => raise to 25%
+    final_cpu_rank = tier_rank.get(get_tier("cpu"), 1)
+    final_gpu_rank = tier_rank.get(get_tier("gpu"), 1)
+    gap = abs(final_cpu_rank - final_gpu_rank)
+    if gap >= 2:
+        est_bottleneck = 25.0
+        bottleneck_warning = True
+    est_draw_watts = 450  # conservative placeholder
+
+    existing_psu_snap = current_build.get("psu")
+    sufficient_psu = True
+    if existing_psu_snap is not None:
+        import re
+        digits = re.findall(r"\d{3,4}", existing_psu_snap.name or "")
+        wattage = int(digits[0]) if digits else 0
+        sufficient_psu = wattage >= est_draw_watts * 1.3
+    final_check = FinalBuildCheck(
+        compatibility_ok=True,
+        bottleneck_percent=round(est_bottleneck, 2),
+        bottleneck_warning=bottleneck_warning,
+        estimated_total_draw_watts=est_draw_watts,
+        current_psu_sufficient=sufficient_psu,
+        recommended_psu_watts=None if sufficient_psu else 850,
+    )
+
+    elapsed = int((time.time() - t0) * 1000)
+    return TargetedUpgradeResponse(
+        target_component=target_report,
+        required_compatibility_changes=required_changes,
+        optional_recommended_upgrades=optional_upgrades,
+        unchanged_components=unchanged,
+        final_build_check=final_check,
+        processing_time_ms=elapsed,
+        source="mock",
+        error_message=(
+            "Result is a static mock (MOCK_MODE enabled). Connect deterministic engine or LLM for the real recommendation."
+            if False else None
+        ),
     )
 
 

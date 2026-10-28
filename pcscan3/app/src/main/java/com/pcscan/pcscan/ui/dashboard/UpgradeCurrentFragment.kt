@@ -33,6 +33,8 @@ class UpgradeCurrentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.resetYesBuildPipelineAndProgress()
+
         val selectedComponent = arguments?.getString(ARG_SELECTED_COMPONENT).orEmpty()
         val category = if (selectedComponent.isNotBlank()) {
             RecommendationMockData.resolveCategory(selectedComponent)
@@ -41,7 +43,7 @@ class UpgradeCurrentFragment : Fragment() {
         }
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            safePopBackToDashboard()
         }
 
         binding.tvBasedOn.text = "Based on: $selectedComponent"
@@ -82,11 +84,8 @@ class UpgradeCurrentFragment : Fragment() {
         }
 
         viewModel.upgradePrepareProgress.observe(viewLifecycleOwner) { progress ->
-            binding.pbLoadingProgress.progress = progress
-            binding.tvLoadingPercent.text = "$progress%"
-
             if (progress >= 50) {
-                if (binding.tvLoadingTitle.text != "Generating...") {
+                if (binding.tvLoadingTitle.text != "Generating..." && viewModel.upgradePrepareLoadingLabels.value == null) {
                     binding.tvLoadingTitle.text = "Generating..."
                     binding.tvLoadingSubtitle.text = "Preparing upgrade tiers..."
                 }
@@ -99,6 +98,16 @@ class UpgradeCurrentFragment : Fragment() {
                         navigateToReco(selectedComponent)
                     }
                 }, 300)
+            }
+        }
+
+        viewModel.upgradePrepareLoadingLabels.observe(viewLifecycleOwner) { pair ->
+            if (pair == null) return@observe
+            if (pair.first.isNotBlank()) {
+                binding.tvLoadingTitle.text = pair.first
+            }
+            if (pair.second.isNotBlank()) {
+                binding.tvLoadingSubtitle.text = pair.second
             }
         }
 
@@ -140,7 +149,7 @@ class UpgradeCurrentFragment : Fragment() {
             if (primaryComponent.isBlank()) {
                 Toast.makeText(
                     requireContext(),
-                    "Please enter at least one component to analyze.",
+                    "Please enter at least one component in your current build list to analyze.",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -153,7 +162,8 @@ class UpgradeCurrentFragment : Fragment() {
             viewModel.prepareBuildForUpgrade(
                 build = fullBuild,
                 primaryComponent = primaryComponent,
-                hasExistingBuild = true
+                hasExistingBuild = true,
+                specSheetText = ""
             )
         }
     }
@@ -161,8 +171,6 @@ class UpgradeCurrentFragment : Fragment() {
     private fun resetLoadingLabels() {
         binding.tvLoadingTitle.text = "Verifying..."
         binding.tvLoadingSubtitle.text = "Validating CPU, Motherboard, and RAM..."
-        binding.pbLoadingProgress.progress = 0
-        binding.tvLoadingPercent.text = "0%"
     }
 
     private fun navigateToReco(selectedComponent: String) {
@@ -240,6 +248,19 @@ class UpgradeCurrentFragment : Fragment() {
             }
         })
         binding.loadingOverlay.startAnimation(anim)
+    }
+
+    private fun safePopBackToDashboard() {
+        try {
+            if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
+            val navController = findNavController()
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
+                navController.navigate(R.id.dashboardFragment)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onDestroyView() {

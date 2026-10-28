@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.InputType
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,6 +34,7 @@ import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentProfileBinding
 import com.pcscan.pcscan.ui.dashboard.RecommendationViewModel
 import com.yalantis.ucrop.UCrop
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -115,15 +118,11 @@ class ProfileFragment : Fragment() {
         }
 
         binding.actionSavedRecommendations.setOnClickListener {
-            findNavController().navigate(R.id.savedBuildFragment)
-        }
-
-        binding.actionBuildHistory.setOnClickListener {
-            findNavController().navigate(R.id.savedUpgradeFragment)
+            navigateToTopLevelDestination(R.id.savedBuildFragment)
         }
 
         binding.actionLogout.setOnClickListener {
-            logout()
+            confirmLogout()
         }
 
         binding.navHome.setOnClickListener {
@@ -131,7 +130,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.navSaved.setOnClickListener {
-            findNavController().navigate(R.id.savedBuildFragment)
+            navigateToTopLevelDestination(R.id.savedBuildFragment)
         }
     }
 
@@ -164,7 +163,10 @@ class ProfileFragment : Fragment() {
             updateSavedCount(recommendationViewModel.savedBuilds.value.orEmpty().size, savedUpgrades.size)
         }
 
-        binding.tvScanCount.text = getScanCount().toString()
+        recommendationViewModel.scanCount.observe(viewLifecycleOwner) { count ->
+            binding.tvScanCount.text = count.toString()
+        }
+        recommendationViewModel.refreshScanCount()
     }
 
     private fun updateSavedCount(buildCount: Int, upgradeCount: Int) {
@@ -312,11 +314,14 @@ class ProfileFragment : Fragment() {
         val userId = user?.uid ?: return
 
         try {
-            val file = File(requireContext().filesDir, "profile_$userId.jpg")
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-            outputStream.flush()
-            outputStream.close()
+            val imageBytes = ByteArrayOutputStream().use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+                stream.toByteArray()
+            }
+            cacheProfilePicture(userId, imageBytes)
+            val base64Image = Base64.encodeToString(imageBytes, Base64.NO_WRAP)
+            db.collection("users").document(userId)
+                .set(mapOf(FIELD_PROFILE_IMAGE to base64Image), SetOptions.merge())
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to save profile picture: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -335,10 +340,35 @@ class ProfileFragment : Fragment() {
             } else {
                 binding.tvProfileInitial.visibility = View.VISIBLE
                 binding.ivProfilePicture.setImageDrawable(null)
+                restoreProfilePictureFromFirestore(userId)
             }
         } catch (e: Exception) {
             Toast.makeText(requireContext(), "Failed to load profile picture: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun cacheProfilePicture(userId: String, imageBytes: ByteArray) {
+        val file = File(requireContext().filesDir, "profile_$userId.jpg")
+        FileOutputStream(file).use { outputStream ->
+            outputStream.write(imageBytes)
+            outputStream.flush()
+        }
+    }
+
+    private fun restoreProfilePictureFromFirestore(userId: String) {
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val base64Image = document.getString(FIELD_PROFILE_IMAGE).orEmpty()
+                if (base64Image.isBlank()) return@addOnSuccessListener
+                runCatching {
+                    val imageBytes = Base64.decode(base64Image, Base64.DEFAULT)
+                    cacheProfilePicture(userId, imageBytes)
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    binding.ivProfilePicture.setImageBitmap(bitmap)
+                    binding.tvProfileInitial.visibility = View.GONE
+                }
+            }
     }
 
     private fun updateHeaderName(name: String, email: String) {
@@ -385,7 +415,33 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    /**
+     * Bottom-nav style navigation: pop back to the dashboard in the same navigation call so
+     * switching between top-level screens (Saved, Profile, Home) never stacks duplicates.
+     */
+    private fun navigateToTopLevelDestination(destinationId: Int) {
+        findNavController().navigate(
+            destinationId,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(R.id.dashboardFragment, false)
+                .build()
+        )
+    }
+
+    private fun confirmLogout() {
+        val context = context ?: return
+        val dialogTheme = com.google.android.material.R.style.Theme_Material3_Dark_Dialog_Alert
+        MaterialAlertDialogBuilder(context, dialogTheme)
+            .setTitle("Log out")
+            .setMessage("Are you sure you want to log out of your account?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Log out") { _, _ -> logout() }
+            .show()
+    }
+
     private fun logout() {
+        recommendationViewModel.clearLocalUserDataOnLogout()
         auth.signOut()
         findNavController().navigate(
             R.id.loginFragment,
@@ -403,6 +459,7 @@ class ProfileFragment : Fragment() {
 
     companion object {
         private const val PREF_DASHBOARD = "dashboard_prefs"
-        private const val KEY_SCAN_COUNT = "scan_count"
+        private const val KEY_SCAN_COUNT = "key_scan_count"
+        private const val FIELD_PROFILE_IMAGE = "profileImageBase64"
     }
 }

@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Start building your dream PC"
-            android:textColor="#7D89A6"
+            android:textColor="@color/textMuted"
             android:textSize="14sp" />
 
         <TextView
@@ -38,7 +38,7 @@
             android:layout_marginTop="30dp"
             android:text="FULL NAME"
             android:textAllCaps="true"
-            android:textColor="#8D99B3"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -56,7 +56,7 @@
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
             android:textColor="@color/text_white"
-            android:textColorHint="#54627D"
+            android:textColorHint="@color/textMuted"
             android:textSize="16sp" />
 
         <TextView
@@ -65,7 +65,7 @@
             android:layout_marginTop="18dp"
             android:text="EMAIL"
             android:textAllCaps="true"
-            android:textColor="#8D99B3"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -83,7 +83,7 @@
             android:paddingStart="18dp"
             android:paddingEnd="18dp"
             android:textColor="@color/text_white"
-            android:textColorHint="#54627D"
+            android:textColorHint="@color/textMuted"
             android:textSize="16sp" />
 
         <TextView
@@ -92,26 +92,42 @@
             android:layout_marginTop="18dp"
             android:text="PASSWORD"
             android:textAllCaps="true"
-            android:textColor="#8D99B3"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/et_password"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="10dp"
-            android:autofillHints="password"
-            android:background="@drawable/bg_login_input"
-            android:gravity="center_vertical"
-            android:hint="••••••••"
-            android:importantForAutofill="yes"
-            android:inputType="textPassword"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:textColor="@color/text_white"
-            android:textColorHint="#54627D"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints="password"
+                android:background="@drawable/bg_login_input"
+                android:gravity="center_vertical"
+                android:hint="••••••••"
+                android:importantForAutofill="yes"
+                android:inputType="textPassword"
+                android:paddingStart="18dp"
+                android:paddingEnd="56dp"
+                android:textColor="@color/text_white"
+                android:textColorHint="@color/textMuted"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/btn_toggle_password"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Show password"
+                android:padding="8dp"
+                android:src="@drawable/ic_visibility_off" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="match_parent"
@@ -119,26 +135,42 @@
             android:layout_marginTop="18dp"
             android:text="CONFIRM PASSWORD"
             android:textAllCaps="true"
-            android:textColor="#8D99B3"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/et_confirm_password"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="10dp"
-            android:autofillHints="password"
-            android:background="@drawable/bg_login_input"
-            android:gravity="center_vertical"
-            android:hint="••••••••"
-            android:importantForAutofill="yes"
-            android:inputType="textPassword"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:textColor="@color/text_white"
-            android:textColorHint="#54627D"
-            android:textSize="16sp" />
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/et_confirm_password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints="password"
+                android:background="@drawable/bg_login_input"
+                android:gravity="center_vertical"
+                android:hint="••••••••"
+                android:importantForAutofill="yes"
+                android:inputType="textPassword"
+                android:paddingStart="18dp"
+                android:paddingEnd="56dp"
+                android:textColor="@color/text_white"
+                android:textColorHint="@color/textMuted"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/btn_toggle_confirm_password"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Show confirm password"
+                android:padding="8dp"
+                android:src="@drawable/ic_visibility_off" />
+        </FrameLayout>
 
         <Button
             android:id="@+id/btn_register"
@@ -163,7 +195,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Already have an account? "
-                android:textColor="#7D89A6"
+                android:textColor="@color/textMuted"
                 android:textSize="14sp" />
 
             <TextView
@@ -173,7 +205,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:text="Login"
-                android:textColor="#2C84FF"
+                android:textColor="@color/accent"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>

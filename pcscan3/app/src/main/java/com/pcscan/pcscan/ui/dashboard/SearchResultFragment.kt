@@ -8,10 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentSearchResultBinding
 import kotlinx.coroutines.delay
@@ -23,6 +25,7 @@ class SearchResultFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: RecommendationViewModel by activityViewModels()
     private var currentSelectedComponent: String? = null
+    private var errorSnackbar: Snackbar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,10 +46,12 @@ class SearchResultFragment : Fragment() {
 
         val currentVmQuery = viewModel.searchQuery.value.orEmpty()
         val state = viewModel.searchResultsScreenState.value
+        val selectedMatches = selectedFromArgs.isNullOrBlank() ||
+            selectedFromArgs == viewModel.selectedComponent.value
         val stateAlreadyValid =
             currentVmQuery == searchQuery &&
-                (state is ScreenState.Success || state is ScreenState.Loading) &&
-                viewModel.selectedComponent.value != null
+                (state is ScreenState.Success || state is ScreenState.Loading || state is ScreenState.Error) &&
+                selectedMatches
 
         val shouldRestore = !stateAlreadyValid
         val shouldShowLoading = shouldRestore && viewModel.searchResultsReady.value != true
@@ -56,13 +61,23 @@ class SearchResultFragment : Fragment() {
                 showLoadingOverlay(instant = true)
             }
             viewModel.restoreSearch(searchQuery, selectedFromArgs)
+        } else if (state is ScreenState.Success) {
+            binding.loadingOverlay.visibility = View.GONE
+            binding.llMainContent.visibility = View.VISIBLE
+            val uiState = state.data
+            currentSelectedComponent = uiState.selectedComponent
+            val detail = uiState.componentDetail
+                ?: currentSelectedComponent?.let { RecommendationMockData.getComponentDetails(it) }
+            renderSuccess(
+                component = currentSelectedComponent,
+                componentDetail = detail,
+                searchQuery = searchQuery
+            )
+            setActionButtonsEnabled(currentSelectedComponent != null)
         }
 
         viewModel.searchProgress.observe(viewLifecycleOwner) { progress ->
             if (_binding == null) return@observe
-            binding.pbLoadingProgress.progress = progress.coerceIn(0, 100)
-            binding.tvLoadingPercent.text = "${progress.coerceIn(0, 100)}%"
-
             if (progress >= 55) {
                 if (binding.tvLoadingTitle.text != "Almost done...") {
                     binding.tvLoadingTitle.text = "Almost done..."
@@ -108,6 +123,7 @@ class SearchResultFragment : Fragment() {
                 }
 
                 ScreenState.Loading -> {
+                    errorSnackbar?.dismiss()
                     binding.tvTitle.text = "Checking..."
                     binding.tvLoadingTitle.text = "Checking component..."
                     binding.tvLoadingSubtitle.text = "Verifying with AI if this is a valid desktop PC part"
@@ -118,6 +134,7 @@ class SearchResultFragment : Fragment() {
                 }
 
                 is ScreenState.Success -> {
+                    errorSnackbar?.dismiss()
                     val uiState = state.data
                     binding.tvTitle.text = "Search Result"
                     currentSelectedComponent = uiState.selectedComponent
@@ -136,17 +153,21 @@ class SearchResultFragment : Fragment() {
 
                 is ScreenState.Error -> {
                     val notFoundMessage = state.message.ifBlank { "Exact component not found." }
+                    currentSelectedComponent = null
                     setActionButtonsEnabled(false)
-                    if (binding.loadingOverlay.visibility == View.VISIBLE) {
-                        binding.loadingOverlay.visibility = View.GONE
-                    }
-                    showToastSafe("ERROR: $notFoundMessage. Try a different search or check spelling.", Toast.LENGTH_LONG)
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        delay(500L)
-                        if (_binding == null) return@launch
-                        viewModel.resetAllSearchAndBuildState()
-                        safePopBack()
-                    }
+                    binding.loadingOverlay.visibility = View.GONE
+                    binding.llMainContent.visibility = View.VISIBLE
+                    binding.tvTitle.text = "Search Result"
+                    binding.tvStatus.text = "Search Unavailable"
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.metric_warning))
+                    binding.tvSelectedComponent.text = searchQuery
+                    binding.tvComponentMeta.text = notFoundMessage
+                    binding.tvComponentMeta.maxLines = 8
+                    binding.tvConfidence.text = ""
+                    errorSnackbar?.dismiss()
+                    errorSnackbar = Snackbar.make(binding.root, "Search could not finish. Please retry.", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Retry") { viewModel.submitSearch(searchQuery) }
+                    errorSnackbar?.show()
                 }
             }
         }
@@ -161,19 +182,53 @@ class SearchResultFragment : Fragment() {
                 setActionButtonsEnabled(false)
 
                 val prefix = when (invalid.rejectionCategory) {
-                    "laptop_part" -> "LAPTOP PART DETECTED: "
-                    "not_pc_part" -> "NOT A PC COMPONENT: "
-                    "wrong_model" -> "WRONG MODEL: "
-                    "unknown_model" -> "UNKNOWN COMPONENT: "
-                    else -> "INVALID SEARCH: "
+                    "laptop_part" -> "LAPTOP PART DETECTED"
+                    "not_pc_part" -> "NOT A PC COMPONENT"
+                    "wrong_model" -> "WRONG MODEL"
+                    "unknown_model" -> "UNKNOWN COMPONENT"
+                    else -> "INVALID SEARCH"
                 }
-                showToastSafe("$prefix${invalid.message}", Toast.LENGTH_LONG)
+                val color = when (invalid.rejectionCategory) {
+                    "laptop_part" -> ContextCompat.getColor(requireContext(), R.color.metric_warning)
+                    "not_pc_part" -> ContextCompat.getColor(requireContext(), R.color.danger)
+                    "wrong_model" -> ContextCompat.getColor(requireContext(), R.color.metric_warning)
+                    "unknown_model" -> ContextCompat.getColor(requireContext(), R.color.metric_warning)
+                    else -> ContextCompat.getColor(requireContext(), R.color.danger)
+                }
+                binding.llMainContent.visibility = View.VISIBLE
+                binding.tvTitle.text = "Search Rejected"
+                binding.tvStatus.text = prefix
+                binding.tvStatus.setTextColor(color)
+                binding.tvSelectedComponent.text = invalid.query.ifBlank { "Your search" }
+                val details = buildString {
+                    append("ISSUE: ").append(prefix).append('\n')
+                    append("REASON: ").append(invalid.message).append('\n')
+                    append("NEXT: Try an exact desktop PC DIY hardware model name.\n")
+                    append("EXAMPLES: 'Ryzen 5 5600' (CPU), 'RTX 4060' (GPU), 'Corsair Vengeance DDR5 32GB' (RAM)")
+                }
+                binding.tvComponentMeta.text = details
+                binding.tvComponentMeta.maxLines = 6
+                binding.tvComponentMeta.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_body))
+                binding.tvComponentMeta.alpha = 1f
+                binding.tvConfidence.text = ""
+                com.google.android.material.snackbar.Snackbar.make(
+                    binding.root,
+                    "$prefix -- returning to Dashboard in 4 seconds...",
+                    com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                )
+                    .setDuration(4000)
+                    .setBackgroundTint(color)
+                    .setTextColor(android.graphics.Color.WHITE)
+                    .show()
 
                 viewLifecycleOwner.lifecycleScope.launch {
-                    delay(600L)
+                    delay(4000L)
                     if (_binding == null) return@launch
+                    if (viewModel.searchResultsScreenState.value != ScreenState.Idle ||
+                        viewModel.searchQuery.value != searchQuery
+                    ) return@launch
                     viewModel.resetAllSearchAndBuildState()
-                    safePopBack()
+                    safePopBackToDashboard()
                 }
             }
         }
@@ -199,10 +254,11 @@ class SearchResultFragment : Fragment() {
             viewModel.selectComponent(component)
             try {
                 findNavController().navigate(
-                    R.id.upgradePathFragment,
+                    R.id.noBuildYetFragment,
                     Bundle().apply {
                         putString("searchQuery", searchQuery)
-                        putString("selectedComponent", component)
+                        putString(NoBuildYetFragment.ARG_SELECTED_COMPONENT, component)
+                        putBoolean(NoBuildYetFragment.ARG_HAS_EXISTING_BUILD, false)
                     }
                 )
             } catch (e: Exception) {
@@ -238,8 +294,8 @@ class SearchResultFragment : Fragment() {
 
         binding.tvStatus.text = if (hasMatch) "Component Identified" else "No Match Found"
         binding.tvStatus.setTextColor(
-            if (hasMatch) android.graphics.Color.parseColor("#19D39A")
-            else android.graphics.Color.parseColor("#FF6B6B")
+            if (hasMatch) ContextCompat.getColor(requireContext(), R.color.success)
+            else ContextCompat.getColor(requireContext(), R.color.danger)
         )
         binding.tvSelectedComponent.text = finalName
 
@@ -247,6 +303,19 @@ class SearchResultFragment : Fragment() {
             ?: component?.let { RecommendationMockData.resolveCategory(it) }
             ?: "Component"
         ).replaceFirstChar { it.uppercase() }
+
+        if (hasMatch) {
+            val icon = when (category.uppercase()) {
+                "CPU" -> R.drawable.build_reco_cpu_icon
+                "GPU" -> R.drawable.build_reco_gpu_icon
+                "MOTHERBOARD" -> R.drawable.build_reco_mobo_icon
+                "RAM" -> R.drawable.build_reco_ram_icon
+                "STORAGE" -> R.drawable.build_reco_storage_icon
+                "PSU" -> R.drawable.build_reco_psu_icon
+                else -> R.drawable.build_reco_cpu_icon
+            }
+            binding.ivResultIcon.setImageResource(icon)
+        }
 
         val brand = resolvedDetail?.manufacturer?.ifBlank { null }
             ?: component?.substringBefore(' ')?.replaceFirstChar { it.uppercase() }
@@ -262,7 +331,7 @@ class SearchResultFragment : Fragment() {
         if (startIdx >= 0) {
             val endIdx = (startIdx + confidencePct.toString().length + 1).coerceAtMost(text.length)
             spannable.setSpan(
-                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#19D39A")),
+                android.text.style.ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.success)),
                 startIdx,
                 endIdx,
                 android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -274,8 +343,9 @@ class SearchResultFragment : Fragment() {
     private fun safePopBack() {
         try {
             if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
             val navController = findNavController()
-            if (!navController.popBackStack()) {
+            if (!navController.popBackStack(R.id.dashboardFragment, false)) {
                 navController.navigate(R.id.dashboardFragment)
             }
         } catch (e: Exception) {
@@ -286,6 +356,7 @@ class SearchResultFragment : Fragment() {
     private fun safePopBackToDashboard() {
         try {
             if (_binding == null || !isAdded) return
+            viewModel.resetAllSearchAndBuildState()
             val navController = findNavController()
             if (!navController.popBackStack(R.id.dashboardFragment, false)) {
                 navController.navigate(R.id.dashboardFragment)
@@ -326,6 +397,8 @@ class SearchResultFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        errorSnackbar?.dismiss()
+        errorSnackbar = null
         super.onDestroyView()
         _binding = null
         currentSelectedComponent = null

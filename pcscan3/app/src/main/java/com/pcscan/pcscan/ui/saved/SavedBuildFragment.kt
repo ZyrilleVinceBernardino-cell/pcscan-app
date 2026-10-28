@@ -11,12 +11,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentSavedBuildBinding
-import com.pcscan.pcscan.ui.dashboard.BuildRecoFragment
 import com.pcscan.pcscan.ui.dashboard.RecommendationViewModel
 import com.pcscan.pcscan.ui.dashboard.SavedBuildItem
+import com.pcscan.pcscan.ui.dashboard.YourBuildFragment
 
 class SavedBuildFragment : Fragment() {
 
@@ -57,7 +58,7 @@ class SavedBuildFragment : Fragment() {
             // Already here
         }
         binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+            navigateToTopLevelDestination(R.id.profileFragment)
         }
 
         // Observe saved builds
@@ -160,11 +161,12 @@ class SavedBuildFragment : Fragment() {
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
-                    viewModel.restoreSavedBuild(item)
+                    // Every saved build opens in the Your Build screen using the saved data,
+                    // matching how saved Range Builds are displayed.
                     findNavController().navigate(
-                        R.id.buildRecoFragment,
+                        R.id.action_savedBuildFragment_to_yourBuildFragment,
                         Bundle().apply {
-                            putString(BuildRecoFragment.ARG_SELECTED_COMPONENT, item.component)
+                            putString(YourBuildFragment.ARG_VIEWING_SAVED_BUILD_ID, item.id)
                         }
                     )
                 }
@@ -214,6 +216,20 @@ class SavedBuildFragment : Fragment() {
                 (heightDp * resources.displayMetrics.density).toInt()
             )
         }
+    }
+
+    /**
+     * Bottom-nav style navigation: pop back to the dashboard in the same navigation call so
+     * switching between top-level screens (Saved, Profile, Home) never stacks duplicates.
+     */
+    private fun navigateToTopLevelDestination(destinationId: Int) {
+        findNavController().navigate(
+            destinationId,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(R.id.dashboardFragment, false)
+                .build()
+        )
     }
 
     override fun onDestroyView() {

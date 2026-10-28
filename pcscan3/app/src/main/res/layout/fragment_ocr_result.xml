@@ -23,8 +23,8 @@
             android:clickable="true"
             android:focusable="true"
             android:padding="8dp"
-            android:src="@android:drawable/ic_menu_revert"
-            android:tint="@color/text_white" />
+            android:src="@drawable/ic_arrow_back"
+            android:tint="@color/accent" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="OCR EXTRACTED TEXT"
-            android:textColor="@color/secondary_light"
+            android:textColor="@color/purpleText"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -69,6 +69,32 @@
             android:layout_marginBottom="14dp"
             android:background="@color/card_light" />
 
+        <TextView
+            android:id="@+id/labelComponentMatch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="COMPONENT MATCH"
+            android:textColor="@color/purpleText"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSelectedComponent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Detected component model"
+            android:textColor="@color/text_white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="14dp"
+            android:background="@color/card_light" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,16 +104,16 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:contentDescription="Detected component"
+                android:contentDescription="Component category"
                 android:src="@drawable/check_icon" />
 
             <TextView
-                android:id="@+id/tvSelectedComponent"
+                android:id="@+id/tvCategory"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Detected component"
+                android:text="CATEGORY: —"
                 android:textColor="@color/text_white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -139,12 +165,13 @@
         app:backgroundTint="@null"
         android:text="Scan Again"
         android:textAllCaps="false"
-        android:textColor="@color/primary_light"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
         app:icon="@drawable/scan_again_icon"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
+        app:iconTint="@color/white"
         app:cornerRadius="18dp"
         app:strokeWidth="0dp" />
 </LinearLayout>

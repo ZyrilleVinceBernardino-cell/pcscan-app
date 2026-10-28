@@ -4,7 +4,7 @@
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
             <corners android:radius="6dp" />
-            <solid android:color="#1E1E2A" />
+            <solid android:color="@color/border" />
         </shape>
     </item>
 
@@ -13,9 +13,9 @@
             <shape android:shape="rectangle">
                 <corners android:radius="6dp" />
                 <gradient
-                    android:startColor="#2563EB"
-                    android:centerColor="#5046E5"
-                    android:endColor="#8B5CF6"
+                    android:startColor="@color/accent"
+                    android:centerColor="@color/accent"
+                    android:endColor="@color/accent"
                     android:angle="0"
                     android:type="linear" />
             </shape>

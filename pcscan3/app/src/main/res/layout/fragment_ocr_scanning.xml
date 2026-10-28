@@ -22,7 +22,7 @@
             android:clickable="true"
             android:focusable="true"
             android:padding="8dp"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_arrow_back"
             android:tint="@color/text_white" />
 
         <TextView
@@ -48,11 +48,6 @@
             android:id="@+id/previewView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#A0121218" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -152,5 +147,38 @@
                 android:background="@color/secondary" />
         </FrameLayout>
     </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGeminiAIScan"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/primary"
+            android:text="Use AI (Gemini) to Identify"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRescanOCR"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="Reset Scanner"
+            android:textAllCaps="false"
+            android:textColor="@color/text_white"
+            android:textSize="15sp" />
+    </LinearLayout>
 
 </LinearLayout>

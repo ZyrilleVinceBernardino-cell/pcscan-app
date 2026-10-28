@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.initialize(this)
+        ThemeManager.applyCurrentMode()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 

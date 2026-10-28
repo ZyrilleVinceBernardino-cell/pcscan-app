@@ -1502,20 +1502,111 @@ object LocalSpecDatabase {
             aiConfidence = 99,
             specs = listOf("1TB PCIe 4.0 x4", "NVMe M.2 2280", "7000 MB/s Read", "Samsung 980 PRO")
         ))
+        put("intel arc a380", LocalSpecEntry(
+            displayName = "Intel Arc A380",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 72,
+            aiConfidence = 92,
+            specs = listOf("6GB GDDR6", "75W TDP", "PCIe 4.0 x8", "Entry-Level 1080p")
+        ))
+        put("arc a380", LocalSpecEntry(
+            displayName = "Intel Arc A380",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 72,
+            aiConfidence = 92,
+            specs = listOf("6GB GDDR6", "75W TDP", "PCIe 4.0 x8", "Entry-Level 1080p")
+        ))
+        put("intel arc a750", LocalSpecEntry(
+            displayName = "Intel Arc A750",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 82,
+            aiConfidence = 93,
+            specs = listOf("8GB GDDR6", "225W TDP", "PCIe 4.0 x16", "1080p / entry 1440p")
+        ))
+        put("arc a750", LocalSpecEntry(
+            displayName = "Intel Arc A750",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 82,
+            aiConfidence = 93,
+            specs = listOf("8GB GDDR6", "225W TDP", "PCIe 4.0 x16", "1080p / entry 1440p")
+        ))
+        put("intel arc a770", LocalSpecEntry(
+            displayName = "Intel Arc A770 8GB",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 85,
+            aiConfidence = 93,
+            specs = listOf("8GB GDDR6", "225W TDP", "PCIe 4.0 x16", "Midrange 1440p")
+        ))
+        put("arc a770", LocalSpecEntry(
+            displayName = "Intel Arc A770 8GB",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 85,
+            aiConfidence = 93,
+            specs = listOf("8GB GDDR6", "225W TDP", "PCIe 4.0 x16", "Midrange 1440p")
+        ))
+        put("intel arc b580", LocalSpecEntry(
+            displayName = "Intel Arc B580",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 87,
+            aiConfidence = 90,
+            specs = listOf("12GB GDDR6", "190W TDP", "PCIe 4.0 x8", "Midrange 1440p (Battlemage)")
+        ))
+        put("arc b580", LocalSpecEntry(
+            displayName = "Intel Arc B580",
+            manufacturer = "Intel",
+            category = "GPU",
+            score = 87,
+            aiConfidence = 90,
+            specs = listOf("12GB GDDR6", "190W TDP", "PCIe 4.0 x8", "Midrange 1440p (Battlemage)")
+        ))
     }
 
     fun find(query: String): ComponentDetail? {
         val q = query.trim().lowercase().replace("\\s+".toRegex(), " ")
-        val match = database.entries.firstOrNull { (key, _) ->
-            q == key || q.contains(key) || key.contains(q) ||
-                levenshtein(q, key) <= 2
-        }?.value ?: run {
-            val parts = q.split(" ").filter { it.length > 2 }
-            database.entries.firstOrNull { (key, _) ->
+
+        val exact = database[q]
+        if (exact != null) {
+            return mapToDetail(exact)
+        }
+
+        val strongDirect = database.entries
+            .filter { (key, _) -> q.contains(key) || key.contains(q) }
+            .maxByOrNull { (_, v) -> v.score }
+            ?.value
+        if (strongDirect != null) return mapToDetail(strongDirect)
+
+        val lev = database.entries
+            .mapNotNull { (key, v) ->
+                val d = levenshtein(q, key)
+                if (d <= 2) Triple(d, 1000 - d, v) else null
+            }
+            .maxWithOrNull(compareBy({ it.first }, { -it.second }, { -it.third.score }))
+            ?.third
+        if (lev != null) return mapToDetail(lev)
+
+        val parts = q.split(" ").filter { it.length > 2 }
+        if (parts.size < 2) return null
+        val token = database.entries
+            .mapNotNull { (key, v) ->
                 val keyParts = key.split(" ").toSet()
-                parts.count { it in keyParts } >= (parts.size - 1).coerceAtLeast(2)
-            }?.value
-        } ?: return null
+                val overlap = parts.count { it in keyParts }
+                val minRequired = (parts.size - 1).coerceAtLeast(2)
+                if (overlap >= minRequired) Pair(overlap, v) else null
+            }
+            .maxWithOrNull(compareBy({ -it.first }, { -it.second.score }))
+            ?.second ?: return null
+
+        return mapToDetail(token)
+    }
+
+    private fun mapToDetail(match: LocalSpecEntry): ComponentDetail {
 
         val normCat = match.category.uppercase().let {
             when (it) {

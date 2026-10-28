@@ -27,8 +27,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="8dp"
-                android:src="@android:drawable/ic_menu_revert"
-                android:tint="@color/text_white" />
+                android:src="@drawable/ic_arrow_back"
+                android:tint="@color/accent" />
 
             <TextView
                 android:layout_width="0dp"
@@ -47,15 +47,12 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="18dp"
             android:background="@drawable/bg_card"
-            android:drawableStart="@drawable/ic_loading_monitor"
-            android:drawablePadding="8dp"
-            android:drawableTint="@color/secondary_light"
             android:paddingStart="14dp"
             android:paddingTop="8dp"
             android:paddingEnd="14dp"
             android:paddingBottom="8dp"
             android:text="Based on: GPU"
-            android:textColor="@color/text_white"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp" />
 
         <TextView
@@ -72,7 +69,7 @@
             android:paddingEnd="14dp"
             android:paddingBottom="8dp"
             android:text="Your build tier: Entry-Level Build"
-            android:textColor="@color/text_white"
+            android:textColor="@color/textSecondary"
             android:textSize="13sp"
             android:visibility="gone" />
 
@@ -82,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
             android:text="AI has analyzed your component and prepared 3 upgrade tiers:"
-            android:textColor="@color/text_body"
+            android:textColor="@color/textSecondary"
             android:textSize="14sp" />
 
         <LinearLayout
@@ -106,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:text="ENTRY LEVEL"
                     android:textAllCaps="true"
-                    android:textColor="@color/chip_psu"
+                    android:textColor="@color/accent"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -159,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:text="MIDRANGE"
                     android:textAllCaps="true"
-                    android:textColor="@color/primary_light"
+                    android:textColor="@color/accent"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -212,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:text="HIGH-END"
                     android:textAllCaps="true"
-                    android:textColor="@color/secondary_light"
+                    android:textColor="@color/accent"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -281,7 +278,7 @@
                 app:iconSize="24dp"
                 android:text="Back to Dashboard"
                 android:textAllCaps="false"
-                android:textColor="@color/text_white"
+                android:textColor="@color/accent"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="8dp"

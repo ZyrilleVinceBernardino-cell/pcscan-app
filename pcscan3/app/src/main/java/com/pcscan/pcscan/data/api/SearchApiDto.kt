@@ -281,4 +281,32 @@ object SearchApiDto {
         @SerializedName("processing_time_ms") val processingTimeMs: Int? = 0,
         @SerializedName("error_message") val errorMessage: String? = null
     )
+
+    data class DbComponentCandidateDto(
+        @SerializedName("id") val id: String,
+        @SerializedName("name") val name: String,
+        @SerializedName("category") val category: String,
+        @SerializedName("brand") val brand: String? = null,
+        @SerializedName("chipset_socket") val chipsetSocket: String? = null,
+        @SerializedName("memory_type") val memoryType: String? = null,
+        @SerializedName("wattage_rating") val wattageRating: Int? = null,
+        @SerializedName("tdp") val tdp: Int? = null,
+        @SerializedName("tier") val tier: String? = null,
+        @SerializedName("release_year") val releaseYear: Int? = null,
+        @SerializedName("raw_specs") val rawSpecs: @JvmSuppressWildcards Map<String, Any?>? = emptyMap()
+    )
+
+    data class FuzzySearchRequestDto(
+        @SerializedName("query") val query: String,
+        @SerializedName("limit") val limit: Int = 10,
+        @SerializedName("include_raw_specs") val includeRawSpecs: Boolean = true
+    )
+
+    data class FuzzySearchResponseDto(
+        @SerializedName("success") val success: Boolean,
+        @SerializedName("query") val query: String? = null,
+        @SerializedName("candidates") val candidates: List<DbComponentCandidateDto>? = emptyList(),
+        @SerializedName("processing_time_ms") val processingTimeMs: Int? = 0,
+        @SerializedName("error_message") val errorMessage: String? = null
+    )
 }

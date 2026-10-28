@@ -1,21 +1,31 @@
 package com.pcscan.pcscan.ui.auth
 
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentLoginBinding
+import com.pcscan.pcscan.ui.dashboard.RecommendationViewModel
+import java.io.File
+import java.io.FileOutputStream
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private val recommendationViewModel: RecommendationViewModel by activityViewModels()
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -46,6 +56,24 @@ class LoginFragment : Fragment() {
         // Handle forgot password
         binding.tvForgotPassword.setOnClickListener {
             sendPasswordReset()
+        }
+
+        setupPasswordToggle(binding.etPassword, binding.btnTogglePassword)
+    }
+
+    private fun setupPasswordToggle(field: EditText, toggleButton: ImageButton) {
+        toggleButton.setOnClickListener {
+            val showingPassword = field.transformationMethod !is PasswordTransformationMethod
+            if (showingPassword) {
+                field.transformationMethod = PasswordTransformationMethod.getInstance()
+                toggleButton.setImageResource(R.drawable.ic_visibility_off)
+                toggleButton.contentDescription = "Show password"
+            } else {
+                field.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                toggleButton.setImageResource(R.drawable.ic_visibility)
+                toggleButton.contentDescription = "Hide password"
+            }
+            field.setSelection(field.text?.length ?: 0)
         }
     }
 
@@ -95,6 +123,8 @@ class LoginFragment : Fragment() {
                     val user = auth.currentUser
                     if (user != null) {
                         if (user.isEmailVerified) {
+                            // Restore this account's saved data (Firestore) and scan counter.
+                            recommendationViewModel.onUserLoggedIn()
                             // Load user name from Firestore and cache it
                             db.collection("users").document(user.uid)
                                 .get()
@@ -105,6 +135,7 @@ class LoginFragment : Fragment() {
                                         val prefs = requireContext().getSharedPreferences("user_prefs", 0)
                                         prefs.edit().putString("user_name", name).apply()
                                     }
+                                    restoreProfilePictureLocally(user.uid, document.getString(FIELD_PROFILE_IMAGE).orEmpty())
                                     // Go to dashboard (we'll have cached name now or next time)
                                     val navController = findNavController()
                                     if (navController.currentDestination?.id == R.id.loginFragment) {
@@ -137,8 +168,24 @@ class LoginFragment : Fragment() {
             }
     }
 
+    private fun restoreProfilePictureLocally(userId: String, base64Image: String) {
+        if (base64Image.isBlank()) return
+        runCatching {
+            val imageBytes = Base64.decode(base64Image, Base64.DEFAULT)
+            val file = File(requireContext().filesDir, "profile_$userId.jpg")
+            FileOutputStream(file).use { outputStream ->
+                outputStream.write(imageBytes)
+                outputStream.flush()
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val FIELD_PROFILE_IMAGE = "profileImageBase64"
     }
 }

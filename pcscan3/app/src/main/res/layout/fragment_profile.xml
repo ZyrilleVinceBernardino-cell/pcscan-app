@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -81,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="alex@example.com"
-                android:textColor="#7081A5"
+                android:textColor="@color/profile_muted_text"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -111,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Builds"
-                        android:textColor="#7081A5"
+                        android:textColor="@color/profile_muted_text"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -135,7 +136,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Saves"
-                        android:textColor="#7081A5"
+                        android:textColor="@color/profile_muted_text"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -159,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Scans"
-                        android:textColor="#7081A5"
+                        android:textColor="@color/profile_muted_text"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -213,7 +214,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:text="View all saved builds"
-                        android:textColor="#7081A5"
+                        android:textColor="@color/profile_muted_text"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -221,68 +222,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="›"
-                    android:textColor="#7081A5"
-                    android:textSize="20sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/actionBuildHistory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_profile_action_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="76dp"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="16dp">
-
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_profile_action_icon_bg">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="Build history"
-                        android:src="@drawable/profile_build_history_icon" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Build History"
-                        android:textColor="@color/text_white"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
-                        android:text="Your past recommendations"
-                        android:textColor="#7081A5"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="›"
-                    android:textColor="#7081A5"
+                    android:textColor="@color/profile_muted_text"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -326,7 +266,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Logout"
-                        android:textColor="#FF4F64"
+                        android:textColor="@color/profile_logout_text"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -335,7 +275,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:text="Sign out of your account"
-                        android:textColor="#7081A5"
+                        android:textColor="@color/profile_muted_text"
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -346,7 +286,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="26dp"
                 android:text="PC Scan v1.0 • Build 1"
-                android:textColor="#324A75"
+                android:textColor="@color/profile_version_text"
                 android:textSize="13sp" />
         </LinearLayout>
     </ScrollView>
@@ -374,6 +314,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Home"
+                android:tint="@color/textMuted"
                 android:src="@drawable/profile_home_icon_not_click" />
         </LinearLayout>
 
@@ -391,6 +332,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Saved"
+                android:tint="@color/textMuted"
                 android:src="@drawable/dashboard_save_icon_not_click" />
         </LinearLayout>
 
@@ -406,6 +348,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:contentDescription="Profile"
+                android:tint="@color/accent"
                 android:src="@drawable/profile_profile_icon_click" />
         </LinearLayout>
     </LinearLayout>

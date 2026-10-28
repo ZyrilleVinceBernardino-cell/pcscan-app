@@ -1,9 +1,13 @@
 package com.pcscan.pcscan.ui.auth
 
 import android.os.Bundle
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -41,6 +45,25 @@ class RegisterFragment : Fragment() {
         // Handle register button click
         binding.btnRegister.setOnClickListener {
             registerUser()
+        }
+
+        setupPasswordToggle(binding.etPassword, binding.btnTogglePassword)
+        setupPasswordToggle(binding.etConfirmPassword, binding.btnToggleConfirmPassword)
+    }
+
+    private fun setupPasswordToggle(field: EditText, toggleButton: ImageButton) {
+        toggleButton.setOnClickListener {
+            val showingPassword = field.transformationMethod !is PasswordTransformationMethod
+            if (showingPassword) {
+                field.transformationMethod = PasswordTransformationMethod.getInstance()
+                toggleButton.setImageResource(R.drawable.ic_visibility_off)
+                toggleButton.contentDescription = "Show password"
+            } else {
+                field.transformationMethod = HideReturnsTransformationMethod.getInstance()
+                toggleButton.setImageResource(R.drawable.ic_visibility)
+                toggleButton.contentDescription = "Hide password"
+            }
+            field.setSelection(field.text?.length ?: 0)
         }
     }
 

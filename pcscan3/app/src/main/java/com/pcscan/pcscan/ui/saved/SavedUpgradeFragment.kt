@@ -11,12 +11,16 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.pcscan.pcscan.R
 import com.pcscan.pcscan.databinding.FragmentSavedUpgradeBinding
+import com.pcscan.pcscan.ui.dashboard.NoBuildYetFragment
 import com.pcscan.pcscan.ui.dashboard.RecommendationViewModel
 import com.pcscan.pcscan.ui.dashboard.SavedUpgradeItem
-import com.pcscan.pcscan.ui.dashboard.UpgradePathFragment
+import com.pcscan.pcscan.ui.dashboard.UpgradeComponent
+import com.pcscan.pcscan.ui.dashboard.UpgradePath
+import com.pcscan.pcscan.ui.dashboard.UpgradeRecoFragment
 
 class SavedUpgradeFragment : Fragment() {
 
@@ -37,15 +41,12 @@ class SavedUpgradeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Tab click listeners
         binding.tabBuildRecommendations.setOnClickListener {
             findNavController().navigate(R.id.action_savedUpgradeFragment_to_savedBuildFragment)
         }
         binding.tabUpgradePaths.setOnClickListener {
-            // Already on this tab
         }
 
-        // Bottom navigation listeners
         binding.navHome.setOnClickListener {
             val navController = findNavController()
             val returnedToDashboard = navController.popBackStack(R.id.dashboardFragment, false)
@@ -54,13 +55,11 @@ class SavedUpgradeFragment : Fragment() {
             }
         }
         binding.navSaved.setOnClickListener {
-            // Already here
         }
         binding.navProfile.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+            navigateToTopLevelDestination(R.id.profileFragment)
         }
 
-        // Observe saved upgrades
         viewModel.savedUpgrades.observe(viewLifecycleOwner) { savedUpgrades ->
             renderSavedUpgrades(savedUpgrades)
         }
@@ -88,6 +87,112 @@ class SavedUpgradeFragment : Fragment() {
         }
     }
 
+    private fun classifyPathTierLabel(path: UpgradePath): String {
+        val t = (path.tier.ifBlank { path.title }).lowercase()
+        return when {
+            t.contains("entry") -> "Entry"
+            t.contains("midrange") || t.contains("mid") -> "Midrange"
+            t.contains("high") -> "High-End"
+            else -> "Upgrade"
+        }
+    }
+
+    private fun buildSubtitleForSavedItem(item: SavedUpgradeItem): String {
+        val paths = if (item.paths.isNotEmpty()) item.paths else listOf(item.path)
+        val tierCount = item.tierCount.takeIf { it > 0 } ?: paths.size
+        val tierLabels = paths.map { classifyPathTierLabel(it) }.distinct()
+        val tierPart = when {
+            tierLabels.isEmpty() -> "Upgrade"
+            tierLabels.size == 1 -> tierLabels[0]
+            else -> tierLabels.joinToString(" + ")
+        }
+        val compCount = item.totalComponentCount.takeIf { it > 0 }
+            ?: paths.sumOf { it.components.size }
+        val compPart = if (compCount <= 1) "1 component" else "$compCount components"
+        val tierCountLabel = if (tierCount <= 1) "1 tier" else "$tierCount tiers"
+        return "$tierPart | $tierCountLabel | $compPart"
+    }
+
+    private fun serializeViewingComponents(comps: List<UpgradeComponent>): String {
+        return comps.joinToString("||") { c ->
+            val cat = c.category.ifBlank { "COMPONENT" }
+            val name = c.name.replace("||", "").replace("|~|", "")
+            val desc = c.description.replace("||", "").replace("|~|", "")
+            listOf(cat, name, desc, c.compatibility.toString(), c.progressPercent.toString())
+                .joinToString("|~|")
+        }
+    }
+
+    private fun buildViewingBundle(item: SavedUpgradeItem): Bundle {
+        val rawPaths = if (item.paths.isNotEmpty()) item.paths else listOf(item.path)
+        val remaining = rawPaths.toMutableList()
+        fun consume(predicate: (UpgradePath) -> Boolean): UpgradePath? {
+            val idx = remaining.indexOfFirst(predicate)
+            if (idx == -1) return null
+            return remaining.removeAt(idx)
+        }
+        fun consumeAny(): UpgradePath? = if (remaining.isNotEmpty()) remaining.removeAt(0) else null
+        val entry = consume { p ->
+            val l = classifyPathTierLabel(p).lowercase()
+            l == "entry" || p.title.contains("entry", true)
+        } ?: consumeAny().takeIf { rawPaths.size >= 3 }
+        val mid = consume { p ->
+            val l = classifyPathTierLabel(p).lowercase()
+            l == "midrange" || p.title.contains("mid", true)
+        } ?: consumeAny().takeIf { rawPaths.size >= 2 }
+        val high = consume { p ->
+            val l = classifyPathTierLabel(p).lowercase()
+            l == "high-end" || p.title.contains("high", true)
+        } ?: consumeAny()
+        val args = Bundle()
+        val targetDestinationId = if (item.hasExistingBuild) R.id.upgradeRecoFragment else R.id.noBuildYetFragment
+        if (item.hasExistingBuild) {
+            args.putString(UpgradeRecoFragment.ARG_SELECTED_COMPONENT, item.component)
+            args.putBoolean(UpgradeRecoFragment.ARG_IS_VIEWING_SAVED, true)
+            args.putBoolean(UpgradeRecoFragment.ARG_HAS_EXISTING_BUILD, true)
+            args.putString(UpgradeRecoFragment.ARG_VIEWING_BASED_ON_TEXT, item.basedOnText.ifBlank { "Based on: ${item.component}" })
+            args.putString(UpgradeRecoFragment.ARG_VIEWING_CURRENT_BUILD_TIER_LABEL, item.currentBuildTierLabel)
+            entry?.let { p ->
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_ENTRY_PATH_TITLE, p.title)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_ENTRY_PATH_DESCRIPTION, p.description)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_ENTRY_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+            mid?.let { p ->
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_MID_PATH_TITLE, p.title)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_MID_PATH_DESCRIPTION, p.description)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_MID_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+            high?.let { p ->
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_HIGH_PATH_TITLE, p.title)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_HIGH_PATH_DESCRIPTION, p.description)
+                args.putString(UpgradeRecoFragment.ARG_VIEWING_HIGH_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+        } else {
+            args.putString(NoBuildYetFragment.ARG_SELECTED_COMPONENT, item.component)
+            args.putBoolean(NoBuildYetFragment.ARG_IS_VIEWING_SAVED, true)
+            entry?.let { p ->
+                args.putString(NoBuildYetFragment.ARG_VIEWING_ENTRY_PATH_TITLE, p.title)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_ENTRY_PATH_DESCRIPTION, p.description)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_ENTRY_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+            mid?.let { p ->
+                args.putString(NoBuildYetFragment.ARG_VIEWING_MID_PATH_TITLE, p.title)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_MID_PATH_DESCRIPTION, p.description)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_MID_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+            high?.let { p ->
+                args.putString(NoBuildYetFragment.ARG_VIEWING_HIGH_PATH_TITLE, p.title)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_HIGH_PATH_DESCRIPTION, p.description)
+                args.putString(NoBuildYetFragment.ARG_VIEWING_HIGH_PATH_COMPS, serializeViewingComponents(p.components))
+            }
+        }
+        return args.apply { putInt(VIEWING_DESTINATION_ID_KEY, targetDestinationId) }
+    }
+
+    companion object {
+        private const val VIEWING_DESTINATION_ID_KEY = "viewing_destination_id"
+    }
+
     private fun createUpgradeCard(item: SavedUpgradeItem): View {
         val density = resources.displayMetrics.density
         val spacing = (16 * density).toInt()
@@ -96,7 +201,6 @@ class SavedUpgradeFragment : Fragment() {
             setPadding(spacing, spacing, spacing, spacing)
             setBackgroundResource(R.drawable.bg_card)
 
-            // Header row (name + upgrade badge)
             val headerLayout = LinearLayout(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -106,8 +210,12 @@ class SavedUpgradeFragment : Fragment() {
                 gravity = Gravity.CENTER_VERTICAL
             }
 
+            val componentLabel = item.component.ifBlank {
+                item.displayTitle.ifBlank { item.path.title.ifBlank { "Component" } }
+            }
+            val displayTitle = "Upgrade for $componentLabel"
             headerLayout.addView(
-                createTextView(item.path.title, 18f, R.color.text_white, true).apply {
+                createTextView(displayTitle, 18f, R.color.text_white, true).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -129,14 +237,12 @@ class SavedUpgradeFragment : Fragment() {
             addView(headerLayout)
             addView(createSpacer(8))
 
-            // Subtext: tier and number of steps
-            val subtext = "${if (item.hasExistingBuild) "High-End" else "Midrange"} | 3 components"
+            val subtext = buildSubtitleForSavedItem(item)
             addView(
                 createTextView(subtext, 14f, R.color.text_secondary, false)
             )
             addView(createSpacer(16))
 
-            // Buttons row: View and Delete
             val buttonsLayout = LinearLayout(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -146,7 +252,6 @@ class SavedUpgradeFragment : Fragment() {
                 gravity = Gravity.CENTER_VERTICAL
             }
 
-            // Use the provided button artwork so the saved card matches the mockup exactly.
             val viewBtn = ImageView(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -161,12 +266,10 @@ class SavedUpgradeFragment : Fragment() {
                 isFocusable = true
                 setOnClickListener {
                     viewModel.restoreSavedUpgrade(item)
-                    findNavController().navigate(
-                        R.id.upgradePathFragment,
-                        Bundle().apply {
-                            putString(UpgradePathFragment.ARG_SELECTED_COMPONENT, item.component)
-                        }
-                    )
+                    val bundle = buildViewingBundle(item)
+                    val destinationId = bundle.getInt(VIEWING_DESTINATION_ID_KEY, R.id.noBuildYetFragment)
+                    bundle.remove(VIEWING_DESTINATION_ID_KEY)
+                    findNavController().navigate(destinationId, bundle)
                 }
             }
             buttonsLayout.addView(viewBtn)
@@ -214,6 +317,20 @@ class SavedUpgradeFragment : Fragment() {
                 (heightDp * resources.displayMetrics.density).toInt()
             )
         }
+    }
+
+    /**
+     * Bottom-nav style navigation: pop back to the dashboard in the same navigation call so
+     * switching between top-level screens (Saved, Profile, Home) never stacks duplicates.
+     */
+    private fun navigateToTopLevelDestination(destinationId: Int) {
+        findNavController().navigate(
+            destinationId,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(R.id.dashboardFragment, false)
+                .build()
+        )
     }
 
     override fun onDestroyView() {

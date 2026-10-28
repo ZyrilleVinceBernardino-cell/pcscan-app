@@ -41,11 +41,11 @@
         app:layout_constraintTop_toTopOf="@id/guidelineCenter">
 
         <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
             android:layout_gravity="center"
             android:contentDescription="PC Scan icon"
-            android:src="@drawable/logoo" />
+            android:src="@drawable/ic_pc_tower_blue" />
 
         <FrameLayout
             android:layout_width="22dp"
@@ -99,7 +99,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Build Smarter. Upgrade Better."
-        android:textColor="#667089"
+        android:textColor="@color/textMuted"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,7 +116,7 @@
         android:indeterminateTintMode="src_in"
         android:maxHeight="3dp"
         android:minHeight="3dp"
-        android:progressBackgroundTint="#2A3040"
+        android:progressBackgroundTint="@color/border"
         android:splitTrack="false"
         app:layout_constraintBottom_toTopOf="@id/tvLoading"
         app:layout_constraintEnd_toEndOf="parent"
@@ -130,7 +130,7 @@
         android:fontFamily="monospace"
         android:letterSpacing="0.02"
         android:text="Initializing AI Engine..."
-        android:textColor="#5B6680"
+        android:textColor="@color/textMuted"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -33,8 +34,8 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_revert"
-                    android:tint="@color/text_white" />
+                    android:src="@drawable/ic_arrow_back"
+                    android:tint="@color/accent" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -43,74 +44,128 @@
                     android:layout_weight="1"
                     android:text="Build Recommendation"
                     android:textColor="@color/text_white"
-                    android:textSize="22sp"
+                    android:textSize="19sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
+            <LinearLayout
                 android:id="@+id/tvSelectedComponent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:background="@drawable/bg_card"
-                android:paddingStart="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="14dp"
-                android:paddingBottom="8dp"
-                android:text="Based on: GPU"
-                android:textColor="@color/text_body"
-                android:textSize="13sp" />
+                android:paddingBottom="8dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvTierEntry"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
+                <ImageView
+                    android:id="@+id/icBasedOn"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card"
-                    android:gravity="center"
-                    android:text="Entry"
-                    android:textColor="@color/text_secondary"
-                    android:textStyle="bold" />
+                    android:adjustViewBounds="true"
+                    android:contentDescription="Based on"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/build_reco_cpu_icon" />
 
                 <TextView
-                    android:id="@+id/tvTierMid"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginHorizontal="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card"
-                    android:gravity="center"
-                    android:text="Midrange"
-                    android:textColor="@color/text_secondary"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvTierHigh"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_button_primary"
-                    android:gravity="center"
-                    android:text="High-End"
-                    android:textColor="@color/white"
-                    android:textStyle="bold" />
+                    android:id="@+id/tvBasedOnText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Based on: GPU"
+                    android:textColor="@color/text_body"
+                    android:textSize="13sp" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvDetectedTier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_primary_button"
+                android:paddingStart="12dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="5dp"
+                android:text="DETECTED TIER: Midrange"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- === REVERTED ORIGINAL UI: 3 TIER TABS (USER SEPT 3 REQUEST) ===
+                 Entry / Midrange / High-End buttons. User clicks a tab -> switches to that tier build list item (0 / 1 / 2). -->
+            <LinearLayout
+                android:id="@+id/tabRowTiers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTabEntry"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/primary"
+                    android:text="Entry"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="14dp"
+                    app:strokeWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTabMid"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/card_surface"
+                    android:text="Midrange"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="14dp"
+                    app:strokeWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTabHigh"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/card_surface"
+                    android:text="High-End"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="14dp"
+                    app:strokeWidth="0dp" />
+            </LinearLayout>
+            <!-- === END REVERT 3 TIER TABS UI === -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="14dp"
                 android:background="@drawable/bg_card"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="14dp">
 
                 <TextView
                     android:id="@+id/tvBuildLabel"
@@ -118,19 +173,19 @@
                     android:layout_height="wrap_content"
                     android:text="HIGH-END BUILD"
                     android:textAllCaps="true"
-                    android:textColor="@color/primary_light"
-                    android:textSize="13sp"
+                    android:textColor="@color/accent"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvBuildName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp"
                     android:text="GPU Focus Build"
                     android:textColor="@color/text_white"
-                    android:textSize="20sp"
+                    android:textSize="17sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -141,15 +196,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="CPU"
                             android:scaleType="fitCenter"
@@ -158,7 +213,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -168,17 +223,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="CPU"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvCpuValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="Core i9-13900K"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                         <TextView
@@ -186,21 +241,22 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="GPU"
                             android:scaleType="fitCenter"
@@ -209,7 +265,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -219,17 +275,27 @@
                                 android:layout_height="wrap_content"
                                 android:text="GPU"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvGpuValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="RTX 4090"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/tvGpuInfoNote"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="This GPU uses PCIe x8. On PCIe 3.0 you may lose ~2-5% performance in some games."
+                                android:textColor="@color/text_secondary"
+                                android:textSize="11sp"
+                                android:visibility="gone" />
                         </LinearLayout>
 
                         <TextView
@@ -237,21 +303,22 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="MOTHERBOARD"
                             android:scaleType="fitCenter"
@@ -260,7 +327,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -270,17 +337,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="MOTHERBOARD"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvMotherboardValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="ROG MAXIMUS Z790"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                         <TextView
@@ -288,21 +355,22 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="RAM"
                             android:scaleType="fitCenter"
@@ -311,7 +379,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -321,17 +389,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="RAM"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvRamValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="64GB DDR5-6400"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                         <TextView
@@ -339,21 +407,22 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="STORAGE"
                             android:scaleType="fitCenter"
@@ -362,7 +431,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -372,17 +441,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="STORAGE"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvStorageValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="4TB PCIe 5.0 NVMe"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                         <TextView
@@ -390,7 +459,8 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -399,11 +469,11 @@
                         android:background="@drawable/bg_card_selected"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:padding="10dp">
 
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="PSU"
                             android:scaleType="fitCenter"
@@ -412,7 +482,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
+                            android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:orientation="vertical">
 
@@ -422,17 +492,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="PSU"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp"
+                                android:textSize="11sp"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvPsuValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="1dp"
                                 android:text="1000W 80+ Titanium"
                                 android:textColor="@color/text_white"
-                                android:textSize="17sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
 
                         <TextView
@@ -440,7 +510,8 @@
                             android:layout_height="wrap_content"
                             android:text="✓"
                             android:textColor="@color/success"
-                            android:textSize="16sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -448,17 +519,18 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="18dp"
-                android:orientation="horizontal">
+                android:layout_marginBottom="14dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -467,8 +539,8 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="Wattage"
                             android:scaleType="fitCenter"
@@ -477,10 +549,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="6dp"
                             android:text="EST. WATTAGE"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -488,30 +560,34 @@
                         android:id="@+id/tvWattageValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
                         android:text="780W"
                         android:textColor="@color/metric_warning"
-                        android:textSize="28sp"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvWattageSubtext"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="PSU: 1000W recommended"
+                        android:layout_marginTop="5dp"
+                        android:text="PSU: 1000W rec."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/cardBottleneck"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -520,8 +596,8 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:adjustViewBounds="true"
                             android:contentDescription="Bottleneck"
                             android:scaleType="fitCenter"
@@ -530,10 +606,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="6dp"
                             android:text="BOTTLENECK"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -541,40 +617,60 @@
                         android:id="@+id/tvBottleneckValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
                         android:text="2%"
-                        android:textColor="@color/metric_info"
-                        android:textSize="28sp"
+                        android:textColor="@color/success"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvBottleneckSubtext"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="5dp"
                         android:text="Tap to analyze"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveBuild"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="8dp"
+                android:layout_height="52dp"
+                android:layout_marginBottom="10dp"
                 android:background="@drawable/bg_primary_button"
                 app:backgroundTint="@null"
                 app:icon="@drawable/saved_upgrade_save_icon"
                 app:iconGravity="textStart"
-                app:iconPadding="10dp"
-                app:iconSize="24dp"
+                app:iconPadding="8dp"
+                app:iconSize="22dp"
                 android:text="Save Build"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                app:cornerRadius="18dp"
+                app:cornerRadius="16dp"
+                app:strokeWidth="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackToDashboard"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="6dp"
+                android:background="@drawable/bg_card"
+                app:backgroundTint="@null"
+                app:icon="@drawable/ic_arrow_back"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="22dp"
+                app:iconTint="@color/white"
+                android:text="Back to Dashboard"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
                 app:strokeWidth="0dp" />
         </LinearLayout>
     </ScrollView>
@@ -590,12 +686,12 @@
         android:padding="32dp"
         android:visibility="gone">
 
-        <ProgressBar
-            android:id="@+id/pbLoadingSpinner"
+        <ImageView
+            android:id="@+id/ivLoadingLogo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:indeterminate="true"
-            android:indeterminateDrawable="@drawable/progress_gradient_spinner" />
+            android:contentDescription="PC Scan logo"
+            android:src="@drawable/ic_pc_tower_blue" />
 
         <TextView
             android:id="@+id/tvLoadingTitle"
@@ -627,20 +723,11 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="12dp"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/progress_gradient_bar" />
-
-            <TextView
-                android:id="@+id/tvLoadingPercent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="end"
-                android:text="0%"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:indeterminate="true"
+                android:indeterminateTint="@color/accent"
+                android:indeterminateTintMode="src_in"
+                android:progressBackgroundTint="@color/border"
+                android:splitTrack="false" />
         </LinearLayout>
     </LinearLayout>
 
